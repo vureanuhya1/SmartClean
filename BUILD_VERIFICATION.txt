@@ -1,0 +1,12 @@
+SmartClean demo build verification
+- app.py Python syntax: PASS
+- Jinja template parsing: PASS
+- hard-coded form navigation routes: PASS
+- Worker JS syntax: PASS
+- Citizen login: invalid credentials message + optional Remember Me
+- Citizen dashboard: database-backed statistics/recent complaints
+- Citizen profile: database-backed complaint ID list
+- Admin complaint assignment: connected to worker API and database
+- Worker workflow: Assigned -> In Progress -> Resolved
+- Admin report download: connected to backend CSV endpoint
+- No deployment configuration included; this build is for local demonstration.
