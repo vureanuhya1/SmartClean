@@ -1,0 +1,402 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Citizen Login | SmartClean</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/common.css') }}">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/citizen-login.css') }}">
+
+</head>
+
+<body>
+
+
+<!-- =========================
+     NAVBAR
+========================= -->
+
+<header class="navbar">
+
+    <a href="/" class="logo">
+
+        <div class="logo-icon">
+            ♻
+        </div>
+
+        <div class="logo-text">
+
+            <h2>SmartClean</h2>
+
+            <p>
+                Smart Garbage Management
+            </p>
+
+        </div>
+
+    </a>
+
+
+    <nav>
+
+        <ul class="nav-links">
+
+            <li>
+                <a href="/">
+                    Home
+                </a>
+            </li>
+
+            <li>
+                <a href="/report-issue">
+                    Report Issue
+                </a>
+            </li>
+
+            <li>
+                <a href="/track">
+                    Track Complaint
+                </a>
+            </li>
+
+            <li>
+                <a href="/#about">
+                    About
+                </a>
+            </li>
+
+        </ul>
+
+    </nav>
+
+
+    <div class="nav-buttons">
+
+        <a href="/login"
+           class="btn-login active-login">
+            Login
+        </a>
+
+        <a href="/register"
+           class="btn-register">
+            Register
+        </a>
+
+    </div>
+
+</header>
+
+
+
+<!-- =========================
+     LOGIN SECTION
+========================= -->
+
+<main class="citizen-login-page">
+
+
+    <div class="citizen-orb orb-one"></div>
+
+    <div class="citizen-orb orb-two"></div>
+
+
+    <section class="citizen-login-card">
+
+
+        <!-- Left Information -->
+
+        <div class="login-info">
+
+            <span class="login-badge">
+                CITIZEN PORTAL
+            </span>
+
+            <h1>
+                Welcome back! 👋
+            </h1>
+
+            <p>
+                Sign in to report garbage issues,
+                track complaints and help keep
+                your community clean.
+            </p>
+
+
+            <div class="login-benefits">
+
+                <div class="benefit">
+
+                    <span class="benefit-icon">
+                        📍
+                    </span>
+
+                    <div>
+
+                        <strong>
+                            Report Issues
+                        </strong>
+
+                        <small>
+                            Quickly report waste problems
+                            in your area.
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <div class="benefit">
+
+                    <span class="benefit-icon">
+                        📋
+                    </span>
+
+                    <div>
+
+                        <strong>
+                            Track Complaints
+                        </strong>
+
+                        <small>
+                            Check the status of your reports.
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <div class="benefit">
+
+                    <span class="benefit-icon">
+                        🌱
+                    </span>
+
+                    <div>
+
+                        <strong>
+                            Cleaner Community
+                        </strong>
+
+                        <small>
+                            Contribute to a cleaner environment.
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- Login Form -->
+
+        <div class="login-form-area">
+
+            <div class="form-header">
+
+                <div class="user-icon">
+                    👤
+                </div>
+
+                <div>
+
+                    <h2>
+                        Citizen Login
+                    </h2>
+
+                    <p>
+                        Enter your account details
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <form
+                action="/citizen-login"
+                method="POST">
+
+
+                <div class="form-group">
+
+                    <label for="email">
+                        Email Address
+                    </label>
+
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="Enter your email"
+                        required>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="password">
+                        Password
+                    </label>
+
+                    <div class="password-box">
+
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="Enter your password"
+                            required>
+
+                        <button
+                            type="button"
+                            onclick="togglePassword()">
+
+                            👁
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-options">
+
+                    <label class="remember">
+
+                        <input
+                            type="checkbox"
+                            name="remember">
+
+                        <span>
+                            Remember me
+                        </span>
+
+                    </label>
+
+
+                    <a href="/forgot-password?role=citizen">
+                        Forgot Password?
+                    </a>
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="login-submit">
+
+                    Login to Citizen Portal
+                    <span>→</span>
+
+                </button>
+
+            </form>
+
+
+            <div class="new-account">
+
+                <span>
+                    Don't have an account?
+                </span>
+
+                <a href="/register">
+                    Register Now
+                </a>
+
+            </div>
+
+
+            <a href="/login"
+               class="back-login">
+
+                ← Back to account selection
+
+            </a>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+
+<!-- =========================
+     FOOTER
+========================= -->
+
+<footer class="footer">
+
+    <div>
+
+        <strong>
+            ♻ SmartClean
+        </strong>
+
+        <p>
+            Smart Garbage Management System
+        </p>
+
+    </div>
+
+    <div>
+        © 2026 SmartClean · Team 4
+    </div>
+
+</footer>
+
+
+
+<script>
+
+function togglePassword() {
+
+    const password =
+        document.getElementById("password");
+
+    const button =
+        document.querySelector(
+            ".password-box button"
+        );
+
+    if (password.type === "password") {
+
+        password.type = "text";
+
+        button.textContent = "🙈";
+
+    } else {
+
+        password.type = "password";
+
+        button.textContent = "👁";
+
+    }
+
+}
+
+</script>
+
+
+</body>
+
+</html>
+

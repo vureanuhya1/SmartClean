@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Admin Registration | SmartClean</title>
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet"
+          href="{{ url_for('static', filename='css/common.css') }}">
+    <!-- CSS File -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin-register.css') }}">
+</head>
+
+<body>
+<!-- =====================================================
+     NAVBAR
+===================================================== -->
+
+<header class="navbar">
+
+    <a href="/" class="logo">
+
+        <div class="logo-icon">
+            ♻
+        </div>
+
+        <div class="logo-text">
+
+            <h2>SmartClean</h2>
+
+            <p>Smart Garbage Management</p>
+
+        </div>
+
+    </a>
+
+
+    <nav>
+
+        <ul class="nav-links">
+
+            <li>
+                <a href="/" class="active">
+                    Home
+                </a>
+            </li>
+
+            <li>
+                <a href="/report-issue">
+                    Report Issue
+                </a>
+            </li>
+
+            <li>
+                <a href="/track">
+                    Track Complaint
+                </a>
+            </li>
+
+            <li>
+                <a href="#about">
+                    About
+                </a>
+            </li>
+
+        </ul>
+
+    </nav>
+
+
+    <div class="nav-buttons">
+
+        <a href="/login"
+           class="btn-login">
+            Login
+        </a>
+
+        <a href="/register"
+           class="btn-register">
+            Register
+        </a>
+
+    </div>
+
+</header>
+   
+
+    <!-- Main Registration Section -->
+    <main class="registration-container">
+
+        <!-- Left Section -->
+        <section class="left-section">
+
+            <div class="badge">
+                ADMIN REGISTRATION
+            </div>
+
+            <h1>
+                Join SmartClean
+                <span>🌱</span>
+            </h1>
+
+            <p class="description">
+                Register as an administrator and manage your smart
+                garbage management system efficiently.
+            </p>
+
+
+            <!-- Feature 1 -->
+            <div class="feature">
+
+                <div class="feature-icon">
+                    📊
+                </div>
+
+                <div>
+                    <h3>Manage the System</h3>
+                    <p>
+                        Manage garbage collection and system activities.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <!-- Feature 2 -->
+            <div class="feature">
+
+                <div class="feature-icon">
+                    👥
+                </div>
+
+                <div>
+                    <h3>Manage Users</h3>
+                    <p>
+                        Manage citizens and workers efficiently.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <!-- Feature 3 -->
+            <div class="feature">
+
+                <div class="feature-icon">
+                    ♻️
+                </div>
+
+                <div>
+                    <h3>Keep the City Clean</h3>
+                    <p>
+                        Monitor garbage management and maintain a
+                        cleaner environment.
+                    </p>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Right Registration Form -->
+        <section class="form-section">
+
+            <div class="form-header">
+
+                <div class="admin-icon">
+                    👤
+                </div>
+
+                <div>
+                    <h2>Create Admin Account</h2>
+                    <p>Register as a SmartClean administrator</p>
+                </div>
+
+            </div>
+
+
+            {% if error %}<div class="form-message error">{{ error }}</div>{% endif %}
+            <form action="/admin-register" method="post">
+
+                <!-- Name -->
+                <div class="form-group">
+                    <label for="name">Name</label>
+
+                    <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        placeholder="Enter admin name"
+                        required
+                    >
+                </div>
+
+
+                <!-- Phone -->
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+
+                    <input
+                        type="tel"
+                        id="phone"
+                        name="phone"
+                        placeholder="Enter phone number"
+                        required
+                        maxlength="10" minlength="10"
+                    >
+                </div>
+
+
+                <!-- Email -->
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="Enter admin email"
+                        required
+                    >
+                </div>
+
+
+                <!-- Address -->
+                <div class="form-group">
+                    <label for="address">Address</label>
+
+                    <input
+                        type="text"
+                        id="address"
+                        name="address"
+                        placeholder="Enter admin address"
+                        required
+                    >
+                </div>
+
+
+                <!-- Password -->
+                <div class="form-group">
+                    <label for="password">Password</label>
+
+                    <div class="password-box">
+
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="Create a password"
+                            required
+                        >
+
+                        <span
+                            class="eye"
+                            onclick="togglePassword('password', this)">
+                            ◉
+                        </span>
+
+                    </div>
+                </div>
+
+
+                <!-- Confirm Password -->
+                <div class="form-group">
+                    <label for="confirmPassword">
+                        Confirm Password
+                    </label>
+
+                    <div class="password-box">
+
+                        <input
+                            type="password"
+                            id="confirmPassword"
+                            name="confirmPassword"
+                            placeholder="Confirm your password"
+                            required
+                        >
+
+                        <span
+                            class="eye"
+                            onclick="togglePassword('confirmPassword', this)">
+                            ◉
+                        </span>
+
+                    </div>
+                </div>
+
+
+                <!-- Terms -->
+                <div class="terms">
+
+                    <input
+                        type="checkbox"
+                        id="terms"
+                        required
+                    >
+
+                    <label for="terms">
+                        I agree to the
+                        <strong>Terms & Conditions</strong>
+                    </label>
+
+                </div>
+
+
+                <!-- Button -->
+                <button type="submit" class="create-btn">
+                    Create Admin Account
+                    <span>→</span>
+                </button>
+
+            </form>
+
+        </section>
+
+    </main>
+
+
+    <!-- Password Toggle -->
+    <script>
+
+        function togglePassword(inputId, icon) {
+
+            const input = document.getElementById(inputId);
+
+            if (input.type === "password") {
+                input.type = "text";
+                icon.textContent = "◉";
+            } else {
+                input.type = "password";
+                icon.textContent = "◉";
+            }
+
+        }
+
+    </script>
+
+</body>
+</html>

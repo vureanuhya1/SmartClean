@@ -1,0 +1,1526 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Complaints | SmartClean</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/common.css') }}">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/admin-complaints.css') }}">
+
+</head>
+
+
+<body>
+
+
+<!-- =========================
+     NAVBAR
+========================= -->
+
+<header class="navbar">
+
+    <a href="/" class="logo">
+
+        <div class="logo-icon">
+            ♻
+        </div>
+
+        <div class="logo-text">
+
+            <h2>SmartClean</h2>
+
+            <p>
+                Smart Garbage Management
+            </p>
+
+        </div>
+
+    </a>
+
+
+    <nav>
+
+        <ul class="nav-links">
+
+            <li>
+                <a href="/admin-profile">
+                    Profile
+                </a>
+            </li>
+
+            <li>
+                <a href="/admin-dashboard">
+                    Dashboard
+                </a>
+            </li>
+
+            <li>
+                <a href="/admin-complaints"
+                   class="active">
+                    Complaints
+                </a>
+            </li>
+
+            <li>
+                <a href="/admin-workers">
+                    Workers
+                </a>
+            </li>
+
+            <li>
+                <a href="/admin-reports">
+                    Reports
+                </a>
+            </li>
+
+        </ul>
+
+    </nav>
+
+
+    <div class="admin-nav">
+
+        <div class="admin-profile">
+
+            <span class="admin-avatar-small">
+                🛡️
+            </span>
+
+            <div>
+
+                <strong>
+                    Admin
+                </strong>
+
+                <span>
+                    Administrator
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <a
+            class="admin-logout"
+            href="{{ url_for('admin_logout') }}"
+            data-smartclean-logout="admin">
+
+            Logout
+
+        </a>
+
+    </div>
+
+</header>
+
+
+
+<!-- =========================
+     MAIN CONTENT
+========================= -->
+
+<main class="complaints-page">
+
+
+    <div class="page-glow glow-one"></div>
+
+    <div class="page-glow glow-two"></div>
+
+
+    <!-- =========================
+         PAGE HEADER
+    ========================= -->
+
+    <section class="complaints-header">
+
+        <div>
+
+            <span class="page-badge">
+                COMPLAINT MANAGEMENT
+            </span>
+
+            <h1>
+                Manage Complaints
+            </h1>
+
+            <p>
+                Review, assign and monitor garbage
+                complaints reported by citizens.
+            </p>
+
+        </div>
+
+
+        <button
+            class="refresh-btn"
+            id="refreshButton"
+            type="button"
+            onclick="refreshComplaints()">
+
+            ↻ Refresh
+
+        </button>
+
+    </section>
+
+
+
+    <!-- =========================
+         STAT CARDS
+    ========================= -->
+
+    <section class="complaint-stats">
+
+
+        <!-- TOTAL -->
+
+        <div class="complaint-stat">
+
+            <div class="complaint-stat-icon blue">
+                📋
+            </div>
+
+            <div>
+
+                <span>
+                    Total
+                </span>
+
+                <strong id="complaintsTotal">
+                    0
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <!-- PENDING -->
+
+        <div class="complaint-stat">
+
+            <div class="complaint-stat-icon orange">
+                ⏳
+            </div>
+
+            <div>
+
+                <span>
+                    Pending
+                </span>
+
+                <strong id="complaintsPending">
+                    0
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <!-- IN PROGRESS -->
+
+        <div class="complaint-stat">
+
+            <div class="complaint-stat-icon blue-light">
+                🔄
+            </div>
+
+            <div>
+
+                <span>
+                    In Progress
+                </span>
+
+                <strong id="complaintsInProgress">
+                    0
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <!-- RESOLVED -->
+
+        <div class="complaint-stat">
+
+            <div class="complaint-stat-icon green">
+                ✓
+            </div>
+
+            <div>
+
+                <span>
+                    Resolved
+                </span>
+
+                <strong id="complaintsResolved">
+                    0
+                </strong>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =========================
+         FILTER SECTION
+    ========================= -->
+
+    <section class="filter-card">
+
+        <div class="search-box">
+
+            <span>
+                🔍
+            </span>
+
+            <input
+                type="text"
+                id="searchComplaint"
+                placeholder="Search complaint ID, location or issue..."
+            >
+
+        </div>
+
+
+        <select id="statusFilter">
+
+            <option value="all">
+                All Status
+            </option>
+
+            <option value="Pending">
+                Pending
+            </option>
+
+            <option value="Assigned">
+                Assigned
+            </option>
+
+            <option value="In Progress">
+                In Progress
+            </option>
+
+            <option value="Resolved">
+                Resolved
+            </option>
+
+            <option value="Completed">
+                Completed
+            </option>
+
+        </select>
+
+
+        <select id="categoryFilter">
+
+            <option value="all">
+                All Categories
+            </option>
+
+            <option value="Overflowing Bin">
+                Overflowing Bin
+            </option>
+
+            <option value="Plastic Waste">
+                Plastic Waste
+            </option>
+
+            <option value="Uncollected Waste">
+                Uncollected Waste
+            </option>
+
+            <option value="Roadside Waste">
+                Roadside Waste
+            </option>
+
+        </select>
+
+
+        <button
+            class="filter-btn"
+            type="button"
+            onclick="applyFilters()">
+
+            Apply Filters
+
+        </button>
+
+    </section>
+
+
+
+    <!-- =========================
+         COMPLAINT TABLE
+    ========================= -->
+
+    <section class="complaints-table-card">
+
+
+        <div class="table-top">
+
+            <div>
+
+                <span>
+                    COMPLAINT RECORDS
+                </span>
+
+                <h2>
+                    Recent Complaints
+                </h2>
+
+            </div>
+
+            <span
+                class="record-count"
+                id="recordCount">
+
+                0 Records
+
+            </span>
+
+        </div>
+
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            ID
+                        </th>
+
+                        <th>
+                            Complaint
+                        </th>
+
+                        <th>
+                            Location
+                        </th>
+
+                        <th>
+                            Reported By
+                        </th>
+
+                        <th>
+                            Date
+                        </th>
+
+                        <th>
+                            Worker
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                        <th>
+                            Action
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="complaintTable">
+
+                    <tr>
+
+                        <td colspan="8"
+                            style="text-align:center;padding:30px;">
+
+                            Loading complaint records...
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <!-- =========================
+             PAGINATION
+        ========================= -->
+
+        <div class="pagination">
+
+            <button type="button">
+                ←
+            </button>
+
+            <button
+                type="button"
+                class="page-active">
+
+                1
+
+            </button>
+
+            <button type="button">
+                2
+            </button>
+
+            <button type="button">
+                3
+            </button>
+
+            <span>
+                ...
+            </span>
+
+            <button type="button">
+                12
+            </button>
+
+            <button type="button">
+                →
+            </button>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+
+<!-- =========================
+     FOOTER
+========================= -->
+
+<footer class="footer">
+
+    <div>
+
+        <strong>
+            ♻ SmartClean
+        </strong>
+
+        <p>
+            Smart Garbage Management System
+        </p>
+
+    </div>
+
+    <div>
+        © 2026 SmartClean · Team 4
+    </div>
+
+</footer>
+
+
+
+<script>
+
+let adminComplaints = [];
+let adminWorkers = [];
+
+
+
+/* =========================================
+   LOAD COMPLAINTS FROM DATABASE
+========================================= */
+
+async function loadAdminComplaints() {
+
+    const refreshButton =
+        document.getElementById("refreshButton");
+
+    if (refreshButton) {
+
+        refreshButton.disabled = true;
+
+        refreshButton.textContent =
+            "↻ Refreshing...";
+
+    }
+
+
+    try {
+
+        const [
+            complaintsResponse,
+            workersResponse
+        ] = await Promise.all([
+
+            fetch(
+                "/api/admin/complaints",
+                {
+                    cache: "no-store"
+                }
+            ),
+
+            fetch(
+                "/api/admin/workers",
+                {
+                    cache: "no-store"
+                }
+            )
+
+        ]);
+
+
+        if (!complaintsResponse.ok) {
+
+            throw new Error(
+                "Unable to load complaints."
+            );
+
+        }
+
+
+        adminComplaints =
+            await complaintsResponse.json();
+
+
+        if (!Array.isArray(adminComplaints)) {
+
+            adminComplaints = [];
+
+        }
+
+
+        if (workersResponse.ok) {
+
+            adminWorkers =
+                await workersResponse.json();
+
+        } else {
+
+            adminWorkers = [];
+
+        }
+
+
+        renderAdminComplaints();
+
+
+    } catch (error) {
+
+        console.error(
+            "Complaint loading error:",
+            error
+        );
+
+
+        const tbody =
+            document.getElementById(
+                "complaintTable"
+            );
+
+
+        if (tbody) {
+
+            tbody.innerHTML = `
+                <tr>
+                    <td
+                        colspan="8"
+                        style="
+                            text-align:center;
+                            padding:30px;
+                            color:#b42318;
+                        ">
+
+                        Unable to load complaint records.
+                        Please click Refresh and try again.
+
+                    </td>
+                </tr>
+            `;
+
+        }
+
+
+        updateComplaintStatistics([]);
+
+    } finally {
+
+        if (refreshButton) {
+
+            refreshButton.disabled = false;
+
+            refreshButton.textContent =
+                "↻ Refresh";
+
+        }
+
+    }
+
+}
+
+
+
+/* =========================================
+   ESCAPE HTML
+========================================= */
+
+function escapeHtml(value) {
+
+    return String(value ?? "")
+        .replace(
+            /[&<>"']/g,
+            ch => ({
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#039;"
+            }[ch])
+        );
+
+}
+
+
+
+/* =========================================
+   NORMALIZE STATUS
+========================================= */
+
+function normalizeStatus(status) {
+
+    return String(status || "")
+        .trim()
+        .toLowerCase();
+
+}
+
+
+
+/* =========================================
+   UPDATE STATISTICS
+========================================= */
+
+function updateComplaintStatistics(
+    complaints
+) {
+
+    const total =
+        complaints.length;
+
+
+    const pending =
+        complaints.filter(c => {
+
+            return normalizeStatus(c.status)
+                === "pending";
+
+        }).length;
+
+
+    const inProgress =
+        complaints.filter(c => {
+
+            const status =
+                normalizeStatus(c.status);
+
+            return (
+                status === "assigned" ||
+                status === "in progress"
+            );
+
+        }).length;
+
+
+    const resolved =
+        complaints.filter(c => {
+
+            const status =
+                normalizeStatus(c.status);
+
+            return (
+                status === "resolved" ||
+                status === "completed"
+            );
+
+        }).length;
+
+
+    const totalElement =
+        document.getElementById(
+            "complaintsTotal"
+        );
+
+
+    const pendingElement =
+        document.getElementById(
+            "complaintsPending"
+        );
+
+
+    const progressElement =
+        document.getElementById(
+            "complaintsInProgress"
+        );
+
+
+    const resolvedElement =
+        document.getElementById(
+            "complaintsResolved"
+        );
+
+
+    if (totalElement) {
+
+        totalElement.textContent =
+            total.toLocaleString();
+
+    }
+
+
+    if (pendingElement) {
+
+        pendingElement.textContent =
+            pending.toLocaleString();
+
+    }
+
+
+    if (progressElement) {
+
+        progressElement.textContent =
+            inProgress.toLocaleString();
+
+    }
+
+
+    if (resolvedElement) {
+
+        resolvedElement.textContent =
+            resolved.toLocaleString();
+
+    }
+
+}
+
+
+
+/* =========================================
+   RENDER COMPLAINTS
+========================================= */
+
+function renderAdminComplaints() {
+
+    const tbody =
+        document.getElementById(
+            "complaintTable"
+        );
+
+
+    if (!tbody) return;
+
+
+    /*
+       IMPORTANT:
+       Statistics are calculated from ALL
+       complaints, before filters are applied.
+       Therefore the cards always show the
+       actual database totals.
+    */
+
+    updateComplaintStatistics(
+        adminComplaints
+    );
+
+
+    const searchElement =
+        document.getElementById(
+            "searchComplaint"
+        );
+
+
+    const statusElement =
+        document.getElementById(
+            "statusFilter"
+        );
+
+
+    const categoryElement =
+        document.getElementById(
+            "categoryFilter"
+        );
+
+
+    const q =
+        (
+            searchElement
+                ? searchElement.value
+                : ""
+        )
+        .trim()
+        .toLowerCase();
+
+
+    const selectedStatus =
+        statusElement
+            ? statusElement.value
+            : "all";
+
+
+    const selectedCategory =
+        categoryElement
+            ? categoryElement.value
+            : "all";
+
+
+    const rows =
+        adminComplaints.filter(c => {
+
+
+            /*
+               SEARCH
+            */
+
+            const searchText = `
+
+                ${c.id || ""}
+
+                ${c.issue_type || ""}
+
+                ${c.location || ""}
+
+                ${c.street_number || ""}
+
+                ${c.citizen_name || ""}
+
+                ${c.description || ""}
+
+            `.toLowerCase();
+
+
+            const searchMatch =
+                searchText.includes(q);
+
+
+
+            /*
+               STATUS FILTER
+            */
+
+            const complaintStatus =
+                String(c.status || "")
+                    .trim();
+
+
+            const statusMatch =
+                selectedStatus === "all" ||
+                complaintStatus === selectedStatus;
+
+
+
+            /*
+               CATEGORY FILTER
+
+               We use issue_type because that is
+               what your API provides.
+            */
+
+            let categoryMatch = true;
+
+
+            if (
+                selectedCategory !== "all"
+            ) {
+
+                const issue =
+                    String(
+                        c.issue_type || ""
+                    ).toLowerCase();
+
+
+                const category =
+                    selectedCategory
+                        .toLowerCase();
+
+
+                categoryMatch =
+                    issue.includes(category) ||
+                    category.includes(issue);
+
+            }
+
+
+            return (
+                searchMatch &&
+                statusMatch &&
+                categoryMatch
+            );
+
+        });
+
+
+
+    /* =====================================
+       CLEAR OLD TABLE
+    ===================================== */
+
+    tbody.innerHTML = "";
+
+
+
+    /* =====================================
+       NO RESULTS
+    ===================================== */
+
+    if (rows.length === 0) {
+
+        tbody.innerHTML = `
+            <tr>
+                <td
+                    colspan="8"
+                    style="
+                        text-align:center;
+                        padding:35px;
+                    ">
+
+                    No complaint records found.
+
+                </td>
+            </tr>
+        `;
+
+    }
+
+
+
+    /* =====================================
+       CREATE TABLE ROWS
+    ===================================== */
+
+    rows.forEach(c => {
+
+
+        const tr =
+            document.createElement("tr");
+
+
+        const status =
+            normalizeStatus(c.status);
+
+
+        let statusClass =
+            "pending";
+
+
+        if (
+            status === "resolved" ||
+            status === "completed"
+        ) {
+
+            statusClass =
+                "completed";
+
+        } else if (
+            status === "assigned" ||
+            status === "in progress"
+        ) {
+
+            statusClass =
+                "progress";
+
+        }
+
+
+        /*
+           WORKER OPTIONS
+        */
+
+        const workerOptions = [
+
+            `<option value="">
+                Select worker
+            </option>`,
+
+            ...adminWorkers.map(w => {
+
+                const selected =
+                    String(w.worker_id)
+                    === String(c.worker_id)
+                        ? "selected"
+                        : "";
+
+
+                return `
+                    <option
+                        value="${escapeHtml(
+                            w.display_id || w.worker_id
+                        )}"
+                        ${selected}>
+
+                        ${escapeHtml(
+                            w.display_id || w.worker_id
+                        )}
+                        -
+                        ${escapeHtml(
+                            w.name
+                        )}
+
+                    </option>
+                `;
+
+            })
+
+        ].join("");
+
+
+
+        /*
+           TABLE ROW
+        */
+
+        tr.innerHTML = `
+
+            <td>
+
+                <strong>
+                    #${escapeHtml(c.id)}
+                </strong>
+
+            </td>
+
+
+            <td>
+
+                <div class="issue-cell">
+
+                    <span class="issue-icon">
+                        🗑️
+                    </span>
+
+                    <div>
+
+                        <strong>
+                            ${escapeHtml(
+                                c.issue_type ||
+                                "Garbage Complaint"
+                            )}
+                        </strong>
+
+                        <small>
+                            ${escapeHtml(
+                                c.issue_type || "-"
+                            )}
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </td>
+
+
+            <td>
+                ${escapeHtml(
+                    c.location ||
+                    c.street_number ||
+                    "-"
+                )}
+            </td>
+
+
+            <td>
+                ${escapeHtml(
+                    c.citizen_name ||
+                    "-"
+                )}
+            </td>
+
+
+            <td>
+                ${escapeHtml(
+                    c.date ||
+                    "-"
+                )}
+            </td>
+
+
+            <td>
+                ${escapeHtml(
+                    c.worker_name ||
+                    "Not Assigned"
+                )}
+            </td>
+
+
+            <td>
+
+                <span class="status ${statusClass}">
+
+                    ${escapeHtml(
+                        c.status ||
+                        "-"
+                    )}
+
+                </span>
+
+            </td>
+
+
+            <td>
+
+                <button
+                    class="view-btn"
+                    type="button"
+                    onclick="viewComplaint(
+                        '${escapeHtml(c.id)}'
+                    )">
+
+                    View
+
+                </button>
+
+
+                <div
+                    style="
+                        margin-top:8px;
+                        display:flex;
+                        gap:5px;
+                        align-items:center;
+                    ">
+
+                    <select
+                        id="worker-${escapeHtml(c.id)}"
+                        style="
+                            max-width:150px;
+                            padding:7px;
+                            border:1px solid #d6e2da;
+                            border-radius:8px;
+                        ">
+
+                        ${workerOptions}
+
+                    </select>
+
+
+                    <button
+                        class="view-btn"
+                        type="button"
+                        onclick="assignComplaint(
+                            '${escapeHtml(c.id)}'
+                        )">
+
+                        Assign
+
+                    </button>
+
+                </div>
+
+            </td>
+
+        `;
+
+
+        tbody.appendChild(tr);
+
+    });
+
+
+
+    /* =====================================
+       RECORD COUNT
+    ===================================== */
+
+    const count =
+        document.getElementById(
+            "recordCount"
+        );
+
+
+    if (count) {
+
+        count.textContent =
+            `${rows.length.toLocaleString()} Records`;
+
+    }
+
+}
+
+
+
+/* =========================================
+   VIEW COMPLAINT
+========================================= */
+
+function viewComplaint(id) {
+
+    const complaint =
+        adminComplaints.find(
+            x => String(x.id) === String(id)
+        );
+
+
+    if (!complaint) {
+
+        smartCleanAlert("Complaint record not found.","error","Complaint Not Found");
+
+        return;
+
+    }
+    smartCleanAlert(
+        `Complaint ${complaint.id}\n\n` +
+
+        `Citizen: ${
+            complaint.citizen_name || "-"
+        }\n` +
+
+        `Issue: ${
+            complaint.issue_type || "-"
+        }\n` +
+
+        `Location: ${
+            complaint.location || "-"
+        }\n` +
+
+        `Status: ${
+            complaint.status || "-"
+        }\n` +
+
+        `Worker: ${
+            complaint.worker_name ||
+            "Not Assigned"
+        }\n` +
+
+        `Date: ${
+            complaint.date || "-"
+        }\n\n` +
+
+        `Description: ${
+            complaint.description || "-"
+        }`,
+        "info",
+        "Complaint Details"
+    );
+
+}
+
+
+
+/* =========================================
+   ASSIGN COMPLAINT
+========================================= */
+
+async function assignComplaint(id) {
+
+    const select =
+        document.getElementById(
+            `worker-${id}`
+        );
+
+
+    const workerId =
+        select
+            ? select.value
+            : "";
+
+
+    if (!workerId) {
+
+        smartCleanAlert("Please select a worker first.","warning","Worker Required");
+
+        return;
+
+    }
+
+
+    const complaint =
+        adminComplaints.find(
+            x => String(x.id) === String(id)
+        );
+
+
+    if (!complaint) {
+
+        smartCleanAlert("Complaint record not found.","error","Complaint Not Found");
+
+        return;
+
+    }
+
+
+    const confirmed = await smartCleanConfirm(
+        `Assign ${id} to ${workerId}?`,
+        "Assign Complaint"
+    );
+    if (!confirmed) return;
+
+
+    try {
+
+        const response =
+            await fetch(
+                `/api/admin/complaints/${encodeURIComponent(
+                    id
+                )}/assign`,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        worker_id: workerId
+                    })
+
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (
+            !response.ok ||
+            !data.success
+        ) {
+
+            throw new Error(
+                data.message ||
+                "Assignment failed."
+            );
+
+        }
+
+
+        smartCleanAlert(
+            data.message || "Complaint assigned successfully.",
+            "success",
+            "Complaint Assigned"
+        );
+
+
+        /*
+           Reload actual database records
+           after assignment.
+        */
+
+        await loadAdminComplaints();
+
+
+    } catch (error) {
+
+        console.error(
+            "Assignment error:",
+            error
+        );
+
+
+        smartCleanAlert(
+            error.message || "Unable to assign complaint.",
+            "error",
+            "Assignment Failed"
+        );
+
+    }
+
+}
+
+
+
+/* =========================================
+   APPLY FILTERS
+========================================= */
+
+function applyFilters() {
+
+    renderAdminComplaints();
+
+}
+
+
+
+/* =========================================
+   REFRESH COMPLAINTS
+========================================= */
+
+async function refreshComplaints() {
+
+    await loadAdminComplaints();
+
+}
+
+
+
+/* =========================================
+   SEARCH AS USER TYPES
+========================================= */
+
+const searchInput =
+    document.getElementById(
+        "searchComplaint"
+    );
+
+
+if (searchInput) {
+
+    searchInput.addEventListener(
+        "input",
+        () => {
+
+            renderAdminComplaints();
+
+        }
+    );
+
+}
+
+
+
+/* =========================================
+   INITIAL LOAD
+========================================= */
+
+loadAdminComplaints();
+
+</script>
+
+
+<style>
+.smartclean-notify-backdrop{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(7,38,28,.58);backdrop-filter:blur(7px);opacity:0;visibility:hidden;transition:.2s}
+.smartclean-notify-backdrop.show{opacity:1;visibility:visible}
+.smartclean-notify-card{width:min(460px,100%);background:linear-gradient(145deg,#fff,#f2fbf6);border:1px solid rgba(39,174,96,.22);border-radius:24px;box-shadow:0 24px 70px rgba(0,0,0,.24);overflow:hidden;transform:translateY(16px) scale(.97);transition:.22s;font-family:inherit}
+.smartclean-notify-backdrop.show .smartclean-notify-card{transform:none}
+.smartclean-notify-top{display:flex;align-items:center;gap:14px;padding:20px 22px 14px}
+.smartclean-notify-icon{width:48px;height:48px;flex:0 0 48px;border-radius:16px;display:grid;place-items:center;font-size:24px;background:linear-gradient(135deg,#16a085,#2ecc71);color:#fff;box-shadow:0 8px 22px rgba(22,160,133,.28)}
+.smartclean-notify-title{margin:0;color:#123c2b;font-size:20px;font-weight:800}
+.smartclean-notify-message{margin:0;padding:4px 22px 20px;color:#4c6258;font-size:15px;line-height:1.65;white-space:pre-line;word-break:break-word}
+.smartclean-notify-actions{display:flex;justify-content:flex-end;gap:10px;padding:15px 22px 20px;background:rgba(39,174,96,.055);border-top:1px solid rgba(39,174,96,.1)}
+.smartclean-notify-btn{border:0;border-radius:12px;padding:11px 20px;font:inherit;font-weight:800;cursor:pointer}
+.smartclean-notify-cancel{background:#e9f0ec;color:#345247}.smartclean-notify-ok{color:#fff;background:linear-gradient(135deg,#11998e,#38ef7d);box-shadow:0 7px 18px rgba(17,153,142,.22)}
+</style>
+<script>
+(function(){
+function close(m){m.classList.remove("show");setTimeout(()=>m.remove(),180);}
+window.smartCleanAlert=function(message,type,title){type=type||"info";let c={success:["✓","SmartClean Success"],error:["!","SmartClean Notice"],warning:["⚠","Please Check"],info:["♻","SmartClean"]}[type]||["♻","SmartClean"];return new Promise(r=>{let m=document.createElement("div");m.className="smartclean-notify-backdrop";m.innerHTML=`<div class="smartclean-notify-card" role="dialog" aria-modal="true"><div class="smartclean-notify-top"><div class="smartclean-notify-icon">${c[0]}</div><h3 class="smartclean-notify-title">${title||c[1]}</h3></div><p class="smartclean-notify-message"></p><div class="smartclean-notify-actions"><button type="button" class="smartclean-notify-btn smartclean-notify-ok">OK</button></div></div>`;m.querySelector(".smartclean-notify-message").textContent=String(message??"");document.body.appendChild(m);let done=()=>{close(m);r()};m.querySelector(".smartclean-notify-ok").onclick=done;m.onclick=e=>{if(e.target===m)done()};requestAnimationFrame(()=>m.classList.add("show"));});};
+window.smartCleanConfirm=function(message,title){return new Promise(r=>{let m=document.createElement("div");m.className="smartclean-notify-backdrop";m.innerHTML=`<div class="smartclean-notify-card" role="dialog" aria-modal="true"><div class="smartclean-notify-top"><div class="smartclean-notify-icon">♻</div><h3 class="smartclean-notify-title">${title||"SmartClean Confirmation"}</h3></div><p class="smartclean-notify-message"></p><div class="smartclean-notify-actions"><button type="button" class="smartclean-notify-btn smartclean-notify-cancel">Cancel</button><button type="button" class="smartclean-notify-btn smartclean-notify-ok">Continue</button></div></div>`;m.querySelector(".smartclean-notify-message").textContent=String(message??"");document.body.appendChild(m);let done=v=>{close(m);r(v)};m.querySelector(".smartclean-notify-cancel").onclick=()=>done(false);m.querySelector(".smartclean-notify-ok").onclick=()=>done(true);m.onclick=e=>{if(e.target===m)done(false)};requestAnimationFrame(()=>m.classList.add("show"));});};
+})();
+</script>
+
+<script>document.addEventListener("DOMContentLoaded",function(){document.querySelectorAll('[data-smartclean-logout="admin"]').forEach(function(b){b.addEventListener("click",async function(e){e.preventDefault();if(await smartCleanConfirm("Are you sure you want to logout from SmartClean?","Logout Confirmation"))location.href="/admin-logout";});});});</script></body>
+
+</html>

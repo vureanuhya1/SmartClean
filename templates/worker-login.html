@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Worker Login | SmartClean</title>
+
+
+    <!-- Common Navbar -->
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/common.css') }}">
+
+
+    <!-- Worker Login CSS -->
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/worker-login.css') }}">
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     NAVBAR
+===================================================== -->
+
+<header class="navbar">
+
+    <a href="/" class="logo">
+
+        <div class="logo-icon">
+            ♻
+        </div>
+
+        <div class="logo-text">
+
+            <h2>SmartClean</h2>
+
+            <p>
+                Smart Garbage Management
+            </p>
+
+        </div>
+
+    </a>
+
+
+    <nav>
+
+        <ul class="nav-links">
+
+            <li>
+                <a href="/">
+                    Home
+                </a>
+            </li>
+
+            <li>
+                <a href="/report-issue">
+                    Report Issue
+                </a>
+            </li>
+
+            <li>
+                <a href="/track">
+                    Track Complaint
+                </a>
+            </li>
+
+            <li>
+                <a href="/#about">
+                    About
+                </a>
+            </li>
+
+        </ul>
+
+    </nav>
+
+
+    <div class="nav-buttons">
+
+        <a href="/worker-login"
+           class="btn-login">
+
+             Login
+
+        </a>
+
+        <a href="/register"
+           class="btn-register">
+
+            Register
+
+        </a>
+
+    </div>
+
+</header>
+
+
+
+<!-- =====================================================
+     WORKER LOGIN PAGE
+===================================================== -->
+
+<main class="worker-login-page">
+
+
+    <!-- Animated background elements -->
+
+    <div class="login-shape shape-one"></div>
+
+    <div class="login-shape shape-two"></div>
+
+    <div class="login-shape shape-three"></div>
+
+
+
+    <!-- =================================================
+         LOGIN CARD
+    ================================================= -->
+
+    <section class="worker-login-card">
+
+
+        <!-- Worker Icon -->
+
+        <div class="worker-icon">
+
+            👷
+
+        </div>
+
+
+        <!-- Heading -->
+
+        <div class="login-heading">
+
+            <span>
+                WORKER PORTAL
+            </span>
+
+            <h1>
+                Welcome Back
+            </h1>
+
+            <p>
+                Sign in to manage your assigned
+                complaints and tasks.
+            </p>
+
+        </div>
+
+
+
+        <!-- =================================================
+             LOGIN FORM
+        ================================================= -->
+
+       <form id="workerLoginForm">
+
+
+            <!-- Worker ID -->
+
+            <div class="form-group">
+
+                <label for="workerId">
+                    Worker ID
+                </label>
+
+
+                <div class="input-wrapper">
+
+                    <span class="input-icon">
+                        🪪
+                    </span>
+
+                    <input
+                        type="text"
+                        id="workerId"
+                        name="workerId"
+                        placeholder="Enter your Worker ID"
+                        autocomplete="username"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+
+
+            <!-- Password -->
+
+            <div class="form-group">
+
+                <label for="workerPassword">
+                    Password
+                </label>
+
+
+                <div class="input-wrapper">
+
+                    <span class="input-icon">
+                        🔒
+                    </span>
+
+
+                    <input
+                        type="password"
+                        id="workerPassword"
+                        name="password"
+                        placeholder="Enter your password"
+                        autocomplete="current-password"
+                        required
+                    >
+
+
+                    <button
+                        type="button"
+                        id="togglePassword"
+                        class="password-toggle"
+                        aria-label="Show password"
+                    >
+
+                        👁
+
+                    </button>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- Forgot Password -->
+
+            <div class="login-options">
+
+                <label class="remember-me">
+
+                    <input
+                        type="checkbox"
+                        id="rememberMe"
+                    >
+
+                    <span>
+                        Remember me
+                    </span>
+
+                </label>
+
+
+                <a href="/forgot-password?role=worker"
+                   id="forgotPassword">
+
+                    Forgot Password?
+
+                </a>
+
+            </div>
+
+
+
+            <!-- Login Button -->
+
+            <button
+                type="submit"
+                class="worker-login-button"
+            >
+
+                <span>
+                    LOGIN TO WORKER PORTAL
+                </span>
+
+                <strong>
+                    →
+                </strong>
+
+            </button>
+
+
+
+            <!-- Message -->
+
+            <div
+                id="loginMessage"
+                class="login-message"
+                role="alert"
+            ></div>
+
+        </form>
+
+
+
+        <!-- =================================================
+             SECURITY NOTE
+        ================================================= -->
+
+        <div class="security-note">
+
+            <span>
+                🔐
+            </span>
+
+            <div>
+
+                <strong>
+                    Secure Worker Access
+                </strong>
+
+                <p>
+                    Authorized municipal workers only
+                </p>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- Back Home -->
+
+        <a href="/" class="back-home">
+
+            ← Back to Home
+
+        </a>
+
+
+    </section>
+
+</main>
+
+
+
+<!-- =====================================================
+     FOOTER
+===================================================== -->
+
+<footer class="footer">
+
+    <div>
+
+        <strong>
+            ♻ SmartClean
+        </strong>
+
+        <p>
+            Smart Garbage Management System
+        </p>
+
+    </div>
+
+
+    <div>
+
+        © 2026 SmartClean · Team 4
+
+    </div>
+
+</footer>
+
+
+
+<!-- =====================================================
+     JAVASCRIPT
+===================================================== -->
+
+<script
+    src="{{ url_for('static', filename='js/worker-login.js') }}">
+</script>
+
+
+</body>
+
+</html>

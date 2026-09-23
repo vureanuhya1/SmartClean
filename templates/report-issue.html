@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Report Issue | SmartClean</title>
+
+
+    <!-- =====================================================
+         COMMON CSS
+    ====================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/common.css') }}"
+    >
+
+
+    <!-- =====================================================
+         REPORT ISSUE CSS
+    ====================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/report-issue.css') }}"
+    >
+
+
+    <!-- =====================================================
+         EXTRA MODAL CSS
+    ====================================================== -->
+
+    <style>
+
+        /* =================================================
+           SUCCESS MODAL
+        ================================================= */
+
+        .success-modal {
+
+            display: none;
+
+            position: fixed;
+
+            inset: 0;
+
+            z-index: 9999;
+
+            background:
+                rgba(0, 0, 0, 0.55);
+
+            align-items: center;
+
+            justify-content: center;
+
+            padding: 20px;
+
+        }
+
+
+        .success-modal.show {
+
+            display: flex;
+
+        }
+
+
+        .success-modal-card {
+
+            width: 100%;
+
+            max-width: 480px;
+
+            background: #ffffff;
+
+            border-radius: 22px;
+
+            padding: 35px 30px;
+
+            text-align: center;
+
+            box-shadow:
+                0 25px 70px
+                rgba(0, 0, 0, 0.25);
+
+            animation:
+                successModalIn
+                0.25s ease;
+
+        }
+
+
+        @keyframes successModalIn {
+
+            from {
+
+                opacity: 0;
+
+                transform:
+                    translateY(20px)
+                    scale(0.96);
+
+            }
+
+            to {
+
+                opacity: 1;
+
+                transform:
+                    translateY(0)
+                    scale(1);
+
+            }
+
+        }
+
+
+        .success-icon {
+
+            width: 76px;
+
+            height: 76px;
+
+            margin:
+                0 auto 20px;
+
+            border-radius: 50%;
+
+            background:
+                #e8f8ee;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            font-size: 38px;
+
+        }
+
+
+        .success-modal-card h2 {
+
+            margin-bottom: 10px;
+
+            font-size: 26px;
+
+        }
+
+
+        .success-modal-card p {
+
+            color: #666;
+
+            line-height: 1.6;
+
+            margin-bottom: 18px;
+
+        }
+
+
+        .complaint-id-box {
+
+            background:
+                #f5f8f6;
+
+            border:
+                1px solid #dce9df;
+
+            border-radius: 14px;
+
+            padding: 18px;
+
+            margin:
+                20px 0;
+
+        }
+
+
+        .complaint-id-label {
+
+            display: block;
+
+            font-size: 13px;
+
+            color: #777;
+
+            margin-bottom: 6px;
+
+        }
+
+
+        .complaint-id-value {
+
+            display: block;
+
+            font-size: 28px;
+
+            font-weight: 800;
+
+            letter-spacing: 1px;
+
+        }
+
+
+        .success-actions {
+
+            display: flex;
+
+            gap: 10px;
+
+            justify-content: center;
+
+            flex-wrap: wrap;
+
+        }
+
+
+        .success-action {
+
+            border: none;
+
+            text-decoration: none;
+
+            cursor: pointer;
+
+            padding: 12px 20px;
+
+            border-radius: 10px;
+
+            font-weight: 600;
+
+            font-size: 14px;
+
+        }
+
+
+        .success-action.primary {
+
+            background:
+                #1f7a4d;
+
+            color: white;
+
+        }
+
+
+        .success-action.secondary {
+
+            background:
+                #eef1ef;
+
+            color: #333;
+
+        }
+
+
+        /* =================================================
+           FORM ERROR / SUCCESS
+        ================================================= */
+
+        .form-message {
+
+            padding: 12px 15px;
+
+            border-radius: 10px;
+
+            margin-bottom: 18px;
+
+            font-size: 14px;
+
+        }
+
+
+        .form-message.error {
+
+            background:
+                #fff0f0;
+
+            color:
+                #b42318;
+
+            border:
+                1px solid #ffd0d0;
+
+        }
+
+
+        .form-message.success {
+
+            background:
+                #ecfdf3;
+
+            color:
+                #027a48;
+
+            border:
+                1px solid #abefc6;
+
+        }
+
+
+        /* =================================================
+           LOGGED-IN USER NOTE
+        ================================================= */
+
+        .logged-user-note {
+
+            background:
+                #f5f8f6;
+
+            border:
+                1px solid #e1e9e4;
+
+            padding: 12px 15px;
+
+            border-radius: 10px;
+
+            margin-bottom: 18px;
+
+            font-size: 14px;
+
+            color: #555;
+
+        }
+
+
+        .logged-user-note strong {
+
+            color: #222;
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     NAVBAR
+===================================================== -->
+
+<header class="navbar">
+
+    <a
+        href="/"
+        class="logo"
+    >
+
+        <div class="logo-icon">
+            ♻
+        </div>
+
+        <div class="logo-text">
+
+            <h2>
+                SmartClean
+            </h2>
+
+            <p>
+                Smart Garbage Management
+            </p>
+
+        </div>
+
+    </a>
+
+
+    <nav>
+
+        <ul class="nav-links">
+
+            <li>
+
+                <a href="/">
+                    Home
+                </a>
+
+            </li>
+
+
+            <li>
+
+                <a
+                    href="/report-issue"
+                    class="active"
+                >
+                    Report Issue
+                </a>
+
+            </li>
+
+
+            <li>
+
+                <a href="/track">
+                    Track Complaint
+                </a>
+
+            </li>
+
+
+            <li>
+
+                <a href="/#about">
+                    About
+                </a>
+
+            </li>
+
+        </ul>
+
+    </nav>
+
+
+    <div class="nav-buttons">
+
+        <a
+            href="/login"
+            class="btn-login"
+        >
+            Login
+        </a>
+
+
+        <a
+            href="/register"
+            class="btn-register"
+        >
+            Register
+        </a>
+
+    </div>
+
+</header>
+
+
+<!-- =====================================================
+     MAIN PAGE
+===================================================== -->
+
+<main class="report-page">
+
+
+    <!-- =================================================
+         BACKGROUND DECORATION
+    ================================================== -->
+
+    <div
+        class="report-glow glow-left"
+    ></div>
+
+
+    <div
+        class="report-glow glow-right"
+    ></div>
+
+
+    <!-- =================================================
+         INTRO
+    ================================================== -->
+
+    <section class="report-intro">
+
+        <div class="intro-badge">
+
+            <span>●</span>
+
+            QUICK & EASY REPORTING
+
+        </div>
+
+
+        <h1>
+
+            Report a Garbage Issue
+
+        </h1>
+
+
+        <p>
+
+            Help keep your neighbourhood clean.
+            Tell us about the garbage problem and
+            our team will take care of it.
+
+        </p>
+
+    </section>
+
+
+    <!-- =================================================
+         FORM + INFORMATION
+    ================================================== -->
+
+    <section class="report-layout">
+
+
+        <!-- =================================================
+             FORM CARD
+        ================================================== -->
+
+        <div class="report-card">
+
+
+            <!-- =================================================
+                 CARD HEADER
+            ================================================== -->
+
+            <div class="card-heading">
+
+                <div class="heading-icon">
+                    🗑️
+                </div>
+
+                <div>
+
+                    <h2>
+                        Submit Your Complaint
+                    </h2>
+
+                    <p>
+                        Provide the details below.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 SERVER ERROR
+            ================================================== -->
+
+            {% if error %}
+
+                <div
+                    class="form-message error"
+                >
+
+                    {{ error }}
+
+                </div>
+
+            {% endif %}
+
+
+            <!-- =================================================
+                 SERVER SUCCESS
+            ================================================== -->
+
+            {% if success and complaint_id %}
+
+                <div
+                    class="form-message success"
+                >
+
+                    {{ success_message }}
+
+                </div>
+
+            {% endif %}
+
+
+            <!-- =================================================
+                 LOGGED-IN CITIZEN
+            ================================================== -->
+
+            {% if user %}
+
+                <div class="logged-user-note">
+
+                    Reporting as:
+
+                    <strong>
+                        {{ user.name }}
+                    </strong>
+
+                    {% if user.email %}
+
+                        <br>
+
+                        {{ user.email }}
+
+                    {% endif %}
+
+                </div>
+
+            {% endif %}
+
+
+            <!-- =================================================
+                 REPORT FORM
+            ================================================== -->
+
+            <form
+                id="reportForm"
+                action="{{ url_for('report_issue') }}"
+                method="POST"
+                enctype="multipart/form-data"
+            >
+
+
+                <!-- =================================================
+                     NAME
+                ================================================== -->
+
+                <div class="form-group">
+
+                    <label for="name">
+
+                        Your Name
+
+                    </label>
+
+
+                    <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        placeholder="Enter your name"
+                        value="{{
+                            user.name
+                            if user
+                            else
+                            form_data.get('name', '')
+                            if form_data
+                            else ''
+                        }}"
+                        {% if user %}
+                            readonly
+                        {% endif %}
+                        required
+                    >
+
+                </div>
+
+
+                <!-- =================================================
+                     EMAIL
+                ================================================== -->
+
+                <div class="form-group">
+
+                    <label for="email">
+
+                        Email Address
+
+                    </label>
+
+
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="Enter your email"
+                        value="{{
+                            user.email
+                            if user
+                            else
+                            form_data.get('email', '')
+                            if form_data
+                            else ''
+                        }}"
+                        {% if user %}
+                            readonly
+                        {% endif %}
+                        required
+                    >
+
+                </div>
+
+
+                <!-- =================================================
+                     CATEGORY
+                ================================================== -->
+
+                <div class="form-group">
+
+                    <label for="category">
+
+                        Garbage Category
+
+                    </label>
+
+
+                    <select
+                        id="category"
+                        name="category"
+                        required
+                    >
+
+                        <option
+                            value=""
+                        >
+                            Select an issue
+                        </option>
+
+
+                        <option
+                            value="overflowing"
+                            {% if form_data and form_data.get('category') == 'overflowing' %}
+                                selected
+                            {% endif %}
+                        >
+                            Overflowing Bin
+                        </option>
+
+
+                        <option
+                            value="uncollected"
+                            {% if form_data and form_data.get('category') == 'uncollected' %}
+                                selected
+                            {% endif %}
+                        >
+                            Uncollected Waste
+                        </option>
+
+
+                        <option
+                            value="damaged"
+                            {% if form_data and form_data.get('category') == 'damaged' %}
+                                selected
+                            {% endif %}
+                        >
+                            Damaged Bin
+                        </option>
+
+
+                        <option
+                            value="illegal"
+                            {% if form_data and form_data.get('category') == 'illegal' %}
+                                selected
+                            {% endif %}
+                        >
+                            Illegal Dumping
+                        </option>
+
+
+                        <option
+                            value="other"
+                            {% if form_data and form_data.get('category') == 'other' %}
+                                selected
+                            {% endif %}
+                        >
+                            Other
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- =================================================
+                     LOCATION
+                ================================================== -->
+
+                <div class="form-group">
+
+                    <label for="location">
+
+                        Location
+
+                    </label>
+
+
+                    <input
+                        type="text"
+                        id="location"
+                        name="location"
+                        placeholder="Enter garbage location"
+                        value="{{
+                            form_data.get('location', '')
+                            if form_data
+                            else ''
+                        }}"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- =================================================
+                     DESCRIPTION
+                ================================================== -->
+
+                <div class="form-group">
+
+                    <label for="description">
+
+                        Describe the Issue
+
+                    </label>
+
+
+                    <textarea
+                        id="description"
+                        name="description"
+                        rows="5"
+                        placeholder="Describe the garbage problem..."
+                        required
+                    >{{ form_data.get('description', '') if form_data else '' }}</textarea>
+
+                </div>
+
+
+                <!-- =================================================
+                     PHOTO
+                ================================================== -->
+
+                <div class="form-group">
+
+                    <label for="photo">
+
+                        Upload Photo
+
+                        <span>
+                            (Optional)
+                        </span>
+
+                    </label>
+
+
+                    <div class="upload-box">
+
+                        <div class="upload-icon">
+                            📷
+                        </div>
+
+
+                        <div>
+
+                            <strong>
+                                Upload an image
+                            </strong>
+
+                            <small>
+                                JPG, PNG up to 5 MB
+                            </small>
+
+                        </div>
+
+
+                        <input
+                            type="file"
+                            id="photo"
+                            name="photo"
+                            accept="image/png,image/jpeg"
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     SUBMIT BUTTON
+                ================================================== -->
+
+                <button
+                    type="submit"
+                    class="submit-btn"
+                    id="submitButton"
+                >
+
+                    <span>
+                        Submit Complaint
+                    </span>
+
+                    <strong>
+                        →
+                    </strong>
+
+                </button>
+
+
+                <!-- =================================================
+                     CLIENT-SIDE MESSAGE
+                ================================================== -->
+
+                <div
+                    id="formMessage"
+                    class="form-message"
+                    style="display:none;"
+                ></div>
+
+
+            </form>
+
+        </div>
+
+
+        <!-- =================================================
+             RIGHT INFORMATION PANEL
+        ================================================== -->
+
+        <aside class="report-info">
+
+
+            <!-- =================================================
+                 QUICK RESPONSE
+            ================================================== -->
+
+            <div class="info-card">
+
+                <div class="info-icon">
+                    ⚡
+                </div>
+
+
+                <h3>
+                    Quick Response
+                </h3>
+
+
+                <p>
+
+                    Your complaint will be reviewed
+                    and assigned to the appropriate
+                    municipal worker.
+
+                </p>
+
+            </div>
+
+
+            <!-- =================================================
+                 ACCURATE LOCATION
+            ================================================== -->
+
+            <div class="info-card">
+
+                <div class="info-icon">
+                    📍
+                </div>
+
+
+                <h3>
+                    Accurate Location
+                </h3>
+
+
+                <p>
+
+                    Providing the exact location helps
+                    our team resolve the issue faster.
+
+                </p>
+
+            </div>
+
+
+            <!-- =================================================
+                 TRACK COMPLAINT
+            ================================================== -->
+
+            <div class="info-card">
+
+                <div class="info-icon">
+                    🔍
+                </div>
+
+
+                <h3>
+                    Track Your Complaint
+                </h3>
+
+
+                <p>
+
+                    After submitting, use your complaint
+                    ID to follow its progress.
+
+                </p>
+
+
+                <a href="/track">
+
+                    Track Complaint →
+
+                </a>
+
+            </div>
+
+
+            <!-- =================================================
+                 PROCESS
+            ================================================== -->
+
+            <div class="process-card">
+
+                <h3>
+                    How it works
+                </h3>
+
+
+                <!-- STEP 1 -->
+
+                <div class="process-step">
+
+                    <span>
+                        1
+                    </span>
+
+
+                    <div>
+
+                        <strong>
+                            Submit
+                        </strong>
+
+                        <small>
+                            Report the issue
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <div class="process-line"></div>
+
+
+                <!-- STEP 2 -->
+
+                <div class="process-step">
+
+                    <span>
+                        2
+                    </span>
+
+
+                    <div>
+
+                        <strong>
+                            Assign
+                        </strong>
+
+                        <small>
+                            Worker receives it
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <div class="process-line"></div>
+
+
+                <!-- STEP 3 -->
+
+                <div class="process-step">
+
+                    <span>
+                        3
+                    </span>
+
+
+                    <div>
+
+                        <strong>
+                            Resolve
+                        </strong>
+
+                        <small>
+                            Issue gets fixed
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </aside>
+
+    </section>
+
+</main>
+
+
+<!-- =====================================================
+     FOOTER
+===================================================== -->
+
+<footer class="footer">
+
+    <div>
+
+        <strong>
+            ♻ SmartClean
+        </strong>
+
+
+        <p>
+            Smart Garbage Management System
+        </p>
+
+    </div>
+
+
+    <div>
+
+        © 2026 SmartClean · Team 4
+
+    </div>
+
+</footer>
+
+
+<!-- =====================================================
+     SUCCESS MODAL
+===================================================== -->
+
+{% if success and complaint_id %}
+
+<div
+    id="successModal"
+    class="success-modal show"
+>
+
+    <div class="success-modal-card">
+
+
+        <div class="success-icon">
+
+            ✓
+
+        </div>
+
+
+        <h2>
+
+            Complaint Submitted!
+
+        </h2>
+
+
+        <p>
+
+            Your garbage complaint has been
+            successfully recorded in SmartClean.
+
+        </p>
+
+
+        <div class="complaint-id-box">
+
+            <span class="complaint-id-label">
+
+                Your Complaint ID
+
+            </span>
+
+
+            <strong
+                class="complaint-id-value"
+            >
+
+                {{ complaint_id }}
+
+            </strong>
+
+        </div>
+
+
+        <p>
+
+            Please save this ID.
+            You can use it to track your complaint.
+
+        </p>
+
+
+        <div class="success-actions">
+
+
+            <a
+                href="{{ url_for('track') }}"
+                class="success-action primary"
+            >
+
+                Track Complaint
+
+            </a>
+
+
+            <button
+                type="button"
+                class="success-action secondary"
+                onclick="closeSuccessModal()"
+            >
+
+                Close
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endif %}
+
+
+<!-- =====================================================
+     JAVASCRIPT
+===================================================== -->
+
+<script>
+
+    /*
+     * IMPORTANT:
+     *
+     * We DO NOT use event.preventDefault()
+     * on the report form.
+     *
+     * The browser must submit the form to Flask.
+     *
+     * Flask then:
+     *
+     * 1. checks the logged-in citizen
+     * 2. validates the form
+     * 3. uploads the image
+     * 4. inserts the complaint into MySQL
+     * 5. gets complaint_id
+     * 6. displays the success modal
+     */
+
+
+    const form =
+        document.getElementById(
+            "reportForm"
+        );
+
+
+    const submitButton =
+        document.getElementById(
+            "submitButton"
+        );
+
+
+    const photoInput =
+        document.getElementById(
+            "photo"
+        );
+
+
+    /*
+     * Client-side image validation
+     */
+
+    if (photoInput) {
+
+        photoInput.addEventListener(
+            "change",
+            function () {
+
+                const file =
+                    this.files[0];
+
+                if (!file) {
+                    return;
+                }
+
+
+                const allowedTypes = [
+                    "image/jpeg",
+                    "image/png"
+                ];
+
+
+                if (
+                    !allowedTypes.includes(
+                        file.type
+                    )
+                ) {
+
+                    smartCleanAlert("Please select a JPG or PNG image.","warning","Invalid Image");
+
+                    this.value = "";
+
+                    return;
+                }
+
+
+                /*
+                 * 5 MB
+                 */
+
+                const maxSize =
+                    5 * 1024 * 1024;
+
+
+                if (
+                    file.size > maxSize
+                ) {
+
+                    smartCleanAlert("Image size must be less than 5 MB.","warning","Image Too Large");
+
+                    this.value = "";
+
+                    return;
+                }
+
+            }
+        );
+
+    }
+
+
+    /*
+     * Disable submit button after
+     * form submission to prevent
+     * accidental double-clicks.
+     */
+
+    if (form) {
+
+        form.addEventListener(
+            "submit",
+            function () {
+
+                if (submitButton) {
+
+                    submitButton.disabled =
+                        true;
+
+                    submitButton.style.opacity =
+                        "0.7";
+
+                    submitButton.style.cursor =
+                        "not-allowed";
+
+
+                    const buttonText =
+                        submitButton.querySelector(
+                            "span"
+                        );
+
+
+                    if (buttonText) {
+
+                        buttonText.textContent =
+                            "Submitting...";
+
+                    }
+
+                }
+
+            }
+        );
+
+    }
+
+
+    /*
+     * Close success modal
+     */
+
+    function closeSuccessModal() {
+
+        const modal =
+            document.getElementById(
+                "successModal"
+            );
+
+
+        if (modal) {
+
+            modal.classList.remove(
+                "show"
+            );
+
+        }
+
+    }
+
+
+    /*
+     * Close modal when clicking
+     * outside the modal card.
+     */
+
+    const successModal =
+        document.getElementById(
+            "successModal"
+        );
+
+
+    if (successModal) {
+
+        successModal.addEventListener(
+            "click",
+            function (event) {
+
+                if (
+                    event.target ===
+                    successModal
+                ) {
+
+                    closeSuccessModal();
+
+                }
+
+            }
+        );
+
+    }
+
+</script>
+
+
+<style>
+.smartclean-notify-backdrop{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(7,38,28,.58);backdrop-filter:blur(7px);opacity:0;visibility:hidden;transition:.2s}
+.smartclean-notify-backdrop.show{opacity:1;visibility:visible}
+.smartclean-notify-card{width:min(460px,100%);background:linear-gradient(145deg,#fff,#f2fbf6);border:1px solid rgba(39,174,96,.22);border-radius:24px;box-shadow:0 24px 70px rgba(0,0,0,.24);overflow:hidden;transform:translateY(16px) scale(.97);transition:.22s;font-family:inherit}
+.smartclean-notify-backdrop.show .smartclean-notify-card{transform:none}
+.smartclean-notify-top{display:flex;align-items:center;gap:14px;padding:20px 22px 14px}
+.smartclean-notify-icon{width:48px;height:48px;flex:0 0 48px;border-radius:16px;display:grid;place-items:center;font-size:24px;background:linear-gradient(135deg,#16a085,#2ecc71);color:#fff;box-shadow:0 8px 22px rgba(22,160,133,.28)}
+.smartclean-notify-title{margin:0;color:#123c2b;font-size:20px;font-weight:800}
+.smartclean-notify-message{margin:0;padding:4px 22px 20px;color:#4c6258;font-size:15px;line-height:1.65;white-space:pre-line;word-break:break-word}
+.smartclean-notify-actions{display:flex;justify-content:flex-end;gap:10px;padding:15px 22px 20px;background:rgba(39,174,96,.055);border-top:1px solid rgba(39,174,96,.1)}
+.smartclean-notify-btn{border:0;border-radius:12px;padding:11px 20px;font:inherit;font-weight:800;cursor:pointer}
+.smartclean-notify-cancel{background:#e9f0ec;color:#345247}.smartclean-notify-ok{color:#fff;background:linear-gradient(135deg,#11998e,#38ef7d);box-shadow:0 7px 18px rgba(17,153,142,.22)}
+</style>
+<script>
+(function(){
+function close(m){m.classList.remove("show");setTimeout(()=>m.remove(),180);}
+window.smartCleanAlert=function(message,type,title){type=type||"info";let c={success:["✓","SmartClean Success"],error:["!","SmartClean Notice"],warning:["⚠","Please Check"],info:["♻","SmartClean"]}[type]||["♻","SmartClean"];return new Promise(r=>{let m=document.createElement("div");m.className="smartclean-notify-backdrop";m.innerHTML=`<div class="smartclean-notify-card" role="dialog" aria-modal="true"><div class="smartclean-notify-top"><div class="smartclean-notify-icon">${c[0]}</div><h3 class="smartclean-notify-title">${title||c[1]}</h3></div><p class="smartclean-notify-message"></p><div class="smartclean-notify-actions"><button type="button" class="smartclean-notify-btn smartclean-notify-ok">OK</button></div></div>`;m.querySelector(".smartclean-notify-message").textContent=String(message??"");document.body.appendChild(m);let done=()=>{close(m);r()};m.querySelector(".smartclean-notify-ok").onclick=done;m.onclick=e=>{if(e.target===m)done()};requestAnimationFrame(()=>m.classList.add("show"));});};
+window.smartCleanConfirm=function(message,title){return new Promise(r=>{let m=document.createElement("div");m.className="smartclean-notify-backdrop";m.innerHTML=`<div class="smartclean-notify-card" role="dialog" aria-modal="true"><div class="smartclean-notify-top"><div class="smartclean-notify-icon">♻</div><h3 class="smartclean-notify-title">${title||"SmartClean Confirmation"}</h3></div><p class="smartclean-notify-message"></p><div class="smartclean-notify-actions"><button type="button" class="smartclean-notify-btn smartclean-notify-cancel">Cancel</button><button type="button" class="smartclean-notify-btn smartclean-notify-ok">Continue</button></div></div>`;m.querySelector(".smartclean-notify-message").textContent=String(message??"");document.body.appendChild(m);let done=v=>{close(m);r(v)};m.querySelector(".smartclean-notify-cancel").onclick=()=>done(false);m.querySelector(".smartclean-notify-ok").onclick=()=>done(true);m.onclick=e=>{if(e.target===m)done(false)};requestAnimationFrame(()=>m.classList.add("show"));});};
+})();
+</script>
+
+</body>
+
+</html>

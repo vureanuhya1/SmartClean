@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Reports | SmartClean</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/common.css') }}">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/admin-reports.css') }}">
+
+</head>
+
+<body>
+
+<!-- =========================
+     NAVBAR
+========================= -->
+
+<header class="navbar">
+
+    <a href="/" class="logo">
+
+        <div class="logo-icon">
+            ♻
+        </div>
+
+        <div class="logo-text">
+
+            <h2>SmartClean</h2>
+
+            <p>
+                Smart Garbage Management
+            </p>
+
+        </div>
+
+    </a>
+
+
+    <nav>
+
+        <ul class="nav-links">
+ <li><a href="/admin-profile">Profile</a></li> 
+            <li>
+                <a href="/admin-dashboard">
+                    Dashboard
+                </a>
+            </li>
+
+            <li>
+                <a href="/admin-complaints">
+                    Complaints
+                </a>
+            </li>
+
+            <li>
+                <a href="/admin-workers">
+                    Workers
+                </a>
+            </li>
+
+            <li>
+                <a href="/admin-reports"
+                   class="active">
+                    Reports
+                </a>
+            </li>
+
+        </ul>
+
+    </nav>
+
+
+    <div class="admin-nav">
+
+        <div class="admin-profile">
+
+            <span class="admin-avatar-small">
+                🛡️
+            </span>
+
+            <div>
+
+                <strong>
+                    Admin
+                </strong>
+
+                <span>
+                    Administrator
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <button
+            class="admin-logout"
+            onclick="logoutAdmin()">
+
+            Logout
+
+        </button>
+
+    </div>
+
+</header>
+
+
+<!-- =========================
+     MAIN
+========================= -->
+
+<main class="reports-page">
+
+
+    <div class="report-glow report-glow-one"></div>
+
+    <div class="report-glow report-glow-two"></div>
+
+
+    <!-- HEADER -->
+
+    <section class="reports-header">
+
+        <div>
+
+            <span class="page-badge">
+                ANALYTICS & REPORTING
+            </span>
+
+            <h1>
+                Reports & Analytics
+            </h1>
+
+            <p>
+                Monitor garbage complaints,
+                worker performance and collection
+                activities.
+            </p>
+
+        </div>
+
+
+        <button
+            class="download-btn"
+            onclick="downloadReport()">
+
+            ↓ Download Report
+
+        </button>
+
+    </section>
+
+
+
+    <!-- =========================
+         FILTER
+    ========================= -->
+
+    <section class="report-filter">
+
+        <div>
+
+            <label>
+                Report Period
+            </label>
+
+            <select id="period">
+
+                <option>
+                    This Month
+                </option>
+
+                <option>
+                    Last Month
+                </option>
+
+                <option>
+                    Last 3 Months
+                </option>
+
+                <option>
+                    This Year
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <div>
+
+            <label>
+                Category
+            </label>
+
+            <select>
+
+                <option>
+                    All Categories
+                </option>
+
+                <option>
+                    Overflowing Bin
+                </option>
+
+                <option>
+                    Plastic Waste
+                </option>
+
+                <option>
+                    Uncollected Waste
+                </option>
+
+                <option>
+                    Roadside Waste
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <button
+            onclick="generateReport()"
+            class="generate-btn">
+
+            Generate Report
+
+        </button>
+
+    </section>
+
+
+
+    <!-- =========================
+         SUMMARY
+    ========================= -->
+
+    <section class="report-summary">
+
+
+        <div class="summary-card">
+
+            <div class="summary-icon blue">
+                📋
+            </div>
+
+            <div>
+
+                <span>
+                    Total Complaints
+                </span>
+
+                <strong id="adminTotal">0</strong>
+
+                <small>
+                    ↑ 12.5% from last month
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <div class="summary-icon green">
+                ✓
+            </div>
+
+            <div>
+
+                <span>
+                    Resolved Complaints
+                </span>
+
+                <strong id="adminResolved">0</strong>
+
+                <small class="positive">
+                    87.3% resolution rate
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <div class="summary-icon orange">
+                ⏱
+            </div>
+
+            <div>
+
+                <span>
+                    Avg. Resolution Time
+                </span>
+
+                <strong id="adminAvgTime">—</strong>
+
+                <small>
+                    ↓ 18% improvement
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <div class="summary-icon purple">
+                👷
+            </div>
+
+            <div>
+
+                <span>
+                    Active Workers
+                </span>
+
+                <strong id="adminActiveWorkers">0</strong>
+
+                <small>
+                    34 available today
+                </small>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =========================
+         CHART AREA
+========================= -->
+
+    <section class="analytics-grid">
+
+
+        <!-- COMPLAINT TREND -->
+
+        <div class="analytics-card large">
+
+            <div class="analytics-heading">
+
+                <div>
+
+                    <span>
+                        COMPLAINT TREND
+                    </span>
+
+                    <h2>
+                        Monthly Complaints
+                    </h2>
+
+                </div>
+
+                <span class="trend-badge">
+                    +12.5%
+                </span>
+
+            </div>
+
+
+            <div class="chart">
+
+                <div class="chart-y">
+
+                    <span>300</span>
+                    <span>250</span>
+                    <span>200</span>
+                    <span>150</span>
+                    <span>100</span>
+                    <span>50</span>
+                    <span>0</span>
+
+                </div>
+
+
+                <div class="bars">
+
+                    <div class="bar-column">
+
+                        <div
+                            class="bar"
+                            style="height:45%;">
+                        </div>
+
+                        <span>
+                            Jan
+                        </span>
+
+                    </div>
+
+
+                    <div class="bar-column">
+
+                        <div
+                            class="bar"
+                            style="height:55%;">
+                        </div>
+
+                        <span>
+                            Feb
+                        </span>
+
+                    </div>
+
+
+                    <div class="bar-column">
+
+                        <div
+                            class="bar"
+                            style="height:48%;">
+                        </div>
+
+                        <span>
+                            Mar
+                        </span>
+
+                    </div>
+
+
+                    <div class="bar-column">
+
+                        <div
+                            class="bar"
+                            style="height:68%;">
+                        </div>
+
+                        <span>
+                            Apr
+                        </span>
+
+                    </div>
+
+
+                    <div class="bar-column">
+
+                        <div
+                            class="bar"
+                            style="height:60%;">
+                        </div>
+
+                        <span>
+                            May
+                        </span>
+
+                    </div>
+
+
+                    <div class="bar-column">
+
+                        <div
+                            class="bar"
+                            style="height:78%;">
+                        </div>
+
+                        <span>
+                            Jun
+                        </span>
+
+                    </div>
+
+
+                    <div class="bar-column">
+
+                        <div
+                            class="bar active-bar"
+                            style="height:88%;">
+                        </div>
+
+                        <span>
+                            Jul
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- CATEGORY -->
+
+        <div class="analytics-card">
+
+            <div class="analytics-heading">
+
+                <div>
+
+                    <span>
+                        CATEGORIES
+                    </span>
+
+                    <h2>
+                        Complaint Types
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div class="category-list" id="adminCategoryList">
+                <div class="category-item"><div class="category-title"><span>Loading...</span><strong>0%</strong></div><div class="category-track"><div style="width:0%;"></div></div></div>
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =========================
+         PERFORMANCE
+    ========================= -->
+
+    <section class="performance-card">
+
+        <div class="analytics-heading">
+
+            <div>
+
+                <span>
+                    WORKER PERFORMANCE
+                </span>
+
+                <h2>
+                    Top Performing Workers
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <div class="performance-table" id="adminPerformanceTable">
+            <div class="performance-row header">
+                <span>Worker</span><span>Resolved</span><span>Active</span><span>Efficiency</span>
+            </div>
+        </div>
+
+    </section>
+
+</main>
+
+
+
+<!-- =========================
+     FOOTER
+========================= -->
+
+<footer class="footer">
+
+    <div>
+
+        <strong>
+            ♻ SmartClean
+        </strong>
+
+        <p>
+            Smart Garbage Management System
+        </p>
+
+    </div>
+
+    <div>
+        © 2026 SmartClean · Team 4
+    </div>
+
+</footer>
+
+
+
+<script>
+async function loadAdminReports() {
+    try {
+        const response = await fetch("/api/admin/reports");
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || "Unable to load reports.");
+
+        const categories = data.categories || [];
+        const totalCategories = categories.reduce((sum, item) => sum + Number(item.count || 0), 0);
+        const list = document.getElementById("adminCategoryList");
+        if (list) {
+            list.innerHTML = categories.length ? categories.map(item => {
+                const pct = totalCategories ? ((Number(item.count || 0) / totalCategories) * 100).toFixed(1) : "0.0";
+                return `<div class="category-item">
+                    <div class="category-title"><span>${escapeHtml(item.issue_type || "Other")}</span><strong>${pct}%</strong></div>
+                    <div class="category-track"><div style="width:${pct}%;"></div></div>
+                </div>`;
+            }).join("") : `<p>No complaint data available.</p>`;
+        }
+
+        const statuses = data.statuses || [];
+        const total = statuses.reduce((sum, x) => sum + Number(x.count || 0), 0);
+        const resolved = statuses.filter(x => x.status === "Resolved").reduce((sum,x)=>sum+Number(x.count||0),0);
+        const active = statuses.filter(x => ["Pending","Assigned","In Progress"].includes(x.status)).reduce((sum,x)=>sum+Number(x.count||0),0);
+
+        const totalEl=document.getElementById("adminTotal");
+        const resolvedEl=document.getElementById("adminResolved");
+        const activeEl=document.getElementById("adminActiveWorkers");
+        if(totalEl) totalEl.textContent=total;
+        if(resolvedEl) resolvedEl.textContent=resolved;
+        if(activeEl) activeEl.textContent="Loading...";
+        const avgEl=document.getElementById("adminAvgTime");
+        if(avgEl) avgEl.textContent="—";
+
+        const perf = document.getElementById("adminPerformanceTable");
+        if (perf) {
+            const workersResponse = await fetch("/api/admin/workers");
+            const workers = workersResponse.ok ? await workersResponse.json() : [];
+            if(activeEl) activeEl.textContent = workers.filter(w => w.status === "Available" || w.status === "Busy").length;
+            const complaintResponse = await fetch("/api/admin/complaints");
+            const complaints = complaintResponse.ok ? await complaintResponse.json() : [];
+
+            const rows = workers.map(w => {
+                const mine = complaints.filter(c => c.worker_id === w.worker_id || c.worker_name === w.name);
+                const done = mine.filter(c => c.status === "Resolved").length;
+                const activeCount = mine.filter(c => ["Assigned","In Progress"].includes(c.status)).length;
+                const efficiency = mine.length ? Math.round(done / mine.length * 100) : 0;
+                return {w,done,activeCount,efficiency};
+            }).filter(x => x.mine !== undefined || x.done > 0 || x.activeCount > 0)
+              .sort((a,b)=>b.done-a.done)
+              .slice(0,5);
+
+            perf.innerHTML = `<div class="performance-row header"><span>Worker</span><span>Resolved</span><span>Active</span><span>Efficiency</span></div>` +
+                (rows.length ? rows.map((x,i)=>`<div class="performance-row">
+                    <span class="worker-name"><b>${String(i+1).padStart(2,"0")}</b> ${escapeHtml(x.w.name)}</span>
+                    <span>${x.done}</span><span>${x.activeCount}</span><span>${x.efficiency}%</span>
+                </div>`).join("") : `<div class="performance-row"><span>No worker activity yet.</span></div>`);
+        }
+    } catch (error) {
+        console.error("Admin reports:", error);
+    }
+}
+function escapeHtml(value) {
+    return String(value ?? "").replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[ch]));
+}
+async function logoutAdmin(event) {
+    if(event) event.preventDefault();
+    const ok = await smartCleanConfirm("Are you sure you want to logout from SmartClean?","Logout Confirmation");
+    if(ok) window.location.href="/admin-logout";
+}
+function generateReport() {
+    const button=document.querySelector(".generate-btn");
+    if (!button) return;
+    button.textContent="Generating...";
+    setTimeout(()=>button.textContent="✓ Report Generated",700);
+}
+function downloadReport() {
+    window.location.href="/admin-reports/download";
+}
+loadAdminReports();
+</script>
+
+
+<style>
+.smartclean-notify-backdrop{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(7,38,28,.58);backdrop-filter:blur(7px);opacity:0;visibility:hidden;transition:.2s}
+.smartclean-notify-backdrop.show{opacity:1;visibility:visible}
+.smartclean-notify-card{width:min(460px,100%);background:linear-gradient(145deg,#fff,#f2fbf6);border:1px solid rgba(39,174,96,.22);border-radius:24px;box-shadow:0 24px 70px rgba(0,0,0,.24);overflow:hidden;transform:translateY(16px) scale(.97);transition:.22s;font-family:inherit}
+.smartclean-notify-backdrop.show .smartclean-notify-card{transform:none}
+.smartclean-notify-top{display:flex;align-items:center;gap:14px;padding:20px 22px 14px}
+.smartclean-notify-icon{width:48px;height:48px;flex:0 0 48px;border-radius:16px;display:grid;place-items:center;font-size:24px;background:linear-gradient(135deg,#16a085,#2ecc71);color:#fff;box-shadow:0 8px 22px rgba(22,160,133,.28)}
+.smartclean-notify-title{margin:0;color:#123c2b;font-size:20px;font-weight:800}
+.smartclean-notify-message{margin:0;padding:4px 22px 20px;color:#4c6258;font-size:15px;line-height:1.65;white-space:pre-line;word-break:break-word}
+.smartclean-notify-actions{display:flex;justify-content:flex-end;gap:10px;padding:15px 22px 20px;background:rgba(39,174,96,.055);border-top:1px solid rgba(39,174,96,.1)}
+.smartclean-notify-btn{border:0;border-radius:12px;padding:11px 20px;font:inherit;font-weight:800;cursor:pointer}
+.smartclean-notify-cancel{background:#e9f0ec;color:#345247}.smartclean-notify-ok{color:#fff;background:linear-gradient(135deg,#11998e,#38ef7d);box-shadow:0 7px 18px rgba(17,153,142,.22)}
+</style>
+<script>
+(function(){
+function close(m){m.classList.remove("show");setTimeout(()=>m.remove(),180);}
+window.smartCleanAlert=function(message,type,title){type=type||"info";let c={success:["✓","SmartClean Success"],error:["!","SmartClean Notice"],warning:["⚠","Please Check"],info:["♻","SmartClean"]}[type]||["♻","SmartClean"];return new Promise(r=>{let m=document.createElement("div");m.className="smartclean-notify-backdrop";m.innerHTML=`<div class="smartclean-notify-card" role="dialog" aria-modal="true"><div class="smartclean-notify-top"><div class="smartclean-notify-icon">${c[0]}</div><h3 class="smartclean-notify-title">${title||c[1]}</h3></div><p class="smartclean-notify-message"></p><div class="smartclean-notify-actions"><button type="button" class="smartclean-notify-btn smartclean-notify-ok">OK</button></div></div>`;m.querySelector(".smartclean-notify-message").textContent=String(message??"");document.body.appendChild(m);let done=()=>{close(m);r()};m.querySelector(".smartclean-notify-ok").onclick=done;m.onclick=e=>{if(e.target===m)done()};requestAnimationFrame(()=>m.classList.add("show"));});};
+window.smartCleanConfirm=function(message,title){return new Promise(r=>{let m=document.createElement("div");m.className="smartclean-notify-backdrop";m.innerHTML=`<div class="smartclean-notify-card" role="dialog" aria-modal="true"><div class="smartclean-notify-top"><div class="smartclean-notify-icon">♻</div><h3 class="smartclean-notify-title">${title||"SmartClean Confirmation"}</h3></div><p class="smartclean-notify-message"></p><div class="smartclean-notify-actions"><button type="button" class="smartclean-notify-btn smartclean-notify-cancel">Cancel</button><button type="button" class="smartclean-notify-btn smartclean-notify-ok">Continue</button></div></div>`;m.querySelector(".smartclean-notify-message").textContent=String(message??"");document.body.appendChild(m);let done=v=>{close(m);r(v)};m.querySelector(".smartclean-notify-cancel").onclick=()=>done(false);m.querySelector(".smartclean-notify-ok").onclick=()=>done(true);m.onclick=e=>{if(e.target===m)done(false)};requestAnimationFrame(()=>m.classList.add("show"));});};
+})();
+</script>
+
+</body>
+
+</html>

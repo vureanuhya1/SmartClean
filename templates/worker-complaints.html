@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Worker Complaints | SmartClean</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/common.css') }}">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/worker-complaints.css') }}">
+</head>
+
+<body>
+
+<header class="navbar">
+
+    <a href="/" class="logo">
+
+        <div class="logo-icon">♻</div>
+
+        <div class="logo-text">
+            <h2>SmartClean</h2>
+            <p>Smart Garbage Management</p>
+        </div>
+
+    </a>
+
+    <nav>
+        <ul class="nav-links">
+ <li><a href="/worker-profile">Profile</a>
+</li>
+            <li>
+                <a href="/worker-dashboard">
+                    Dashboard
+                </a>
+            </li>
+
+            <li>
+                <a href="/worker-complaints" class="active">
+                    Complaints
+                </a>
+            </li>
+
+            <li>
+                <a href="/worker-reports">
+                    Reports
+                </a>
+            </li>
+
+        </ul>
+    </nav>
+
+   <div class="worker-nav">
+
+    <button class="profile-button" id="profileButton">
+        <span class="profile-avatar">👷</span>
+        <span class="profile-name">Worker</span>
+    </button>
+
+    <button
+        class="logout-button"
+        id="logoutButton"
+        type="button">
+        Logout
+    </button>
+
+</div>
+
+</header>
+
+
+<main class="complaints-page">
+
+    <div class="complaints-glow glow-one"></div>
+    <div class="complaints-glow glow-two"></div>
+
+
+    <!-- PAGE HEADER -->
+
+    <section class="complaints-header">
+
+        <div>
+
+            <span class="page-badge">
+                WORKER PORTAL
+            </span>
+
+            <h1>
+                Assigned Complaints
+            </h1>
+
+            <p>
+                Review, update and manage garbage collection
+                complaints assigned to you.
+            </p>
+
+        </div>
+
+
+        <a href="/worker-dashboard"
+           class="back-dashboard">
+            ← Dashboard
+        </a>
+
+    </section>
+
+
+    <!-- FILTER BAR -->
+
+    <section class="filter-card">
+
+        <div class="search-box">
+
+            <span>🔍</span>
+
+            <input
+                type="text"
+                id="searchComplaint"
+                placeholder="Search complaints..."
+            >
+
+        </div>
+
+
+        <select id="statusFilter">
+
+            <option value="all">
+                All Status
+            </option>
+
+            <option value="Assigned">
+                Assigned
+            </option>
+
+            <option value="In Progress">
+                In Progress
+            </option>
+
+            <option value="Resolved">
+                Resolved
+            </option>
+
+        </select>
+
+    </section>
+
+
+    <!-- COMPLAINTS -->
+
+    <section
+        id="complaintsList"
+        class="complaints-list">
+    </section>
+
+
+</main>
+
+
+<footer class="footer">
+
+    <div>
+        <strong>♻ SmartClean</strong>
+
+        <p>
+            Smart Garbage Management System
+        </p>
+    </div>
+
+    <div>
+        © 2026 SmartClean · Team 4
+    </div>
+
+</footer>
+
+
+<script>
+const complaintsList = document.getElementById("complaintsList");
+const searchInput = document.getElementById("searchComplaint");
+const statusFilter = document.getElementById("statusFilter");
+const logoutButton = document.getElementById("logoutButton");
+
+let complaints = [];
+
+async function loadWorkerComplaints() {
+    try {
+        const response = await fetch("/api/worker/complaints", {
+            credentials: "same-origin"
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || "Unable to load complaints.");
+        }
+
+        complaints = Array.isArray(data) ? data : [];
+        renderComplaints();
+    } catch (error) {
+        console.error("Worker complaints error:", error);
+        complaintsList.innerHTML = `
+            <div class="empty-state">
+                <div>⚠️</div>
+                <h3>Unable to load complaints</h3>
+                <p>Please refresh the page and try again.</p>
+            </div>`;
+    }
+}
+
+function escapeHtml(value) {
+    return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+function statusClass(status) {
+    if (status === "Resolved") return "completed";
+    if (status === "In Progress") return "progress";
+    return "pending";
+}
+
+function nextStatusFor(status) {
+    if (status === "Assigned") return "In Progress";
+    if (status === "In Progress") return "Resolved";
+    return null;
+}
+
+function renderComplaints() {
+    const query = (searchInput.value || "").trim().toLowerCase();
+    const selectedStatus = statusFilter.value;
+
+    const rows = complaints.filter(complaint => {
+        const searchable = [
+            complaint.id,
+            complaint.issue_type,
+            complaint.street_number,
+            complaint.description,
+            complaint.citizen_name
+        ].join(" ").toLowerCase();
+
+        const matchesSearch = !query || searchable.includes(query);
+        const matchesStatus =
+            selectedStatus === "all" || complaint.status === selectedStatus;
+
+        return matchesSearch && matchesStatus;
+    });
+
+    if (!rows.length) {
+        complaintsList.innerHTML = `
+            <div class="empty-state">
+                <div>🔍</div>
+                <h3>No complaints found</h3>
+                <p>Try changing your search or status filter.</p>
+            </div>`;
+        return;
+    }
+
+    complaintsList.innerHTML = rows.map(complaint => {
+        const nextStatus = nextStatusFor(complaint.status);
+        const button = nextStatus
+            ? `<button class="update-button" onclick="updateComplaint('${escapeHtml(complaint.id)}')">
+                    Mark ${escapeHtml(nextStatus)}
+               </button>`
+            : `<span class="status-note">Resolved</span>`;
+
+        return `
+            <div class="complaint-card">
+                <div class="complaint-icon">🗑️</div>
+
+                <div class="complaint-info">
+                    <span class="complaint-id">${escapeHtml(complaint.id)}</span>
+                    <h2>${escapeHtml(complaint.issue_type)}</h2>
+                    <p>📍 ${escapeHtml(complaint.street_number || "-")}</p>
+                    <small>📅 Reported: ${escapeHtml(complaint.date || "-")}</small>
+                </div>
+
+                <div class="complaint-right">
+                    <span class="status ${statusClass(complaint.status)}">
+                        ${escapeHtml(complaint.status)}
+                    </span>
+                    ${button}
+                </div>
+            </div>`;
+    }).join("");
+}
+
+async function updateComplaint(id) {
+    const complaint = complaints.find(item => item.id === id);
+    if (!complaint) return;
+
+    const nextStatus = nextStatusFor(complaint.status);
+
+    if (!nextStatus) {
+        smartCleanAlert("This complaint is already resolved.","info","Complaint Status");
+        return;
+    }
+
+    const confirmed = await smartCleanConfirm(
+        `Change ${complaint.id} from ${complaint.status} to ${nextStatus}?`,
+        "Update Complaint Status"
+    );
+
+    if (!confirmed) return;
+
+    try {
+        const response = await fetch(
+            `/api/worker/complaints/${encodeURIComponent(id)}/status`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                credentials: "same-origin",
+                body: JSON.stringify({ status: nextStatus })
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || "Status update failed.");
+        }
+
+        await loadWorkerComplaints();
+    } catch (error) {
+        console.error("Status update error:", error);
+        smartCleanAlert(error.message || "Unable to update complaint status.","error","Update Failed");
+    }
+}
+
+searchInput.addEventListener("input", renderComplaints);
+statusFilter.addEventListener("change", renderComplaints);
+
+if (logoutButton) {
+    logoutButton.addEventListener("click", () => {
+        smartCleanConfirm(
+            "Are you sure you want to logout from SmartClean?",
+            "Logout Confirmation"
+        ).then(function(ok){
+            if(ok) window.location.href="/worker-logout";
+        });
+    });
+}
+
+loadWorkerComplaints();
+</script>
+
+<style>
+.smartclean-notify-backdrop{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(7,38,28,.58);backdrop-filter:blur(7px);opacity:0;visibility:hidden;transition:.2s}
+.smartclean-notify-backdrop.show{opacity:1;visibility:visible}
+.smartclean-notify-card{width:min(460px,100%);background:linear-gradient(145deg,#fff,#f2fbf6);border:1px solid rgba(39,174,96,.22);border-radius:24px;box-shadow:0 24px 70px rgba(0,0,0,.24);overflow:hidden;transform:translateY(16px) scale(.97);transition:.22s;font-family:inherit}
+.smartclean-notify-backdrop.show .smartclean-notify-card{transform:none}
+.smartclean-notify-top{display:flex;align-items:center;gap:14px;padding:20px 22px 14px}
+.smartclean-notify-icon{width:48px;height:48px;flex:0 0 48px;border-radius:16px;display:grid;place-items:center;font-size:24px;background:linear-gradient(135deg,#16a085,#2ecc71);color:#fff;box-shadow:0 8px 22px rgba(22,160,133,.28)}
+.smartclean-notify-title{margin:0;color:#123c2b;font-size:20px;font-weight:800}
+.smartclean-notify-message{margin:0;padding:4px 22px 20px;color:#4c6258;font-size:15px;line-height:1.65;white-space:pre-line;word-break:break-word}
+.smartclean-notify-actions{display:flex;justify-content:flex-end;gap:10px;padding:15px 22px 20px;background:rgba(39,174,96,.055);border-top:1px solid rgba(39,174,96,.1)}
+.smartclean-notify-btn{border:0;border-radius:12px;padding:11px 20px;font:inherit;font-weight:800;cursor:pointer}
+.smartclean-notify-cancel{background:#e9f0ec;color:#345247}.smartclean-notify-ok{color:#fff;background:linear-gradient(135deg,#11998e,#38ef7d);box-shadow:0 7px 18px rgba(17,153,142,.22)}
+</style>
+<script>
+(function(){
+function close(m){m.classList.remove("show");setTimeout(()=>m.remove(),180);}
+window.smartCleanAlert=function(message,type,title){type=type||"info";let c={success:["✓","SmartClean Success"],error:["!","SmartClean Notice"],warning:["⚠","Please Check"],info:["♻","SmartClean"]}[type]||["♻","SmartClean"];return new Promise(r=>{let m=document.createElement("div");m.className="smartclean-notify-backdrop";m.innerHTML=`<div class="smartclean-notify-card" role="dialog" aria-modal="true"><div class="smartclean-notify-top"><div class="smartclean-notify-icon">${c[0]}</div><h3 class="smartclean-notify-title">${title||c[1]}</h3></div><p class="smartclean-notify-message"></p><div class="smartclean-notify-actions"><button type="button" class="smartclean-notify-btn smartclean-notify-ok">OK</button></div></div>`;m.querySelector(".smartclean-notify-message").textContent=String(message??"");document.body.appendChild(m);let done=()=>{close(m);r()};m.querySelector(".smartclean-notify-ok").onclick=done;m.onclick=e=>{if(e.target===m)done()};requestAnimationFrame(()=>m.classList.add("show"));});};
+window.smartCleanConfirm=function(message,title){return new Promise(r=>{let m=document.createElement("div");m.className="smartclean-notify-backdrop";m.innerHTML=`<div class="smartclean-notify-card" role="dialog" aria-modal="true"><div class="smartclean-notify-top"><div class="smartclean-notify-icon">♻</div><h3 class="smartclean-notify-title">${title||"SmartClean Confirmation"}</h3></div><p class="smartclean-notify-message"></p><div class="smartclean-notify-actions"><button type="button" class="smartclean-notify-btn smartclean-notify-cancel">Cancel</button><button type="button" class="smartclean-notify-btn smartclean-notify-ok">Continue</button></div></div>`;m.querySelector(".smartclean-notify-message").textContent=String(message??"");document.body.appendChild(m);let done=v=>{close(m);r(v)};m.querySelector(".smartclean-notify-cancel").onclick=()=>done(false);m.querySelector(".smartclean-notify-ok").onclick=()=>done(true);m.onclick=e=>{if(e.target===m)done(false)};requestAnimationFrame(()=>m.classList.add("show"));});};
+})();
+</script>
+
+</body>
+</html>

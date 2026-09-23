@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Citizen Profile | SmartClean</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/common.css') }}">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/citizen-profile.css') }}">
+</head>
+
+<body>
+
+<header class="navbar">
+
+    <a href="/" class="logo">
+
+        <div class="logo-icon">
+            ♻
+        </div>
+
+        <div class="logo-text">
+
+            <h2>SmartClean</h2>
+
+            <p>
+                Smart Garbage Management
+            </p>
+
+        </div>
+
+    </a>
+
+    <nav>
+
+        <ul class="nav-links">
+
+            <li>
+                <a href="/">
+                    Home
+                </a>
+            </li>
+
+            <li>
+                <a href="/report-issue">
+                    Report Issue
+                </a>
+            </li>
+
+            <li>
+                <a href="/track">
+                    Track Complaint
+                </a>
+            </li>
+
+            <li>
+                <a href="/#about">
+                    About
+                </a>
+            </li>
+
+        </ul>
+
+    </nav>
+
+    <div class="nav-buttons">
+
+        <a href="/citizen-dashboard"
+           class="btn-login dashboard-btn">
+
+            Dashboard
+
+        </a>
+
+        <a href="/logout"
+           class="btn-register" data-smartclean-logout="citizen">
+
+            Logout
+
+        </a>
+
+    </div>
+
+</header>
+
+
+<main class="citizen-profile-container">
+
+    <div class="citizen-page-heading">
+
+        <p class="citizen-small-title">
+            CITIZEN PORTAL
+        </p>
+
+        <h1>
+            My Profile
+        </h1>
+
+        <p class="citizen-subtitle">
+            Manage your account information and settings.
+        </p>
+
+    </div>
+
+
+    <section class="citizen-profile-card">
+
+        <div class="citizen-profile-header">
+
+            <div class="citizen-profile-avatar">
+                {{ user.name[0]|upper }}
+            </div>
+
+            <div class="citizen-profile-title">
+
+                <h2 id="profileName">
+                    {{ user.name }}
+                </h2>
+
+                <p>
+                    Registered Citizen
+                </p>
+
+            </div>
+
+            <button
+                type="button"
+                class="citizen-edit-btn"
+                id="citizenEditBtn">
+
+                ✎ Edit Profile
+
+            </button>
+
+        </div>
+
+
+        <div class="citizen-profile-details">
+
+            <div class="citizen-detail-box">
+
+                <span class="citizen-detail-label">
+                    Full Name
+                </span>
+
+                <span class="citizen-detail-value"
+                      id="displayName">
+
+                    {{ user.name }}
+
+                </span>
+
+            </div>
+
+
+            <div class="citizen-detail-box">
+
+                <span class="citizen-detail-label">
+                    Email Address
+                </span>
+
+                <span class="citizen-detail-value"
+                      id="displayEmail">
+
+                    {{ user.email }}
+
+                </span>
+
+            </div>
+
+
+            <div class="citizen-detail-box">
+
+                <span class="citizen-detail-label">
+                    Phone Number
+                </span>
+
+                <span class="citizen-detail-value"
+                      id="displayPhone">
+
+                    {{ user.phone }}
+
+                </span>
+
+            </div>
+
+
+            <div class="citizen-detail-box">
+
+                <span class="citizen-detail-label">
+                    Location
+                </span>
+
+                <span class="citizen-detail-value">
+
+                    Ward {{ user.ward_number }}
+
+                </span>
+
+            </div>
+
+
+            <div class="citizen-detail-box">
+
+                <span class="citizen-detail-label">
+                    Role
+                </span>
+
+                <span class="citizen-detail-value">
+                    Citizen
+                </span>
+
+            </div>
+
+
+            <div class="citizen-detail-box">
+
+                <span class="citizen-detail-label">
+                    Account Status
+                </span>
+
+                <span class="citizen-status">
+                    ● Active
+                </span>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <section class="citizen-settings-card" style="margin-top:24px;">
+        <div class="citizen-settings-heading">
+            <div class="citizen-settings-icon">🗂️</div>
+            <div>
+                <h2>My Complaints</h2>
+                <p>Complaint IDs submitted from your citizen account.</p>
+            </div>
+        </div>
+        {% if complaints %}
+            <div style="overflow-x:auto;">
+                <table style="width:100%;border-collapse:collapse;">
+                    <thead>
+                        <tr>
+                            <th style="text-align:left;padding:12px;">Complaint ID</th>
+                            <th style="text-align:left;padding:12px;">Issue</th>
+                            <th style="text-align:left;padding:12px;">Location</th>
+                            <th style="text-align:left;padding:12px;">Date</th>
+                            <th style="text-align:left;padding:12px;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for complaint in complaints %}
+                        <tr>
+                            <td style="padding:12px;"><strong>{{ complaint.id }}</strong></td>
+                            <td style="padding:12px;">{{ complaint.issue_type }}</td>
+                            <td style="padding:12px;">{{ complaint.location }}</td>
+                            <td style="padding:12px;">{{ complaint.date }}</td>
+                            <td style="padding:12px;">{{ complaint.status }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p style="padding:12px 0;">No complaints submitted yet.</p>
+        {% endif %}
+    </section>
+
+
+    <section class="citizen-settings-card">
+
+        <div class="citizen-settings-heading">
+
+            <div class="citizen-settings-icon">
+                ⚙
+            </div>
+
+            <div>
+
+                <h2>
+                    Settings
+                </h2>
+
+                <p>
+                    Manage your account security and preferences.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="citizen-setting-row">
+
+            <div class="citizen-setting-info">
+
+                <h3>
+                    Password & Security
+                </h3>
+
+                <p>
+                    Change your password or recover your account.
+                </p>
+
+            </div>
+
+            <button
+                class="citizen-setting-btn"
+                onclick="window.location.href='/forgot-password'">
+
+                Change Password
+
+            </button>
+
+        </div>
+
+
+        <div class="citizen-setting-row">
+
+            <div class="citizen-setting-info">
+
+                <h3>
+                    Notifications
+                </h3>
+
+                <p>
+                    Manage notifications related to your complaints.
+                </p>
+
+            </div>
+
+            <label class="citizen-switch">
+
+                <input type="checkbox" checked>
+
+                <span class="citizen-slider"></span>
+
+            </label>
+
+        </div>
+
+
+        <div class="citizen-setting-row">
+
+            <div class="citizen-setting-info">
+
+                <h3>
+                    Account Security
+                </h3>
+
+                <p>
+                    Your citizen account is protected by authentication.
+                </p>
+
+            </div>
+
+            <span class="citizen-security-status">
+                Protected
+            </span>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<footer class="footer">
+
+    <div>
+
+        <strong>
+            ♻ SmartClean
+        </strong>
+
+        <p>
+            Smart Garbage Management System
+        </p>
+
+    </div>
+
+    <div>
+
+        © 2026 SmartClean · Team 4
+
+    </div>
+
+</footer>
+
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const editBtn = document.getElementById("citizenEditBtn");
+
+    if (!editBtn) {
+        return;
+    }
+
+    editBtn.addEventListener("click", async function () {
+
+        const currentName = {{ user.name|tojson }};
+        const currentPhone = {{ user.phone|tojson }};
+        const currentEmail = {{ user.email|tojson }};
+
+        const name = await smartPrompt(
+            "Enter your full name:",
+            currentName
+        );
+
+        if (name === null) {
+            return;
+        }
+
+        const trimmedName = name.trim();
+
+        if (!trimmedName) {
+            smartAlert("Name cannot be empty.");
+            return;
+        }
+
+
+        const phone = await smartPrompt(
+            "Enter your phone number:",
+            currentPhone
+        );
+
+        if (phone === null) {
+            return;
+        }
+
+        const trimmedPhone = phone.trim();
+
+        if (!trimmedPhone) {
+            smartAlert("Phone number cannot be empty.");
+            return;
+        }
+
+
+        const email = await smartPrompt(
+            "Enter your email address:",
+            currentEmail
+        );
+
+        if (email === null) {
+            return;
+        }
+
+        const trimmedEmail = email.trim();
+
+        if (!trimmedEmail) {
+            smartAlert("Email cannot be empty.");
+            return;
+        }
+
+
+        const payload = {
+
+            name: trimmedName,
+
+            phone: trimmedPhone,
+
+            email: trimmedEmail
+
+        };
+
+
+        try {
+
+            const response = await fetch(
+                "/api/profile/update",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify(payload)
+                }
+            );
+
+
+            const data = await response.json();
+
+
+            if (!response.ok || !data.success) {
+
+                smartAlert(
+                    data.message ||
+                    "Profile update failed."
+                );
+
+                return;
+            }
+
+
+            smartAlert(
+                "Profile updated successfully!"
+            );
+
+
+            window.location.reload();
+
+        }
+
+        catch (error) {
+
+            console.error(error);
+
+            smartAlert(
+                "Unable to update profile. Please check your connection and try again."
+            );
+
+        }
+
+    });
+
+});
+
+</script>
+
+
+<!-- SmartClean custom notification UI: replaces browser alert/confirm/prompt boxes -->
+<style>
+.smartclean-modal-backdrop{
+    position:fixed;
+    inset:0;
+    z-index:99999;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    background:rgba(6,30,25,.58);
+    backdrop-filter:blur(7px);
+}
+.smartclean-modal{
+    width:min(460px,100%);
+    overflow:hidden;
+    border:1px solid rgba(255,255,255,.55);
+    border-radius:24px;
+    background:linear-gradient(145deg,#ffffff 0%,#f0fff8 100%);
+    box-shadow:0 24px 70px rgba(0,80,60,.28);
+    transform:translateY(12px) scale(.96);
+    animation:smartcleanPop .22s ease forwards;
+    font-family:inherit;
+}
+@keyframes smartcleanPop{
+    to{transform:translateY(0) scale(1)}
+}
+.smartclean-modal-top{
+    padding:22px 24px 16px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+}
+.smartclean-modal-icon{
+    width:50px;
+    height:50px;
+    flex:0 0 50px;
+    border-radius:16px;
+    display:grid;
+    place-items:center;
+    font-size:25px;
+    background:linear-gradient(135deg,#10b981,#059669);
+    color:#fff;
+    box-shadow:0 10px 24px rgba(16,185,129,.28);
+}
+.smartclean-modal-title{
+    margin:0;
+    color:#12372e;
+    font-size:19px;
+    font-weight:800;
+}
+.smartclean-modal-message{
+    margin:0;
+    padding:0 24px 22px;
+    color:#49635c;
+    font-size:14px;
+    line-height:1.65;
+    white-space:pre-line;
+}
+.smartclean-modal-actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+    padding:15px 20px 20px;
+    background:rgba(16,185,129,.06);
+}
+.smartclean-modal-btn{
+    border:0;
+    border-radius:12px;
+    padding:10px 18px;
+    font-weight:800;
+    cursor:pointer;
+    font-size:14px;
+    transition:.18s ease;
+}
+.smartclean-modal-btn:hover{transform:translateY(-1px)}
+.smartclean-modal-cancel{
+    background:#e8f0ed;
+    color:#36534a;
+}
+.smartclean-modal-ok{
+    background:linear-gradient(135deg,#10b981,#047857);
+    color:#fff;
+    box-shadow:0 7px 18px rgba(5,150,105,.22);
+}
+.smartclean-modal-input{
+    width:calc(100% - 48px);
+    margin:0 24px 22px;
+    box-sizing:border-box;
+    border:1.5px solid #b9d9ce;
+    border-radius:13px;
+    padding:12px 14px;
+    outline:none;
+    font:inherit;
+    color:#183b33;
+    background:#fff;
+}
+.smartclean-modal-input:focus{
+    border-color:#10b981;
+    box-shadow:0 0 0 4px rgba(16,185,129,.12);
+}
+.smartclean-toast{
+    position:fixed;
+    right:22px;
+    top:22px;
+    z-index:100000;
+    width:min(390px,calc(100vw - 44px));
+    display:flex;
+    align-items:flex-start;
+    gap:12px;
+    padding:15px 17px;
+    border-radius:17px;
+    color:#12372e;
+    background:#fff;
+    border:1px solid rgba(16,185,129,.22);
+    box-shadow:0 18px 45px rgba(0,70,50,.18);
+    animation:smartcleanToastIn .25s ease;
+}
+@keyframes smartcleanToastIn{
+    from{opacity:0;transform:translateY(-12px)}
+    to{opacity:1;transform:translateY(0)}
+}
+.smartclean-toast-icon{
+    width:34px;height:34px;flex:0 0 34px;border-radius:11px;
+    display:grid;place-items:center;color:#fff;font-size:17px;
+    background:linear-gradient(135deg,#10b981,#047857);
+}
+.smartclean-toast strong{display:block;font-size:14px;margin-bottom:3px}
+.smartclean-toast span{display:block;font-size:13px;line-height:1.45;color:#59736b}
+.smartclean-toast-close{
+    margin-left:auto;border:0;background:transparent;color:#79928b;
+    font-size:20px;cursor:pointer;line-height:1;
+}
+</style>
+
+<script>
+(function(){
+    function removeModal(el){
+        if(el && el.parentNode) el.parentNode.removeChild(el);
+    }
+
+    window.smartAlert = function(message, type){
+        type = type || "info";
+        return new Promise(function(resolve){
+            const backdrop = document.createElement("div");
+            backdrop.className = "smartclean-modal-backdrop";
+
+            const icons = {
+                success:"✓",
+                error:"!",
+                warning:"⚠",
+                info:"♻"
+            };
+
+            const titles = {
+                success:"SmartClean Success",
+                error:"SmartClean Notice",
+                warning:"Please check",
+                info:"SmartClean"
+            };
+
+            backdrop.innerHTML = `
+                <div class="smartclean-modal" role="dialog" aria-modal="true">
+                    <div class="smartclean-modal-top">
+                        <div class="smartclean-modal-icon">${icons[type] || icons.info}</div>
+                        <h3 class="smartclean-modal-title">${titles[type] || titles.info}</h3>
+                    </div>
+                    <p class="smartclean-modal-message"></p>
+                    <div class="smartclean-modal-actions">
+                        <button type="button" class="smartclean-modal-btn smartclean-modal-ok">OK</button>
+                    </div>
+                </div>
+            `;
+
+            backdrop.querySelector(".smartclean-modal-message").textContent =
+                String(message ?? "");
+
+            document.body.appendChild(backdrop);
+
+            const close = function(){
+                removeModal(backdrop);
+                resolve();
+            };
+
+            backdrop.querySelector(".smartclean-modal-ok").addEventListener("click", close);
+            backdrop.addEventListener("click", function(e){
+                if(e.target === backdrop) close();
+            });
+
+            setTimeout(function(){
+                const btn = backdrop.querySelector(".smartclean-modal-ok");
+                if(btn) btn.focus();
+            }, 30);
+        });
+    };
+
+    window.smartConfirm = function(message, title){
+        return new Promise(function(resolve){
+            const backdrop = document.createElement("div");
+            backdrop.className = "smartclean-modal-backdrop";
+
+            backdrop.innerHTML = `
+                <div class="smartclean-modal" role="dialog" aria-modal="true">
+                    <div class="smartclean-modal-top">
+                        <div class="smartclean-modal-icon">♻</div>
+                        <h3 class="smartclean-modal-title">${title || "Confirm Action"}</h3>
+                    </div>
+                    <p class="smartclean-modal-message"></p>
+                    <div class="smartclean-modal-actions">
+                        <button type="button" class="smartclean-modal-btn smartclean-modal-cancel">Cancel</button>
+                        <button type="button" class="smartclean-modal-btn smartclean-modal-ok">Continue</button>
+                    </div>
+                </div>
+            `;
+
+            backdrop.querySelector(".smartclean-modal-message").textContent =
+                String(message ?? "");
+
+            document.body.appendChild(backdrop);
+
+            const finish = function(value){
+                removeModal(backdrop);
+                resolve(value);
+            };
+
+            backdrop.querySelector(".smartclean-modal-cancel").addEventListener("click", function(){
+                finish(false);
+            });
+            backdrop.querySelector(".smartclean-modal-ok").addEventListener("click", function(){
+                finish(true);
+            });
+            backdrop.addEventListener("click", function(e){
+                if(e.target === backdrop) finish(false);
+            });
+        });
+    };
+
+    window.smartPrompt = function(message, defaultValue){
+        return new Promise(function(resolve){
+            const backdrop = document.createElement("div");
+            backdrop.className = "smartclean-modal-backdrop";
+
+            backdrop.innerHTML = `
+                <div class="smartclean-modal" role="dialog" aria-modal="true">
+                    <div class="smartclean-modal-top">
+                        <div class="smartclean-modal-icon">✏</div>
+                        <h3 class="smartclean-modal-title">Update SmartClean Profile</h3>
+                    </div>
+                    <p class="smartclean-modal-message"></p>
+                    <input class="smartclean-modal-input" type="text">
+                    <div class="smartclean-modal-actions">
+                        <button type="button" class="smartclean-modal-btn smartclean-modal-cancel">Cancel</button>
+                        <button type="button" class="smartclean-modal-btn smartclean-modal-ok">Save</button>
+                    </div>
+                </div>
+            `;
+
+            backdrop.querySelector(".smartclean-modal-message").textContent =
+                String(message ?? "");
+
+            const input = backdrop.querySelector(".smartclean-modal-input");
+            input.value = defaultValue ?? "";
+
+            document.body.appendChild(backdrop);
+
+            const finish = function(value){
+                removeModal(backdrop);
+                resolve(value);
+            };
+
+            backdrop.querySelector(".smartclean-modal-cancel").addEventListener("click", function(){
+                finish(null);
+            });
+            backdrop.querySelector(".smartclean-modal-ok").addEventListener("click", function(){
+                finish(input.value);
+            });
+            input.addEventListener("keydown", function(e){
+                if(e.key === "Enter"){
+                    e.preventDefault();
+                    finish(input.value);
+                }
+                if(e.key === "Escape"){
+                    e.preventDefault();
+                    finish(null);
+                }
+            });
+
+            setTimeout(function(){
+                input.focus();
+                input.select();
+            }, 30);
+        });
+    };
+})();
+</script>
+
+<script>document.addEventListener("DOMContentLoaded",function(){document.querySelectorAll('[data-smartclean-logout="citizen"]').forEach(function(b){b.addEventListener("click",async function(e){e.preventDefault();if(await smartConfirm("Are you sure you want to logout from SmartClean?","Logout Confirmation"))location.href="/logout";});});});</script></body>
+
+</html>

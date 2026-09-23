@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Register | SmartClean</title>
+
+    <!-- Common Navbar -->
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/common.css') }}">
+
+    <!-- Register Page CSS -->
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/register.css') }}">
+</head>
+
+<body>
+
+<!-- =========================
+     NAVBAR
+========================= -->
+
+<header class="navbar">
+
+    <a href="/" class="logo">
+
+        <div class="logo-icon">
+            ♻
+        </div>
+
+        <div class="logo-text">
+
+            <h2>SmartClean</h2>
+
+            <p>
+                Smart Garbage Management
+            </p>
+
+        </div>
+
+    </a>
+
+    <nav>
+
+        <ul class="nav-links">
+
+            <li>
+                <a href="/">
+                    Home
+                </a>
+            </li>
+
+            <li>
+                <a href="/report-issue">
+                    Report Issue
+                </a>
+            </li>
+
+            <li>
+                <a href="/track">
+                    Track Complaint
+                </a>
+            </li>
+
+            <li>
+                <a href="/#about">
+                    About
+                </a>
+            </li>
+
+        </ul>
+
+    </nav>
+
+    <div class="nav-buttons">
+
+        <a href="/login"
+           class="btn-login">
+            Login
+        </a>
+
+        <a href="/register"
+           class="btn-register active-register">
+            Register
+        </a>
+
+    </div>
+
+</header>
+
+
+<!-- =========================
+     REGISTER PAGE
+========================= -->
+
+<main class="register-page">
+
+    <!-- Animated Background -->
+
+    <div class="register-orb orb-one"></div>
+    <div class="register-orb orb-two"></div>
+    <div class="register-orb orb-three"></div>
+
+
+    <!-- Heading -->
+
+    <section class="register-heading">
+
+        <span class="register-badge">
+            SMARTCLEAN REGISTRATION
+        </span>
+
+        <h1>
+            Create Your Account 🌱
+        </h1>
+
+        <p>
+            Choose your account type to join SmartClean.
+        </p>
+
+    </section>
+
+
+    <!-- Registration Cards -->
+
+    <section class="registration-role-container">
+
+
+        <!-- =====================
+             CITIZEN
+        ====================== -->
+
+        <a href="/citizen-register"
+           class="registration-role-card citizen-card">
+
+            <div class="registration-role-icon citizen-icon">
+                👤
+            </div>
+
+            <span class="registration-role-label">
+                CITIZEN
+            </span>
+
+            <h2>
+                Citizen Registration
+            </h2>
+
+            <p>
+                Create a citizen account to report garbage
+                issues, track complaints and view updates.
+            </p>
+
+            <div class="registration-role-features">
+
+                <span>✓ Report Garbage Issues</span>
+                <span>✓ Track Complaints</span>
+                <span>✓ View Complaint History</span>
+
+            </div>
+
+            <div class="registration-role-arrow">
+                Register →
+            </div>
+
+        </a>
+
+
+        <!-- =====================
+             WORKER
+        ====================== -->
+
+        <a href="/worker-register"
+           class="registration-role-card worker-card">
+
+            <div class="registration-role-icon worker-icon">
+                👷
+            </div>
+
+            <span class="registration-role-label">
+                FIELD STAFF
+            </span>
+
+            <h2>
+                Worker Registration
+            </h2>
+
+            <p>
+                Create a worker account to manage assigned
+                collection tasks and update complaint status.
+            </p>
+
+            <div class="registration-role-features">
+
+                <span>✓ View Assigned Tasks</span>
+                <span>✓ Update Complaint Status</span>
+                <span>✓ Track Collection Work</span>
+
+            </div>
+
+            <div class="registration-role-arrow">
+                Register →
+            </div>
+
+        </a>
+
+
+        <!-- =====================
+             ADMIN
+        ====================== -->
+
+        <a href="/admin-register"
+           class="registration-role-card admin-card">
+
+            <div class="registration-role-icon admin-icon">
+                🛡️
+            </div>
+
+            <span class="registration-role-label">
+                ADMINISTRATION
+            </span>
+
+            <h2>
+                Admin Registration
+            </h2>
+
+            <p>
+                Create an administrator account to manage
+                complaints, workers, users and system reports.
+            </p>
+
+            <div class="registration-role-features">
+
+                <span>✓ Manage Complaints</span>
+                <span>✓ Manage Workers</span>
+                <span>✓ View System Reports</span>
+
+            </div>
+
+            <div class="registration-role-arrow">
+                Register →
+            </div>
+
+        </a>
+
+    </section>
+
+</main>
+
+</body>
+</html>

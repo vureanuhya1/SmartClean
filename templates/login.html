@@ -1,0 +1,344 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Login | SmartClean</title>
+
+    <!-- Common Navbar -->
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/common.css') }}">
+
+    <!-- Login Page CSS -->
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/login.css') }}">
+
+</head>
+
+
+<body>
+
+
+<!-- =========================
+     NAVBAR
+========================= -->
+
+<header class="navbar">
+
+    <a href="/" class="logo">
+
+        <div class="logo-icon">
+            ♻
+        </div>
+
+        <div class="logo-text">
+
+            <h2>SmartClean</h2>
+
+            <p>
+                Smart Garbage Management
+            </p>
+
+        </div>
+
+    </a>
+
+
+    <nav>
+
+        <ul class="nav-links">
+
+            <li>
+                <a href="/">
+                    Home
+                </a>
+            </li>
+
+            <li>
+                <a href="/report-issue">
+                    Report Issue
+                </a>
+            </li>
+
+            <li>
+                <a href="/track">
+                    Track Complaint
+                </a>
+            </li>
+
+            <li>
+                <a href="/#about">
+                    About
+                </a>
+            </li>
+
+        </ul>
+
+    </nav>
+
+
+    <div class="nav-buttons">
+
+        <a href="/login"
+           class="btn-login active-login">
+
+            Login
+
+        </a>
+
+        <a href="/register"
+           class="btn-register">
+
+            Register
+
+        </a>
+
+    </div>
+
+</header>
+
+
+
+<!-- =========================
+     LOGIN PAGE
+========================= -->
+
+<main class="login-page">
+
+
+    <!-- Animated Background -->
+
+    <div class="login-orb orb-one"></div>
+
+    <div class="login-orb orb-two"></div>
+
+    <div class="login-orb orb-three"></div>
+
+
+
+    <!-- Header -->
+
+    <section class="login-heading">
+
+        <span class="login-badge">
+            SMARTCLEAN ACCESS
+        </span>
+
+        <h1>
+            Welcome Back 👋
+        </h1>
+
+        <p>
+            Choose your account type to continue
+            to SmartClean.
+        </p>
+
+    </section>
+
+
+
+    <!-- Role Cards -->
+
+    <section class="role-container">
+
+
+        <!-- =====================
+             CITIZEN
+        ====================== -->
+
+        <a href="/citizen-login"
+           class="role-card citizen-card">
+
+            <div class="role-icon citizen-icon">
+                👤
+            </div>
+
+            <span class="role-label">
+                CITIZEN
+            </span>
+
+            <h2>
+                Citizen Login
+            </h2>
+
+            <p>
+                Report garbage issues, track complaints
+                and view your complaint history.
+            </p>
+
+            <div class="role-features">
+
+                <span>
+                    ✓ Report Issues
+                </span>
+
+                <span>
+                    ✓ Track Complaints
+                </span>
+
+                <span>
+                    ✓ View History
+                </span>
+
+            </div>
+
+            <div class="role-arrow">
+                Login →
+            </div>
+
+        </a>
+
+
+
+        <!-- =====================
+             WORKER
+        ====================== -->
+
+        <a href="/worker-login"
+           class="role-card worker-card">
+
+            <div class="role-icon worker-icon">
+                👷
+            </div>
+
+            <span class="role-label">
+                FIELD STAFF
+            </span>
+
+            <h2>
+                Worker Login
+            </h2>
+
+            <p>
+                View assigned complaints, manage collection
+                tasks and update complaint status.
+            </p>
+
+            <div class="role-features">
+
+                <span>
+                    ✓ Assigned Tasks
+                </span>
+
+                <span>
+                    ✓ Update Status
+                </span>
+
+                <span>
+                    ✓ Collection Tracking
+                </span>
+
+            </div>
+
+            <div class="role-arrow">
+                Login →
+            </div>
+
+        </a>
+
+
+
+        <!-- =====================
+             ADMIN
+        ====================== -->
+
+        <a href="/admin-login"
+           class="role-card admin-card">
+
+            <div class="role-icon admin-icon">
+                🛡️
+            </div>
+
+            <span class="role-label">
+                ADMINISTRATION
+            </span>
+
+            <h2>
+                Admin Login
+            </h2>
+
+            <p>
+                Manage complaints, workers, users and
+                system reports from the admin dashboard.
+            </p>
+
+            <div class="role-features">
+
+                <span>
+                    ✓ Manage Complaints
+                </span>
+
+                <span>
+                    ✓ Manage Workers
+                </span>
+
+                <span>
+                    ✓ View Reports
+                </span>
+
+            </div>
+
+            <div class="role-arrow">
+                Login →
+            </div>
+
+        </a>
+
+
+    </section>
+
+
+
+    <!-- Register -->
+
+    <div class="login-register">
+
+        <span>
+            Don't have a citizen account?
+        </span>
+
+        <a href="/register">
+            Create Account
+        </a>
+
+    </div>
+
+
+</main>
+
+
+
+<!-- =========================
+     FOOTER
+========================= -->
+
+<footer class="footer">
+
+    <div>
+
+        <strong>
+            ♻ SmartClean
+        </strong>
+
+        <p>
+            Smart Garbage Management System
+        </p>
+
+    </div>
+
+    <div>
+        © 2026 SmartClean · Team 4
+    </div>
+
+</footer>
+
+
+</body>
+
+</html>

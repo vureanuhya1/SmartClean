@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Admin Dashboard | SmartClean</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/common.css') }}">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/admin-dashboard.css') }}">
+
+
+<style>
+/* =====================================================
+   SMARTCLEAN DASHBOARD LAYOUT FIX
+===================================================== */
+
+@media (min-width: 901px) {
+
+    .dashboard-grid {
+        grid-template-columns: 1.5fr 1fr !important;
+        gap: 18px !important;
+        max-width: 1200px !important;
+    }
+
+    .dashboard-grid > .dashboard-card {
+        min-width: 0;
+    }
+}
+
+@media (max-width: 900px) {
+
+    .dashboard-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* Exact chart values */
+.bar-item {
+    position: relative;
+}
+
+.bar-value {
+    display: block;
+    min-height: 10px;
+    color: #4d6b5c;
+    font-size: 7px;
+    font-weight: 800;
+    line-height: 10px;
+    text-align: center;
+}
+
+.chart-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: #8a9992;
+    font-size: 10px;
+}
+</style>
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     NAVBAR
+===================================================== -->
+
+<header class="navbar">
+
+    <a href="/" class="logo">
+
+        <div class="logo-icon">
+            ♻
+        </div>
+
+        <div class="logo-text">
+
+            <h2>SmartClean</h2>
+
+            <p>
+                Smart Garbage Management
+            </p>
+
+        </div>
+
+    </a>
+
+
+    <nav>
+
+        <ul class="nav-links">
+           <li><a href="/admin-profile">Profile</a></li> 
+
+            <li>
+                <a href="/admin-dashboard"
+                   class="active">
+                    Dashboard
+                </a>
+            </li>
+
+            <li>
+                <a href="/admin-complaints">
+                    Complaints
+                </a>
+            </li>
+
+            <li>
+                <a href="/admin-workers">
+                    Workers
+                </a>
+            </li>
+
+            <li>
+                <a href="/admin-reports">
+                    Reports
+                </a>
+            </li>
+
+        </ul>
+
+    </nav>
+
+
+    <div class="admin-nav">
+
+        <div class="admin-profile">
+
+            <span class="admin-avatar-small">
+                🛡️
+            </span>
+
+            <div>
+
+                <strong>
+                    Admin
+                </strong>
+
+                <span>
+                    Administrator
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <button
+            class="admin-logout"
+            id="logoutButton">
+
+            Logout
+
+        </button>
+
+    </div>
+
+</header>
+
+
+
+<!-- =====================================================
+     MAIN DASHBOARD
+===================================================== -->
+
+<main class="admin-dashboard">
+
+
+    <div class="dashboard-glow glow-one"></div>
+
+    <div class="dashboard-glow glow-two"></div>
+
+
+
+    <!-- =================================================
+         WELCOME
+    ================================================= -->
+
+    <section class="dashboard-header">
+
+        <div>
+
+            <span class="dashboard-badge">
+                ADMINISTRATOR
+            </span>
+
+            <h1>
+                Good morning, Admin 👋
+            </h1>
+
+            <p>
+                Here's what's happening with your
+                SmartClean system today.
+            </p>
+
+        </div>
+
+
+        <div class="dashboard-date">
+
+            <span>
+                TODAY
+            </span>
+
+            <strong id="currentDate">
+               
+            </strong>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =================================================
+         STATISTICS
+    ================================================= -->
+
+    <section class="admin-stats">
+
+
+        <div class="admin-stat-card">
+
+            <div class="stat-icon blue">
+                📋
+            </div>
+
+            <div class="stat-content">
+
+                <span>
+                    Total Complaints
+                </span>
+
+                <strong>
+                    1,248
+                </strong>
+
+                <small class="positive">
+                    ↑ 12.5% this month
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <div class="admin-stat-card">
+
+            <div class="stat-icon orange">
+                ⏳
+            </div>
+
+            <div class="stat-content">
+
+                <span>
+                    Pending
+                </span>
+
+                <strong>
+                    86
+                </strong>
+
+                <small class="warning">
+                    Needs attention
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <div class="admin-stat-card">
+
+            <div class="stat-icon green">
+                ✓
+            </div>
+
+            <div class="stat-content">
+
+                <span>
+                    Resolved
+                </span>
+
+                <strong>
+                    1,162
+                </strong>
+
+                <small class="positive">
+                    93.1% resolution rate
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <div class="admin-stat-card">
+
+            <div class="stat-icon purple">
+                👷
+            </div>
+
+            <div class="stat-content">
+
+                <span>
+                    Active Workers
+                </span>
+
+                <strong>
+                    34
+                </strong>
+
+                <small class="positive">
+                    4 available now
+                </small>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =================================================
+         MAIN CONTENT GRID
+    ================================================= -->
+
+    <section class="dashboard-grid">
+
+
+        <!-- =================================================
+             COMPLAINT OVERVIEW
+        ================================================= -->
+
+        <div class="dashboard-card complaint-overview">
+
+            <div class="card-heading">
+
+                <div>
+
+                    <span>
+                        COMPLAINT OVERVIEW
+                    </span>
+
+                    <h2>
+                        Complaint Activity
+                    </h2>
+
+                </div>
+
+
+                <select id="periodSelect">
+
+                    <option>
+                        This Week
+                    </option>
+
+                    <option>
+                        This Month
+                    </option>
+
+                    <option>
+                        This Year
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- LIVE COMPLAINT ACTIVITY CHART -->
+
+            <div class="chart" id="complaintActivityChart">
+
+                <div class="chart-y" id="chartYAxis">
+                    <span>0</span>
+                    <span>0</span>
+                    <span>0</span>
+                    <span>0</span>
+                    <span>0</span>
+                </div>
+
+                <div class="chart-bars" id="chartBars">
+                    <div class="chart-empty">Loading complaints...</div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- =================================================
+             STATUS
+        ================================================= -->
+
+        <div class="dashboard-card status-card">
+
+            <div class="card-heading">
+
+                <div>
+
+                    <span>
+                        STATUS
+                    </span>
+
+                    <h2>
+                        Complaint Status
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div class="status-content">
+
+
+                <div class="donut-chart">
+
+                    <div class="donut-inner">
+
+                        <strong id="statusTotal">
+                            0
+                        </strong>
+
+                        <span>
+                            Total
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="status-list">
+
+
+                    <div class="status-item">
+
+                        <span class="status-dot pending-dot"></span>
+
+                        <span>
+                            Pending
+                        </span>
+
+                        <strong id="statusPending">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div class="status-item">
+
+                        <span class="status-dot progress-dot"></span>
+
+                        <span>
+                            In Progress
+                        </span>
+
+                        <strong id="statusProgress">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div class="status-item">
+
+                        <span class="status-dot completed-dot"></span>
+
+                        <span>
+                            Completed
+                        </span>
+
+                        <strong id="statusCompleted">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =================================================
+         QUICK ACTIONS
+    ================================================= -->
+
+    <section class="quick-section">
+
+        <div class="section-title">
+
+            <span>
+                MANAGEMENT
+            </span>
+
+            <h2>
+                Quick Actions
+            </h2>
+
+        </div>
+
+
+        <div class="quick-actions">
+
+
+            <a
+                href="/admin-complaints"
+                class="quick-card">
+
+                <div class="quick-icon blue">
+                    📋
+                </div>
+
+                <div>
+
+                    <strong>
+                        Manage Complaints
+                    </strong>
+
+                    <span>
+                        Review and assign complaints
+                    </span>
+
+                </div>
+
+                <b>
+                    →
+                </b>
+
+            </a>
+
+
+            <a
+                href="/admin-workers"
+                class="quick-card">
+
+                <div class="quick-icon green">
+                    👷
+                </div>
+
+                <div>
+
+                    <strong>
+                        Manage Workers
+                    </strong>
+
+                    <span>
+                        View and manage workers
+                    </span>
+
+                </div>
+
+                <b>
+                    →
+                </b>
+
+            </a>
+
+
+            <a
+                href="/admin-reports"
+                class="quick-card">
+
+                <div class="quick-icon purple">
+                    📊
+                </div>
+
+                <div>
+
+                    <strong>
+                        View Reports
+                    </strong>
+
+                    <span>
+                        Analyze system performance
+                    </span>
+
+                </div>
+
+                <b>
+                    →
+                </b>
+
+            </a>
+
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =================================================
+         RECENT COMPLAINTS
+    ================================================= -->
+
+    <section class="recent-complaints">
+
+        <div class="section-title-row">
+
+            <div>
+
+                <span>
+                    RECENT ACTIVITY
+                </span>
+
+                <h2>
+                    Recent Complaints
+                </h2>
+
+            </div>
+
+
+            <a href="/admin-complaints">
+                View All →
+            </a>
+
+        </div>
+
+
+        <div class="complaints-table">
+
+
+            <div class="table-header">
+
+                <span>
+                    ID
+                </span>
+
+                <span>
+                    Complaint
+                </span>
+
+                <span>
+                    Location
+                </span>
+
+                <span>
+                    Worker
+                </span>
+
+                <span>
+                    Status
+                </span>
+
+            </div>
+
+
+            <div id="recentComplaintsRows">
+
+                <div class="table-row">
+
+                    <span>Loading...</span>
+
+                    <span>
+                        Loading complaints from database
+                    </span>
+
+                    <span>-</span>
+
+                    <span>-</span>
+
+                    <span class="table-status progress">
+                        Loading
+                    </span>
+
+                </div>
+
+            </div>
+
+            </div>
+
+
+        </div>
+
+    </section>
+
+
+</main>
+
+
+
+<footer class="footer">
+
+    <div>
+
+        <strong>
+            ♻ SmartClean
+        </strong>
+
+        <p>
+            Smart Garbage Management System
+        </p>
+
+    </div>
+
+
+    <div>
+        © 2026 SmartClean · Team 4
+    </div>
+
+</footer>
+
+
+
+<script>
+
+document.getElementById("logoutButton").addEventListener("click", async function(e){
+    e.preventDefault();
+    const ok = await smartCleanConfirm("Are you sure you want to logout from SmartClean?","Logout Confirmation");
+    if(ok) window.location.href="/admin-logout";
+});
+
+
+let adminDashboardComplaints = [];
+
+function parseComplaintDate(value) {
+    if (!value) return null;
+
+    if (value instanceof Date) {
+        return new Date(value.getFullYear(), value.getMonth(), value.getDate());
+    }
+
+    const text = String(value).trim();
+    if (!text) return null;
+
+    // API returns dates as "20 Sep 2026".
+    const parts = text.split(/\s+/);
+    if (parts.length === 3 && /^\d{1,2}$/.test(parts[0])) {
+        const parsed = new Date(`${parts[0]} ${parts[1]} ${parts[2]}`);
+        if (!Number.isNaN(parsed.getTime())) {
+            return new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
+        }
+    }
+
+    const parsed = new Date(text);
+    if (Number.isNaN(parsed.getTime())) return null;
+    return new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
+}
+
+function formatNumber(value) {
+    return Number(value || 0).toLocaleString("en-IN");
+}
+
+function startOfWeek(date) {
+    const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const day = d.getDay();
+    const diff = day === 0 ? -6 : 1 - day;
+    d.setDate(d.getDate() + diff);
+    return d;
+}
+
+function sameDate(a, b) {
+    return a && b &&
+        a.getFullYear() === b.getFullYear() &&
+        a.getMonth() === b.getMonth() &&
+        a.getDate() === b.getDate();
+}
+
+function getComplaintCountForDate(date) {
+    return adminDashboardComplaints.filter(function(complaint) {
+        return sameDate(parseComplaintDate(complaint.date || complaint.complaint_date), date);
+    }).length;
+}
+
+function getPeriodData(period) {
+    const today = new Date();
+    const points = [];
+
+    if (period === "This Month") {
+        const year = today.getFullYear();
+        const month = today.getMonth();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+        for (let day = 1; day <= daysInMonth; day++) {
+            const date = new Date(year, month, day);
+            points.push({
+                label: String(day),
+                value: getComplaintCountForDate(date),
+                title: date.toLocaleDateString("en-IN", { day: "numeric", month: "short" })
+            });
+        }
+
+        return points;
+    }
+
+    if (period === "This Year") {
+        const year = today.getFullYear();
+
+        for (let month = 0; month < 12; month++) {
+            const count = adminDashboardComplaints.filter(function(complaint) {
+                const date = parseComplaintDate(complaint.date || complaint.complaint_date);
+                return date &&
+                    date.getFullYear() === year &&
+                    date.getMonth() === month;
+            }).length;
+
+            points.push({
+                label: new Date(year, month, 1).toLocaleDateString("en-IN", { month: "short" }),
+                value: count,
+                title: new Date(year, month, 1).toLocaleDateString("en-IN", { month: "long", year: "numeric" })
+            });
+        }
+
+        return points;
+    }
+
+    // This Week: Monday to Sunday.
+    const monday = startOfWeek(today);
+    const labels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+    for (let i = 0; i < 7; i++) {
+        const date = new Date(monday);
+        date.setDate(monday.getDate() + i);
+        points.push({
+            label: labels[i],
+            value: getComplaintCountForDate(date),
+            title: date.toLocaleDateString("en-IN", { day: "numeric", month: "short" })
+        });
+    }
+
+    return points;
+}
+
+function renderComplaintActivityChart() {
+    const barsContainer = document.getElementById("chartBars");
+    const yAxis = document.getElementById("chartYAxis");
+    const periodSelect = document.getElementById("periodSelect");
+    if (!barsContainer || !yAxis || !periodSelect) return;
+
+    const period = periodSelect.value;
+    const points = getPeriodData(period);
+    const maxValue = Math.max.apply(null, points.map(function(point) { return point.value; }).concat([0]));
+
+    // Keep the y-axis readable while always showing the exact underlying values on bars.
+    const yMax = maxValue === 0 ? 1 : Math.ceil(maxValue / 4) * 4;
+    const tickStep = yMax / 4;
+
+    yAxis.innerHTML = [
+        yMax,
+        tickStep * 3,
+        tickStep * 2,
+        tickStep,
+        0
+    ].map(function(value) {
+        return `<span>${formatNumber(value)}</span>`;
+    }).join("");
+
+    if (!points.length) {
+        barsContainer.innerHTML = '<div class="chart-empty">No complaints found.</div>';
+        return;
+    }
+
+    barsContainer.innerHTML = points.map(function(point) {
+        const height = maxValue === 0 ? 0 : Math.max((point.value / maxValue) * 100, point.value > 0 ? 3 : 0);
+        return `
+            <div class="bar-item" title="${point.title}: ${formatNumber(point.value)} complaint${point.value === 1 ? "" : "s"}">
+                <small class="bar-value">${formatNumber(point.value)}</small>
+                <div class="bar" style="height:${height}%;"></div>
+                <span>${point.label}</span>
+            </div>
+        `;
+    }).join("");
+}
+
+function normalizeDashboardStatus(status) {
+    return String(status || "").trim().toLowerCase();
+}
+
+function renderComplaintStatusChart() {
+    const totalElement = document.getElementById("statusTotal");
+    const pendingElement = document.getElementById("statusPending");
+    const progressElement = document.getElementById("statusProgress");
+    const completedElement = document.getElementById("statusCompleted");
+    const donut = document.querySelector(".donut-chart");
+
+    const total = adminDashboardComplaints.length;
+
+    const pending = adminDashboardComplaints.filter(function(complaint) {
+        return normalizeDashboardStatus(complaint.status) === "pending";
+    }).length;
+
+    const progress = adminDashboardComplaints.filter(function(complaint) {
+        const status = normalizeDashboardStatus(complaint.status);
+        return status === "assigned" || status === "in progress";
+    }).length;
+
+    const completed = adminDashboardComplaints.filter(function(complaint) {
+        const status = normalizeDashboardStatus(complaint.status);
+        return status === "resolved" || status === "completed";
+    }).length;
+
+    if (totalElement) totalElement.textContent = formatNumber(total);
+    if (pendingElement) pendingElement.textContent = formatNumber(pending);
+    if (progressElement) progressElement.textContent = formatNumber(progress);
+    if (completedElement) completedElement.textContent = formatNumber(completed);
+
+    if (donut) {
+        if (total === 0) {
+            donut.style.background = "conic-gradient(#dce8e2 0deg 360deg)";
+        } else {
+            const pendingDegrees = (pending / total) * 360;
+            const progressDegrees = (progress / total) * 360;
+            const completedDegrees = (completed / total) * 360;
+            const progressEnd = pendingDegrees + progressDegrees;
+
+            donut.style.background = `conic-gradient(
+                #e3ad59 0deg ${pendingDegrees}deg,
+                #65a8c9 ${pendingDegrees}deg ${progressEnd}deg,
+                #54a878 ${progressEnd}deg 360deg
+            )`;
+        }
+    }
+}
+
+
+function escapeDashboardHtml(value) {
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+function dashboardStatusLabel(status) {
+    const s = String(status || "").trim().toLowerCase();
+
+    if (s === "resolved" || s === "completed") {
+        return "Completed";
+    }
+
+    if (s === "assigned") {
+        return "Assigned";
+    }
+
+    if (s === "in progress" || s === "in_progress") {
+        return "In Progress";
+    }
+
+    if (s === "pending") {
+        return "Pending";
+    }
+
+    return String(status || "-");
+}
+
+function dashboardStatusClass(status) {
+    const s = String(status || "").trim().toLowerCase();
+
+    if (s === "resolved" || s === "completed") {
+        return "completed";
+    }
+
+    if (s === "pending") {
+        return "pending";
+    }
+
+    return "progress";
+}
+
+function renderDashboardRecentComplaints() {
+
+    const container =
+        document.getElementById("recentComplaintsRows");
+
+    if (!container) {
+        return;
+    }
+
+    const complaints =
+        Array.isArray(adminDashboardComplaints)
+            ? adminDashboardComplaints
+            : [];
+
+    const recent =
+        complaints
+            .slice()
+            .sort(function(a, b) {
+                return Number(b.complaint_id || 0) -
+                       Number(a.complaint_id || 0);
+            })
+            .slice(0, 3);
+
+    if (recent.length === 0) {
+
+        container.innerHTML = `
+            <div class="table-row">
+                <span>-</span>
+                <span>No complaints found</span>
+                <span>-</span>
+                <span>-</span>
+                <span class="table-status pending">
+                    No Data
+                </span>
+            </div>
+        `;
+
+        return;
+    }
+
+    container.innerHTML = recent.map(function(complaint) {
+
+        const id =
+            complaint.id ||
+            (
+                complaint.complaint_id
+                    ? "CW-" +
+                      String(complaint.complaint_id)
+                        .padStart(4, "0")
+                    : "-"
+            );
+
+        const description =
+            complaint.description ||
+            complaint.issue_type ||
+            "Garbage complaint";
+
+        const location =
+            complaint.location ||
+            complaint.street_number ||
+            "-";
+
+        const worker =
+            complaint.worker_name ||
+            "Not assigned";
+
+        const status =
+            dashboardStatusLabel(
+                complaint.status
+            );
+
+        return `
+            <div class="table-row">
+
+                <span>
+                    ${escapeDashboardHtml(id)}
+                </span>
+
+                <span>
+                    ${escapeDashboardHtml(description)}
+                </span>
+
+                <span>
+                    ${escapeDashboardHtml(location)}
+                </span>
+
+                <span>
+                    ${escapeDashboardHtml(worker)}
+                </span>
+
+                <span class="table-status ${dashboardStatusClass(status)}">
+                    ${escapeDashboardHtml(status)}
+                </span>
+
+            </div>
+        `;
+
+    }).join("");
+}
+
+async function loadAdminDashboardComplaints() {
+    try {
+        const response = await fetch("/api/admin/complaints", { cache: "no-store" });
+        if (!response.ok) throw new Error("Unable to load complaints.");
+
+        const data = await response.json();
+        adminDashboardComplaints = Array.isArray(data) ? data : [];
+
+        renderComplaintActivityChart();
+        renderComplaintStatusChart();
+        renderDashboardRecentComplaints();
+    } catch (error) {
+        adminDashboardComplaints = [];
+        renderComplaintActivityChart();
+        renderComplaintStatusChart();
+    }
+}
+
+document
+    .getElementById("periodSelect")
+    .addEventListener("change", function() {
+        renderComplaintActivityChart();
+    });
+
+loadAdminDashboardComplaints();
+function showCurrentDate() {
+    const today = new Date();
+    const options = {
+        day: "numeric",
+        month: "long",
+        year: "numeric"
+    };
+    document.getElementById(
+        "currentDate"
+).textContent = today.toLocaleDateString(
+    "en-IN",
+    options
+);
+    
+}
+showCurrentDate();
+</script>
+
+
+<script>
+(async()=>{try{const r=await fetch('/api/admin/stats');const d=await r.json();if(!r.ok)return;const vals=document.querySelectorAll('.admin-stat-card .stat-content strong');if(vals[0])vals[0].textContent=d.total;if(vals[1])vals[1].textContent=d.pending;if(vals[2])vals[2].textContent=d.resolved;if(vals[3])vals[3].textContent=d.workers;const name=document.querySelector('.dashboard-header h1');if(name)name.textContent=`Good morning, {{ user.name }} 👋`;document.getElementById('currentDate').textContent=new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});}catch(e){}})();
+</script>
+<style>
+.smartclean-notify-backdrop{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(7,38,28,.58);backdrop-filter:blur(7px);opacity:0;visibility:hidden;transition:.2s}
+.smartclean-notify-backdrop.show{opacity:1;visibility:visible}
+.smartclean-notify-card{width:min(460px,100%);background:linear-gradient(145deg,#fff,#f2fbf6);border:1px solid rgba(39,174,96,.22);border-radius:24px;box-shadow:0 24px 70px rgba(0,0,0,.24);overflow:hidden;transform:translateY(16px) scale(.97);transition:.22s;font-family:inherit}
+.smartclean-notify-backdrop.show .smartclean-notify-card{transform:none}
+.smartclean-notify-top{display:flex;align-items:center;gap:14px;padding:20px 22px 14px}
+.smartclean-notify-icon{width:48px;height:48px;flex:0 0 48px;border-radius:16px;display:grid;place-items:center;font-size:24px;background:linear-gradient(135deg,#16a085,#2ecc71);color:#fff;box-shadow:0 8px 22px rgba(22,160,133,.28)}
+.smartclean-notify-title{margin:0;color:#123c2b;font-size:20px;font-weight:800}
+.smartclean-notify-message{margin:0;padding:4px 22px 20px;color:#4c6258;font-size:15px;line-height:1.65;white-space:pre-line;word-break:break-word}
+.smartclean-notify-actions{display:flex;justify-content:flex-end;gap:10px;padding:15px 22px 20px;background:rgba(39,174,96,.055);border-top:1px solid rgba(39,174,96,.1)}
+.smartclean-notify-btn{border:0;border-radius:12px;padding:11px 20px;font:inherit;font-weight:800;cursor:pointer}
+.smartclean-notify-cancel{background:#e9f0ec;color:#345247}.smartclean-notify-ok{color:#fff;background:linear-gradient(135deg,#11998e,#38ef7d);box-shadow:0 7px 18px rgba(17,153,142,.22)}
+
+<style>
+/* Live complaint chart enhancements */
+.chart-bars{position:relative;}
+.chart-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#8a9992;font-size:10px;}
+.bar-item{position:relative;min-width:0;}
+.bar-value{min-height:10px;color:#4d6b5c;font-size:7px;font-weight:800;line-height:1;}
+.bar-item .bar{min-height:0;}
+@media (max-width: 700px){
+    .bar-item{gap:4px;}
+    .bar-value{font-size:6px;}
+    .bar-item span{font-size:6px;}
+}
+</style>
+</style>
+<script>
+(function(){
+function close(m){m.classList.remove("show");setTimeout(()=>m.remove(),180);}
+window.smartCleanAlert=function(message,type,title){type=type||"info";let c={success:["✓","SmartClean Success"],error:["!","SmartClean Notice"],warning:["⚠","Please Check"],info:["♻","SmartClean"]}[type]||["♻","SmartClean"];return new Promise(r=>{let m=document.createElement("div");m.className="smartclean-notify-backdrop";m.innerHTML=`<div class="smartclean-notify-card" role="dialog" aria-modal="true"><div class="smartclean-notify-top"><div class="smartclean-notify-icon">${c[0]}</div><h3 class="smartclean-notify-title">${title||c[1]}</h3></div><p class="smartclean-notify-message"></p><div class="smartclean-notify-actions"><button type="button" class="smartclean-notify-btn smartclean-notify-ok">OK</button></div></div>`;m.querySelector(".smartclean-notify-message").textContent=String(message??"");document.body.appendChild(m);let done=()=>{close(m);r()};m.querySelector(".smartclean-notify-ok").onclick=done;m.onclick=e=>{if(e.target===m)done()};requestAnimationFrame(()=>m.classList.add("show"));});};
+window.smartCleanConfirm=function(message,title){return new Promise(r=>{let m=document.createElement("div");m.className="smartclean-notify-backdrop";m.innerHTML=`<div class="smartclean-notify-card" role="dialog" aria-modal="true"><div class="smartclean-notify-top"><div class="smartclean-notify-icon">♻</div><h3 class="smartclean-notify-title">${title||"SmartClean Confirmation"}</h3></div><p class="smartclean-notify-message"></p><div class="smartclean-notify-actions"><button type="button" class="smartclean-notify-btn smartclean-notify-cancel">Cancel</button><button type="button" class="smartclean-notify-btn smartclean-notify-ok">Continue</button></div></div>`;m.querySelector(".smartclean-notify-message").textContent=String(message??"");document.body.appendChild(m);let done=v=>{close(m);r(v)};m.querySelector(".smartclean-notify-cancel").onclick=()=>done(false);m.querySelector(".smartclean-notify-ok").onclick=()=>done(true);m.onclick=e=>{if(e.target===m)done(false)};requestAnimationFrame(()=>m.classList.add("show"));});};
+})();
+</script>
+
+</body>
+
+</html>

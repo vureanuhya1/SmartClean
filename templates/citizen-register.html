@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Citizen Registration | SmartClean</title>
+  <!-- Common Navbar -->
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/common.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/citizen-register.css') }}" />
+</head>
+<body>
+
+  
+
+<!-- =====================================================
+     NAVBAR
+===================================================== -->
+
+<header class="navbar">
+
+    <a href="/" class="logo">
+
+        <div class="logo-icon">
+            ♻
+        </div>
+
+        <div class="logo-text">
+
+            <h2>SmartClean</h2>
+
+            <p>Smart Garbage Management</p>
+
+        </div>
+
+    </a>
+
+
+    <nav>
+
+        <ul class="nav-links">
+
+            <li>
+                <a href="/" class="active">
+                    Home
+                </a>
+            </li>
+
+            <li>
+                <a href="/report-issue">
+                    Report Issue
+                </a>
+            </li>
+
+            <li>
+                <a href="/track">
+                    Track Complaint
+                </a>
+            </li>
+
+            <li>
+                <a href="#about">
+                    About
+                </a>
+            </li>
+
+        </ul>
+
+    </nav>
+
+
+    <div class="nav-buttons">
+
+        <a href="/login"
+           class="btn-login">
+            Login
+        </a>
+
+        <a href="/register"
+           class="btn-register">
+            Register
+        </a>
+
+    </div>
+
+</header>
+   
+
+  
+
+  <main class="page">
+    <section class="registration-card">
+
+      <div class="intro-panel">
+        <span class="eyebrow">CITIZEN REGISTRATION</span>
+
+        <h1>Join SmartClean <span class="leaf">⌁</span></h1>
+
+        <p class="intro-text">
+          Register as a citizen and become part of a cleaner, smarter community.
+        </p>
+
+        <div class="benefit">
+          <div class="benefit-icon">📍</div>
+          <div>
+            <h3>Report Local Issues</h3>
+            <p>Report garbage problems in your neighborhood.</p>
+          </div>
+        </div>
+
+        <div class="benefit">
+          <div class="benefit-icon">📋</div>
+          <div>
+            <h3>Track Complaints</h3>
+            <p>View updates and follow the progress of your complaints.</p>
+          </div>
+        </div>
+
+        <div class="benefit">
+          <div class="benefit-icon">♻</div>
+          <div>
+            <h3>Keep the City Clean</h3>
+            <p>Contribute to a cleaner and healthier environment.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-panel">
+        <div class="form-heading">
+          <div class="user-icon">👤</div>
+          <div>
+            <h2>Create Citizen Account</h2>
+            <p>Register as a SmartClean citizen</p>
+          </div>
+        </div>
+
+        {% if error %}<div class="form-message error">{{ error }}</div>{% endif %}
+        <form id="citizenForm" action="/citizen-register" method="POST">
+
+          <label for="name">Name</label>
+          <input
+            id="name"
+            name="name"
+            type="text"
+            placeholder="Enter your name"
+            required
+          />
+
+          <label for="phone">Phone Number</label>
+          <input
+            id="phone"
+            name="phone"
+            type="tel"
+            placeholder="Enter phone number" maxlength="10" minlength="10"           required
+          />
+
+          <label for="email">Email Address</label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            placeholder="Enter your email"
+            required
+          />
+
+          <label for="address">Address</label>
+          <input
+            id="address"
+            name="address"
+            type="text"
+            placeholder="Enter your address"
+            required
+          />
+
+          <label for="password">Password</label>
+          <div class="password-field">
+            <input
+              id="password"
+              name="password"
+              type="password"
+              placeholder="Create a password"
+              required
+            />
+            <button
+              type="button"
+              class="toggle-password"
+              id="togglePassword"
+            >◉</button>
+          </div>
+
+          <label for="area">Select Area</label>
+          <select id="area" name="ward_number" required>
+            <option value="" disabled selected>Select your area</option>
+            <option value="1">North Zone</option>
+            <option value="2">South Zone</option>
+            <option value="3">East Zone</option>
+            <option value="4">West Zone</option>
+          </select>
+
+          <label for="confirmPassword">Confirm Password</label>
+          <input id="confirmPassword" name="confirmPassword" type="password" placeholder="Re-enter your password" required />
+
+          <label class="terms">
+            <input type="checkbox" required />
+            <span>
+              I agree to the
+              <a href="#">Terms &amp; Conditions</a>
+            </span>
+          </label>
+
+          <button class="submit-btn" type="submit">
+            Create Citizen Account <span>→</span>
+          </button>
+
+        </form>
+      </div>
+
+    </section>
+  </main>
+
+  <script>
+    const passwordInput = document.getElementById("password");
+    const toggleButton = document.getElementById("togglePassword");
+
+    toggleButton.addEventListener("click", () => {
+      const isPassword = passwordInput.type === "password";
+
+      passwordInput.type = isPassword ? "text" : "password";
+      toggleButton.textContent = isPassword ? "◉" : "◌";
+    });
+
+
+  </script>
+
+</body>
+</html>
