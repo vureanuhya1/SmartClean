@@ -1,0 +1,465 @@
+/* =========================================
+   SMART GARBAGE MANAGEMENT SYSTEM
+   COMMON CSS — LIGHT BLUE + GREEN THEME
+========================================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    color: #17324d;
+    background: #f4fbff;
+}
+
+
+/* =========================================
+   NAVBAR
+========================================= */
+
+.navbar {
+    width: 100%;
+    min-height: 78px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 12px 6%;
+
+    /* Light blue navbar */
+    background: linear-gradient(
+        135deg,
+        #eaf7ff,
+        #dff3ff
+    );
+
+    border-bottom: 1px solid #c9e6f5;
+
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+
+    box-shadow:
+        0 4px 20px rgba(39, 111, 145, 0.10);
+
+    backdrop-filter: blur(10px);
+
+    animation: navbarDrop 0.7s ease;
+}
+
+
+/* =========================================
+   LOGO
+========================================= */
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+
+    text-decoration: none;
+
+    transition: transform 0.3s ease;
+}
+
+.logo:hover {
+    transform: translateY(-2px);
+}
+
+
+.logo-icon {
+    width: 47px;
+    height: 47px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 14px;
+
+    background: linear-gradient(
+        145deg,
+        #24965c,
+        #137345
+    );
+
+    color: white;
+
+    font-size: 24px;
+
+    box-shadow:
+        0 7px 18px rgba(20, 117, 70, 0.25);
+
+    transition: all 0.3s ease;
+}
+
+.logo:hover .logo-icon {
+    transform: rotate(-5deg) scale(1.06);
+}
+
+
+.logo-text h2 {
+    color: #12663f;
+
+    font-size: 19px;
+    font-weight: 800;
+
+    letter-spacing: -0.3px;
+}
+
+
+.logo-text p {
+    color: #668092;
+
+    font-size: 10px;
+
+    margin-top: 2px;
+}
+
+
+/* =========================================
+   NAVIGATION
+========================================= */
+
+nav {
+    display: flex;
+    align-items: center;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+
+    list-style: none;
+}
+
+
+.nav-links li {
+    position: relative;
+}
+
+
+.nav-links a {
+    display: block;
+
+    padding: 11px 17px;
+
+    border-radius: 10px;
+
+    text-decoration: none;
+
+    color: #31485b;
+
+    font-size: 14px;
+    font-weight: 650;
+
+    position: relative;   /* ADD THIS */
+
+    transition:
+        color 0.3s ease,
+        background 0.3s ease,
+        transform 0.3s ease;
+}
+
+.nav-links a:hover {
+    color: #137345;
+
+    background: rgba(255, 255, 255, 0.75);
+
+    transform: translateY(-2px);
+}
+
+
+/* Active link */
+
+.nav-links a.active {
+    color: #137345;
+
+    background: #ffffff;
+
+    box-shadow:
+        0 4px 12px rgba(43, 121, 157, 0.12);
+}
+
+
+/* Small active indicator */
+
+.nav-links a.active::after {
+    content: "";
+
+    position: absolute;
+
+    width: 5px;
+    height: 5px;
+
+    border-radius: 50%;
+
+    background: #1b8a55;
+
+    left: 50%;
+    bottom: 4px;
+
+    transform: translateX(-50%);
+
+    animation: pulseDot 1.8s infinite;
+}
+
+
+/* =========================================
+   NAVBAR BUTTONS
+========================================= */
+
+.nav-buttons {
+    display: flex;
+    align-items: center;
+
+    gap: 9px;
+}
+
+
+/* Login */
+
+.btn-login {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 10px 19px;
+
+    border: 1px solid #bdd8e7;
+
+    border-radius: 10px;
+
+    background: rgba(255, 255, 255, 0.8);
+
+    color: #12663f;
+
+    text-decoration: none;
+
+    font-size: 13.5px;
+    font-weight: 700;
+
+    transition: all 0.3s ease;
+}
+
+
+.btn-login:hover {
+    background: #ffffff;
+
+    border-color: #1b8a55;
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 5px 14px rgba(35, 110, 145, 0.12);
+}
+
+
+/* Register */
+
+.btn-register {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 10px 20px;
+
+    border-radius: 10px;
+
+    background: linear-gradient(
+        135deg,
+        #198052,
+        #116b43
+    );
+
+    color: #ffffff;
+
+    text-decoration: none;
+
+    font-size: 13.5px;
+    font-weight: 700;
+
+    box-shadow:
+        0 6px 16px rgba(22, 117, 72, 0.22);
+
+    transition: all 0.3s ease;
+}
+
+
+.btn-register:hover {
+    transform: translateY(-3px);
+
+    box-shadow:
+        0 10px 22px rgba(22, 117, 72, 0.30);
+}
+
+
+/* =========================================
+   COMMON BUTTON
+========================================= */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+
+    cursor: pointer;
+
+    text-decoration: none;
+
+    font-family: inherit;
+
+    transition: all 0.3s ease;
+}
+
+
+/* =========================================
+   PAGE ANIMATIONS
+========================================= */
+
+.fade-up {
+    animation: fadeUp 0.8s ease both;
+}
+
+
+@keyframes fadeUp {
+
+    from {
+        opacity: 0;
+        transform: translateY(25px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+@keyframes navbarDrop {
+
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+@keyframes pulseDot {
+
+    0%,
+    100% {
+        transform: translateX(-50%) scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: translateX(-50%) scale(1.5);
+        opacity: 0.5;
+    }
+}
+
+
+/* =========================================
+   RESPONSIVE NAVBAR
+========================================= */
+
+@media (max-width: 1000px) {
+
+    .navbar {
+        padding: 12px 4%;
+    }
+
+    .nav-links {
+        gap: 3px;
+    }
+
+    .nav-links a {
+        padding: 10px 11px;
+    }
+}
+
+
+@media (max-width: 800px) {
+
+    .navbar {
+        flex-wrap: wrap;
+
+        justify-content: center;
+
+        gap: 12px;
+    }
+
+    .logo {
+        margin-right: auto;
+    }
+
+    nav {
+        order: 3;
+
+        width: 100%;
+
+        justify-content: center;
+    }
+
+    .nav-links {
+        flex-wrap: wrap;
+
+        justify-content: center;
+    }
+}
+
+
+@media (max-width: 550px) {
+
+    .navbar {
+        padding: 11px 18px;
+    }
+
+    .logo-text p {
+        display: none;
+    }
+
+    .logo-icon {
+        width: 42px;
+        height: 42px;
+    }
+
+    .logo-text h2 {
+        font-size: 17px;
+    }
+
+    .nav-buttons {
+        gap: 5px;
+    }
+
+    .btn-login,
+    .btn-register {
+        padding: 8px 12px;
+
+        font-size: 12px;
+    }
+
+    .nav-links a {
+        font-size: 12px;
+
+        padding: 8px 10px;
+    }
+}

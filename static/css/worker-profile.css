@@ -1,0 +1,647 @@
+/* =========================================
+   WORKER PROFILE PAGE
+========================================= */
+
+
+/* =========================================
+   WORKER NAVBAR
+========================================= */
+
+.worker-nav {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.worker-user {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    padding: 5px 12px 5px 7px;
+
+    border: 1px solid #d7e7e0;
+
+    background: #ffffff;
+
+    border-radius: 25px;
+}
+
+.worker-avatar-small {
+    width: 32px;
+    height: 32px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #e2f3eb;
+
+    font-size: 16px;
+}
+
+.worker-user-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.worker-user-info strong {
+    color: #315444;
+    font-size: 12px;
+}
+
+.worker-user-info span {
+    color: #78908a;
+    font-size: 9px;
+}
+
+
+/* Logout */
+
+.worker-logout {
+    border: none;
+
+    padding: 10px 16px;
+
+    border-radius: 9px;
+
+    background: #edf5f1;
+
+    color: #267349;
+
+    font-family: inherit;
+
+    font-size: 12px;
+
+    font-weight: 750;
+
+    cursor: pointer;
+
+    transition: 0.25s ease;
+}
+
+.worker-logout:hover {
+    background: #dcefe5;
+    transform: translateY(-2px);
+}
+
+
+/* =========================================
+   MAIN CONTAINER
+========================================= */
+
+.worker-profile-container {
+    width: 100%;
+    max-width: 1100px;
+
+    margin: 0 auto;
+
+    padding: 45px 25px 70px;
+}
+
+
+/* =========================================
+   PAGE HEADING
+========================================= */
+
+.worker-page-heading {
+    margin-bottom: 25px;
+}
+
+.worker-small-title {
+    color: #168052;
+
+    font-size: 11px;
+    font-weight: 800;
+
+    letter-spacing: 2px;
+
+    margin-bottom: 7px;
+}
+
+.worker-page-heading h1 {
+    color: #173f32;
+
+    font-size: 32px;
+    font-weight: 800;
+
+    margin-bottom: 8px;
+}
+
+.worker-subtitle {
+    color: #708a98;
+
+    font-size: 14px;
+}
+
+
+/* =========================================
+   PROFILE CARD
+========================================= */
+
+.worker-profile-card {
+    background: #ffffff;
+
+    border: 1px solid #d8e9e4;
+
+    border-radius: 18px;
+
+    padding: 30px;
+
+    box-shadow:
+        0 8px 25px rgba(39, 111, 145, 0.08);
+
+    margin-bottom: 25px;
+}
+
+
+/* =========================================
+   PROFILE HEADER
+========================================= */
+
+.worker-profile-header {
+    display: flex;
+
+    align-items: center;
+
+    gap: 18px;
+
+    padding-bottom: 25px;
+
+    border-bottom: 1px solid #e0ebe8;
+}
+
+
+/* =========================================
+   PROFILE AVATAR
+========================================= */
+
+.worker-profile-avatar {
+    width: 70px;
+    height: 70px;
+
+    border-radius: 50%;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    background: #def3e8;
+
+    color: #168052;
+
+    font-size: 30px;
+    font-weight: 800;
+
+    flex-shrink: 0;
+}
+
+
+/* =========================================
+   PROFILE TITLE
+========================================= */
+
+.worker-profile-title {
+    flex: 1;
+}
+
+.worker-profile-title h2 {
+    color: #29483d;
+
+    font-size: 22px;
+
+    margin-bottom: 4px;
+}
+
+.worker-profile-title p {
+    color: #78908a;
+
+    font-size: 13px;
+}
+
+
+/* =========================================
+   EDIT BUTTON
+========================================= */
+
+.worker-edit-btn {
+    border: none;
+
+    border-radius: 10px;
+
+    padding: 11px 20px;
+
+    background: #168052;
+
+    color: white;
+
+    font-family: inherit;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: all 0.3s ease;
+}
+
+.worker-edit-btn:hover {
+    background: #116b43;
+
+    transform: translateY(-2px);
+}
+
+
+/* =========================================
+   PROFILE DETAILS
+========================================= */
+
+.worker-profile-details {
+    display: grid;
+
+    grid-template-columns: repeat(2, 1fr);
+
+    gap: 18px;
+
+    padding-top: 25px;
+}
+
+.worker-detail-box {
+    background: #f7fbfa;
+
+    border: 1px solid #dceae6;
+
+    border-radius: 12px;
+
+    padding: 16px 18px;
+
+    min-height: 70px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+}
+
+.worker-detail-label {
+    color: #78918b;
+
+    font-size: 9px;
+
+    font-weight: 700;
+
+    text-transform: uppercase;
+
+    letter-spacing: 1px;
+
+    margin-bottom: 6px;
+}
+
+.worker-detail-value {
+    color: #23483b;
+
+    font-size: 14px;
+
+    font-weight: 700;
+}
+
+.worker-status {
+    color: #168052;
+
+    font-size: 14px;
+
+    font-weight: 700;
+}
+
+
+/* =========================================
+   SETTINGS CARD
+========================================= */
+
+.worker-settings-card {
+    background: #ffffff;
+
+    border: 1px solid #d8e9e4;
+
+    border-radius: 18px;
+
+    padding: 30px;
+
+    box-shadow:
+        0 8px 25px rgba(39, 111, 145, 0.08);
+}
+
+
+/* =========================================
+   SETTINGS HEADING
+========================================= */
+
+.worker-settings-heading {
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+
+    padding-bottom: 22px;
+
+    border-bottom: 1px solid #e0ebe8;
+}
+
+.worker-settings-icon {
+    width: 48px;
+    height: 48px;
+
+    border-radius: 12px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    background: #e3f4eb;
+
+    color: #168052;
+
+    font-size: 22px;
+}
+
+.worker-settings-heading h2 {
+    color: #29483d;
+
+    font-size: 20px;
+
+    margin-bottom: 4px;
+}
+
+.worker-settings-heading p {
+    color: #78908a;
+
+    font-size: 13px;
+}
+
+
+/* =========================================
+   SETTING ROW
+========================================= */
+
+.worker-setting-row {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding: 22px 0;
+
+    border-bottom: 1px solid #e7efed;
+}
+
+.worker-setting-row:last-child {
+    border-bottom: none;
+
+    padding-bottom: 5px;
+}
+
+.worker-setting-info h3 {
+    color: #29483d;
+
+    font-size: 15px;
+
+    margin-bottom: 5px;
+}
+
+.worker-setting-info p {
+    color: #78908a;
+
+    font-size: 12px;
+}
+
+
+/* =========================================
+   SETTING BUTTON
+========================================= */
+
+.worker-setting-btn {
+    border: 1px solid #b9ded0;
+
+    border-radius: 9px;
+
+    padding: 10px 17px;
+
+    background: #f5fbf8;
+
+    color: #168052;
+
+    font-family: inherit;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    white-space: nowrap;
+
+    transition: all 0.3s ease;
+}
+
+.worker-setting-btn:hover {
+    background: #168052;
+
+    color: white;
+
+    transform: translateY(-2px);
+}
+
+
+/* =========================================
+   NOTIFICATION SWITCH
+========================================= */
+
+.worker-switch {
+    position: relative;
+
+    display: inline-block;
+
+    width: 46px;
+    height: 24px;
+
+    flex-shrink: 0;
+}
+
+.worker-switch input {
+    opacity: 0;
+
+    width: 0;
+    height: 0;
+}
+
+.worker-slider {
+    position: absolute;
+
+    cursor: pointer;
+
+    inset: 0;
+
+    background: #cbd8d4;
+
+    border-radius: 30px;
+
+    transition: 0.3s;
+}
+
+.worker-slider:before {
+    content: "";
+
+    position: absolute;
+
+    width: 18px;
+    height: 18px;
+
+    left: 3px;
+    bottom: 3px;
+
+    background: white;
+
+    border-radius: 50%;
+
+    transition: 0.3s;
+
+    box-shadow:
+        0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+.worker-switch input:checked + .worker-slider {
+    background: #168052;
+}
+
+.worker-switch input:checked + .worker-slider:before {
+    transform: translateX(22px);
+}
+
+
+/* =========================================
+   SECURITY STATUS
+========================================= */
+
+.worker-security-status {
+    padding: 8px 14px;
+
+    border-radius: 20px;
+
+    background: #e4f6ec;
+
+    color: #168052;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    white-space: nowrap;
+}
+/* =====================================================
+   FOOTER
+===================================================== */
+
+.footer {
+    position: relative;
+
+    z-index: 10;
+
+    padding: 24px 7%;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    background: #ffffff;
+
+    border-top: 1px solid #dceae4;
+
+    color: #819089;
+
+    font-size: 10px;
+}
+
+.footer strong {
+    display: block;
+
+    margin-bottom: 4px;
+
+    color: #28764b;
+
+    font-size: 12px;
+}
+
+.footer p {
+    margin: 0;
+
+    font-size: 9px;
+}
+
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 800px) {
+
+    .worker-profile-container {
+        padding: 35px 20px 55px;
+    }
+
+    .worker-profile-header {
+        flex-wrap: wrap;
+    }
+
+    .worker-edit-btn {
+        width: 100%;
+    }
+
+    .worker-profile-details {
+        grid-template-columns: 1fr;
+    }
+
+    .worker-setting-row {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+    .worker-setting-btn {
+        width: 100%;
+    }
+}
+
+
+@media (max-width: 550px) {
+
+    .worker-profile-container {
+        padding: 30px 15px 50px;
+    }
+
+    .worker-page-heading h1 {
+        font-size: 27px;
+    }
+
+    .worker-profile-card,
+    .worker-settings-card {
+        padding: 20px;
+    }
+
+    .worker-user-info {
+        display: none;
+    }
+
+}

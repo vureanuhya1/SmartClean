@@ -1,0 +1,830 @@
+/* =====================================================
+   SMARTCLEAN — WORKER COMPLAINTS
+===================================================== */
+
+.complaints-page {
+
+    min-height: calc(100vh - 80px);
+
+    position: relative;
+
+    padding: 50px 7% 70px;
+
+    overflow: hidden;
+
+    background:
+        radial-gradient(
+            circle at 5% 10%,
+            rgba(70, 174, 222, 0.12),
+            transparent 25%
+        ),
+        radial-gradient(
+            circle at 95% 80%,
+            rgba(54, 174, 105, 0.10),
+            transparent 28%
+        ),
+        linear-gradient(
+            135deg,
+            #f5fbfe,
+            #eff9f4
+        );
+}
+
+
+/* BACKGROUND */
+
+.complaints-glow {
+
+    position: absolute;
+
+    border-radius: 50%;
+
+    pointer-events: none;
+
+    filter: blur(3px);
+}
+
+.glow-one {
+
+    width: 280px;
+    height: 280px;
+
+    right: -100px;
+    top: -100px;
+
+    background:
+        rgba(73, 177, 222, 0.09);
+
+    animation:
+        floatGlow 8s ease-in-out infinite;
+}
+
+.glow-two {
+
+    width: 320px;
+    height: 320px;
+
+    left: -150px;
+    bottom: -150px;
+
+    background:
+        rgba(53, 174, 103, 0.08);
+
+    animation:
+        floatGlow 10s ease-in-out infinite reverse;
+}
+
+@keyframes floatGlow {
+
+    0%, 100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-25px);
+    }
+}
+
+
+/* HEADER */
+
+.complaints-header {
+
+    max-width: 1200px;
+
+    margin: 0 auto 28px;
+
+    position: relative;
+
+    z-index: 2;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 20px;
+
+    animation:
+        pageAppear 0.7s ease both;
+}
+
+.page-badge {
+
+    display: inline-block;
+
+    padding: 6px 12px;
+
+    border-radius: 20px;
+
+    background: #e4f5ed;
+
+    color: #24764a;
+
+    font-size: 9px;
+
+    font-weight: 850;
+
+    letter-spacing: 1px;
+}
+
+.complaints-header h1 {
+
+    margin: 10px 0 8px;
+
+    color: #193e2e;
+
+    font-size: 32px;
+
+    font-weight: 850;
+
+    letter-spacing: -1px;
+}
+
+.complaints-header p {
+
+    margin: 0;
+
+    color: #7b8c83;
+
+    font-size: 13px;
+}
+
+.back-dashboard {
+
+    padding: 11px 16px;
+
+    border-radius: 10px;
+
+    background: white;
+
+    border: 1px solid #dceae4;
+
+    color: #28784d;
+
+    text-decoration: none;
+
+    font-size: 10px;
+
+    font-weight: 750;
+
+    transition: 0.25s ease;
+}
+
+.back-dashboard:hover {
+
+    transform: translateX(-3px);
+
+    background: #eff9f4;
+}
+
+
+/* FILTER */
+
+.filter-card {
+
+    max-width: 1200px;
+
+    margin: 0 auto 22px;
+
+    padding: 14px;
+
+    display: flex;
+
+    gap: 12px;
+
+    position: relative;
+
+    z-index: 2;
+
+    background:
+        rgba(255,255,255,0.93);
+
+    border: 1px solid #dceae4;
+
+    border-radius: 15px;
+
+    box-shadow:
+        0 10px 30px
+        rgba(35, 93, 67, 0.05);
+
+    animation:
+        pageAppear 0.8s ease both;
+}
+
+.search-box {
+
+    flex: 1;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+    padding: 0 13px;
+
+    border-radius: 10px;
+
+    background: #f6faf8;
+
+    border: 1px solid #e1ece7;
+}
+
+.search-box input {
+
+    width: 100%;
+
+    height: 42px;
+
+    border: none;
+
+    outline: none;
+
+    background: transparent;
+
+    color: #365345;
+
+    font-family: inherit;
+
+    font-size: 11px;
+}
+
+.filter-card select {
+
+    min-width: 145px;
+
+    padding: 0 12px;
+
+    border: 1px solid #dce9e3;
+
+    border-radius: 10px;
+
+    outline: none;
+
+    background: #f7fbf9;
+
+    color: #466052;
+
+    font-family: inherit;
+
+    font-size: 10px;
+
+    cursor: pointer;
+}
+
+
+/* COMPLAINT LIST */
+
+.complaints-list {
+
+    max-width: 1200px;
+
+    margin: 0 auto;
+
+    position: relative;
+
+    z-index: 2;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 13px;
+}
+
+
+/* COMPLAINT CARD */
+
+.complaint-card {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 17px;
+
+    padding: 19px;
+
+    border-radius: 17px;
+
+    background:
+        rgba(255,255,255,0.94);
+
+    border: 1px solid #dceae4;
+
+    box-shadow:
+        0 10px 30px
+        rgba(35, 93, 67, 0.055);
+
+    animation:
+        complaintAppear 0.55s ease both;
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease,
+        border-color 0.25s ease;
+}
+
+.complaint-card:hover {
+
+    transform: translateY(-3px);
+
+    border-color: #bcdccc;
+
+    box-shadow:
+        0 17px 35px
+        rgba(35, 93, 67, 0.09);
+}
+
+
+.complaint-icon {
+
+    width: 52px;
+    height: 52px;
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 14px;
+
+    background: #e5f4eb;
+
+    font-size: 22px;
+}
+
+
+.complaint-info {
+
+    flex: 1;
+
+    min-width: 0;
+}
+
+
+.complaint-id {
+
+    color: #2c8755;
+
+    font-size: 9px;
+
+    font-weight: 850;
+
+    letter-spacing: 0.5px;
+}
+
+
+.complaint-info h2 {
+
+    margin: 4px 0 6px;
+
+    overflow: hidden;
+
+    color: #2e4c3d;
+
+    font-size: 14px;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+
+.complaint-info p {
+
+    margin: 0 0 5px;
+
+    color: #7d8d85;
+
+    font-size: 10px;
+}
+
+
+.complaint-info small {
+
+    color: #9aa69f;
+
+    font-size: 8.5px;
+}
+
+
+/* RIGHT SIDE */
+
+.complaint-right {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 13px;
+
+    flex-shrink: 0;
+}
+
+
+.status {
+
+    padding: 6px 10px;
+
+    border-radius: 20px;
+
+    font-size: 8.5px;
+
+    font-weight: 800;
+
+    white-space: nowrap;
+}
+
+
+.status.pending {
+
+    background: #fff1dc;
+
+    color: #b97825;
+}
+
+
+.status.progress {
+
+    background: #e4f2fb;
+
+    color: #347da5;
+}
+
+
+.status.completed {
+
+    background: #e3f5eb;
+
+    color: #28794d;
+}
+
+
+/* UPDATE BUTTON */
+
+.update-button {
+
+    padding: 8px 13px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    background:
+        #e8f5ee;
+
+    color: #28774c;
+
+    font-family: inherit;
+
+    font-size: 9px;
+
+    font-weight: 800;
+
+    cursor: pointer;
+
+    transition: 0.25s ease;
+}
+
+.update-button:hover {
+
+    background: #d8ede2;
+
+    transform: translateY(-2px);
+}
+
+
+/* EMPTY */
+
+.empty-state {
+
+    padding: 70px 20px;
+
+    border-radius: 18px;
+
+    background: white;
+
+    border: 1px solid #dceae4;
+
+    text-align: center;
+}
+
+.empty-state div {
+
+    font-size: 35px;
+
+    margin-bottom: 10px;
+}
+
+.empty-state h3 {
+
+    margin: 0 0 5px;
+
+    color: #345446;
+
+    font-size: 16px;
+}
+
+.empty-state p {
+
+    margin: 0;
+
+    color: #8b9992;
+
+    font-size: 10px;
+}
+
+/* =====================================================
+   FOOTER
+===================================================== */
+
+.footer {
+
+    padding:
+        30px 7%;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    background:
+        #f7fbf8;
+
+    border-top:
+        1px solid #dfeae3;
+
+    color:
+        #718078;
+
+    font-size: 12px;
+}
+
+
+.footer strong {
+
+    color: #176b42;
+
+    font-size: 15px;
+}
+
+
+.footer p {
+
+    margin-top: 4px;
+
+    font-size: 10px;
+}
+
+
+/* ANIMATIONS */
+
+@keyframes pageAppear {
+
+    from {
+
+        opacity: 0;
+
+        transform:
+            translateY(20px);
+
+    }
+
+    to {
+
+        opacity: 1;
+
+        transform:
+            translateY(0);
+
+    }
+}
+
+@keyframes complaintAppear {
+
+    from {
+
+        opacity: 0;
+
+        transform:
+            translateY(15px);
+
+    }
+
+    to {
+
+        opacity: 1;
+
+        transform:
+            translateY(0);
+
+    }
+}
+
+
+/* RESPONSIVE */
+
+@media (max-width: 750px) {
+
+    .complaints-page {
+
+        padding:
+            35px 20px 55px;
+    }
+
+    .complaints-header {
+
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+    .filter-card {
+
+        flex-direction: column;
+    }
+
+    .filter-card select {
+
+        height: 42px;
+
+        width: 100%;
+    }
+
+    .complaint-card {
+
+        align-items: flex-start;
+
+        flex-wrap: wrap;
+    }
+
+    .complaint-info {
+
+        width:
+            calc(100% - 70px);
+    }
+
+    .complaint-right {
+
+        width: 100%;
+
+        justify-content: flex-end;
+    }
+
+}
+
+
+@media (max-width: 500px) {
+
+    .complaints-header h1 {
+
+        font-size: 27px;
+    }
+
+    .complaint-card {
+
+        padding: 15px;
+    }
+
+    .complaint-right {
+
+        justify-content: space-between;
+    }
+
+    .status {
+
+        font-size: 8px;
+    }
+
+}
+/* =====================================================
+   WORKER NAVIGATION
+===================================================== */
+
+.worker-nav {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+
+/* Worker profile */
+
+.profile-button {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    padding: 7px 13px;
+
+    border: 1px solid #dceae4;
+    border-radius: 25px;
+
+    background: #ffffff;
+
+    color: #355548;
+
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 750;
+
+    cursor: pointer;
+
+    transition: all 0.25s ease;
+}
+
+.profile-button:hover {
+    transform: translateY(-2px);
+
+    border-color: #b9dcc9;
+
+    box-shadow:
+        0 6px 18px rgba(35, 93, 67, 0.10);
+}
+
+
+/* Worker icon */
+
+.profile-avatar {
+    width: 27px;
+    height: 27px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #e5f5ec;
+
+    font-size: 15px;
+}
+
+
+/* Worker name */
+
+.profile-name {
+    color: #365548;
+}
+
+
+/* Logout */
+
+.logout-button {
+    padding: 10px 17px;
+
+    border: 1px solid #d9ebe1;
+    border-radius: 10px;
+
+    background: #edf8f2;
+
+    color: #28784d;
+
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 800;
+
+    cursor: pointer;
+
+    transition: all 0.25s ease;
+}
+
+.logout-button:hover {
+    background: #dcefe5;
+
+    border-color: #bcdcca;
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 6px 16px rgba(35, 93, 67, 0.10);
+}
+
+
+/* Mobile */
+
+@media (max-width: 700px) {
+
+    .worker-nav {
+        gap: 6px;
+    }
+
+    .profile-name {
+        display: none;
+    }
+
+    .profile-button {
+        padding: 6px;
+    }
+
+    .logout-button {
+        padding: 8px 11px;
+    }
+}
