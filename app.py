@@ -1,7 +1,6 @@
 import os
 import re
 import secrets
-import resend
 from datetime import datetime, timedelta
 from functools import wraps
 from pathlib import Path
@@ -73,17 +72,22 @@ DB_CONFIG = {
 
 
 # ============================================================
-# RESEND EMAIL CONFIGURATION
+# MAILJET EMAIL CONFIGURATION
 # ============================================================
 
-RESEND_API_KEY = os.getenv(
-    "RESEND_API_KEY",
+MAILJET_API_KEY = os.getenv(
+    "MAILJET_API_KEY",
     ""
 )
 
-RESEND_FROM_EMAIL = os.getenv(
-    "RESEND_FROM_EMAIL",
-    "onboarding@resend.dev"
+MAILJET_SECRET_KEY = os.getenv(
+    "MAILJET_SECRET_KEY",
+    ""
+)
+
+MAILJET_FROM_EMAIL = os.getenv(
+    "MAILJET_FROM_EMAIL",
+    "vureanuhya@gmail.com"
 )
 
 MAIL_FROM_NAME = os.getenv(
@@ -423,15 +427,31 @@ def send_email(
     body
 ):
 
-    if not RESEND_API_KEY:
+    if not MAILJET_API_KEY or not MAILJET_SECRET_KEY:
 
         raise RuntimeError(
-            "Resend is not configured. "
-            "Add RESEND_API_KEY to Railway Variables."
+            "Mailjet is not configured. "
+            "Add MAILJET_API_KEY and MAILJET_SECRET_KEY "
+            "to Railway Variables."
         )
 
 
-    resend.api_key = RESEND_API_KEY
+    import base64
+    import json
+    import urllib.request
+
+
+    url = "https://api.mailjet.com/v3.1/send"
+
+
+    credentials = (
+        f"{MAILJET_API_KEY}:{MAILJET_SECRET_KEY}"
+    ).encode("utf-8")
+
+
+    auth = base64.b64encode(
+        credentials
+    ).decode("ascii")
 
 
     html_body = (
@@ -443,17 +463,81 @@ def send_email(
     )
 
 
-    params = {
-        "from": f"{MAIL_FROM_NAME} <{RESEND_FROM_EMAIL}>",
-        "to": [to_email],
-        "subject": subject,
-        "html": html_body
+    payload = {
+        "Messages": [
+            {
+                "From": {
+                    "Email": MAILJET_FROM_EMAIL,
+                    "Name": MAIL_FROM_NAME
+                },
+
+                "To": [
+                    {
+                        "Email": to_email
+                    }
+                ],
+
+                "Subject": subject,
+
+                "TextPart": body,
+
+                "HTMLPart": html_body
+            }
+        ]
     }
 
 
-    response = resend.Emails.send(params)
+    request_data = json.dumps(
+        payload
+    ).encode("utf-8")
 
-    return response
+
+    req = urllib.request.Request(
+        url,
+        data=request_data,
+        method="POST"
+    )
+
+
+    req.add_header(
+        "Authorization",
+        f"Basic {auth}"
+    )
+
+    req.add_header(
+        "Content-Type",
+        "application/json"
+    )
+
+
+    try:
+
+        with urllib.request.urlopen(
+            req,
+            timeout=20
+        ) as response:
+
+            response_body = response.read().decode(
+                "utf-8"
+            )
+
+            if response.status < 200 or response.status >= 300:
+
+                raise RuntimeError(
+                    f"Mailjet returned HTTP "
+                    f"{response.status}: "
+                    f"{response_body}"
+                )
+
+            return json.loads(
+                response_body
+            )
+
+    except Exception as e:
+
+        raise RuntimeError(
+            f"Mailjet email sending failed: {e}"
+        )
 
 # ============================================================
 # TEMPORARY PASSWORD
@@ -3147,7 +3231,7 @@ SmartClean Security Team
             role=role,
             error=(
                 "Email could not be sent. "
-                "Check SMTP settings. "
+                "Check mailjet settings. "
                 f"({e})"
             )
         )
