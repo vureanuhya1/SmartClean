@@ -1,9 +1,8 @@
 import os
 import re
 import secrets
-import smtplib
+import resend
 from datetime import datetime, timedelta
-from email.message import EmailMessage
 from functools import wraps
 from pathlib import Path
 
@@ -74,26 +73,17 @@ DB_CONFIG = {
 
 
 # ============================================================
-# SMTP CONFIGURATION
+# RESEND EMAIL CONFIGURATION
 # ============================================================
 
-SMTP_HOST = os.getenv(
-    "SMTP_HOST",
-    "smtp.gmail.com"
-)
-
-SMTP_PORT = int(
-    os.getenv("SMTP_PORT", "587")
-)
-
-SMTP_EMAIL = os.getenv(
-    "SMTP_EMAIL",
+RESEND_API_KEY = os.getenv(
+    "RESEND_API_KEY",
     ""
 )
 
-SMTP_PASSWORD = os.getenv(
-    "SMTP_PASSWORD",
-    ""
+RESEND_FROM_EMAIL = os.getenv(
+    "RESEND_FROM_EMAIL",
+    "onboarding@resend.dev"
 )
 
 MAIL_FROM_NAME = os.getenv(
@@ -107,8 +97,6 @@ RESET_EXPIRY_MINUTES = int(
         "30"
     )
 )
-
-
 # ============================================================
 # ROLE CONFIGURATION
 # ============================================================
@@ -435,48 +423,37 @@ def send_email(
     body
 ):
 
-    if not SMTP_EMAIL or not SMTP_PASSWORD:
+    if not RESEND_API_KEY:
 
         raise RuntimeError(
-            "SMTP is not configured. "
-            "Add SMTP_EMAIL and SMTP_PASSWORD to .env"
+            "Resend is not configured. "
+            "Add RESEND_API_KEY to Railway Variables."
         )
 
 
-    message = EmailMessage()
+    resend.api_key = RESEND_API_KEY
 
-    message["Subject"] = subject
 
-    message["From"] = (
-        f"{MAIL_FROM_NAME} <{SMTP_EMAIL}>"
+    html_body = (
+        body
+        .replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+        .replace("\n", "<br>")
     )
 
-    message["To"] = to_email
 
-    message.set_content(body)
+    params = {
+        "from": f"{MAIL_FROM_NAME} <{RESEND_FROM_EMAIL}>",
+        "to": [to_email],
+        "subject": subject,
+        "html": html_body
+    }
 
 
-    with smtplib.SMTP(
-        SMTP_HOST,
-        SMTP_PORT,
-        timeout=20
-    ) as smtp:
+    response = resend.Emails.send(params)
 
-        smtp.ehlo()
-
-        smtp.starttls()
-
-        smtp.ehlo()
-
-        smtp.login(
-            SMTP_EMAIL,
-            SMTP_PASSWORD
-        )
-
-        smtp.send_message(
-            message
-        )
-
+    return response
 
 # ============================================================
 # TEMPORARY PASSWORD
@@ -4120,5 +4097,4 @@ if __name__ == "__main__":
         ),
         debug=os.getenv("FLASK_DEBUG", "false").lower() == "true"
     )
-
 
