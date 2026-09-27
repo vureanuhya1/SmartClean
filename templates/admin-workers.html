@@ -186,9 +186,9 @@
                     Total Workers
                 </span>
 
-                <strong>
-                    42
-                </strong>
+                <strong id="totalWorkers">
+    0
+</strong>
 
                 <small>
                     Registered workers
@@ -210,11 +210,9 @@
                 <span>
                     Available
                 </span>
-
-                <strong>
-                    34
-                </strong>
-
+<strong id="availableWorkers">
+    0
+</strong>
                 <small class="green-text">
                     Ready for work
                 </small>
@@ -236,9 +234,9 @@
                     On Duty
                 </span>
 
-                <strong>
-                    8
-                </strong>
+               <strong id="onDutyWorkers">
+    0
+</strong>
 
                 <small class="orange-text">
                     Currently working
@@ -261,9 +259,9 @@
                     Assigned Tasks
                 </span>
 
-                <strong>
-                    72
-                </strong>
+                <strong id="assignedTasks">
+    0
+</strong>
 
                 <small>
                     Active complaints
@@ -871,14 +869,235 @@
 
 
 <script>
-let workers=[];
-async function loadWorkers(){const r=await fetch("/api/admin/workers");if(!r.ok)return;workers=await r.json();renderWorkers();}
-function renderWorkers(){const grid=document.getElementById("workerGrid");if(!grid)return;const q=(document.getElementById("workerSearch").value||"").toLowerCase(),st=document.getElementById("workerStatus").value;const rows=workers.filter(w=>(w.display_id+w.name+(w.email||"")+w.phone).toLowerCase().includes(q)&&(st==="all"||w.status===st));grid.innerHTML="";rows.forEach(w=>{const card=document.createElement("div");card.className="worker-card";card.dataset.status=w.status;card.innerHTML=`<div class="worker-card-header"><div class="worker-avatar">${w.name[0].toUpperCase()}</div><div><h3>${w.name}</h3><span>${w.display_id}</span></div></div><div class="worker-card-body"><p>📧 ${w.email||"-"}</p><p>📞 ${w.phone}</p><p>📍 ${w.address||"-"}</p><span class="worker-status-badge">● ${w.status}</span></div><button class="worker-view-btn" onclick="viewWorker('${w.display_id}')">View Profile →</button>`;grid.appendChild(card);});}
-function filterWorkers(){renderWorkers();}
-function openAddWorker(){document.getElementById("workerModal").classList.add("show");}
-function closeAddWorker(){document.getElementById("workerModal").classList.remove("show");}
-function viewWorker(id){const w=workers.find(x=>x.display_id===id);if(w)smartCleanAlert(`${w.display_id}\n${w.name}\n${w.email||"-"}\n${w.phone}\n${w.address||"-"}\nStatus: ${w.status}`,"info","Worker Details");}
+let workers = [];
+
+async function loadWorkers() {
+
+    const r = await fetch("/api/admin/workers");
+
+    if (!r.ok) return;
+
+    const data = await r.json();
+
+    // Get workers list
+    workers = data.workers || [];
+
+    // Get statistics
+    const stats = data.stats || {};
+
+    // Update statistics
+    const totalWorkers =
+        document.getElementById("totalWorkers");
+
+    const availableWorkers =
+        document.getElementById("availableWorkers");
+
+    const onDutyWorkers =
+        document.getElementById("onDutyWorkers");
+
+    const assignedTasks =
+        document.getElementById("assignedTasks");
+
+    if (totalWorkers) {
+        totalWorkers.textContent =
+            stats.total_workers ?? 0;
+    }
+
+    if (availableWorkers) {
+        availableWorkers.textContent =
+            stats.available_workers ?? 0;
+    }
+
+    if (onDutyWorkers) {
+        onDutyWorkers.textContent =
+            stats.on_duty_workers ?? 0;
+    }
+
+    if (assignedTasks) {
+        assignedTasks.textContent =
+            stats.assigned_tasks ?? 0;
+    }
+
+    // Update worker count
+    const workerCount =
+        document.querySelector(".worker-count");
+
+    if (workerCount) {
+        workerCount.textContent =
+            `${workers.length} Workers`;
+    }
+
+    renderWorkers();
+}
+
+
+function renderWorkers() {
+
+    const grid =
+        document.getElementById("workerGrid");
+
+    if (!grid) return;
+
+    const q =
+        (document.getElementById("workerSearch").value || "")
+        .toLowerCase();
+
+    const st =
+        document.getElementById("workerStatus").value;
+
+
+    const rows = workers.filter(w => {
+
+        const searchText =
+            (
+                w.display_id +
+                w.name +
+                (w.email || "") +
+                w.phone
+            ).toLowerCase();
+
+
+        // Normalize status for filtering
+        const workerStatus =
+            (w.status || "")
+            .toLowerCase()
+            .replace(/\s+/g, "");
+
+
+        const selectedStatus =
+            (st || "")
+            .toLowerCase()
+            .replace(/\s+/g, "");
+
+
+        return (
+            searchText.includes(q) &&
+            (
+                st === "all" ||
+                workerStatus === selectedStatus
+            )
+        );
+
+    });
+
+
+    grid.innerHTML = "";
+
+
+    rows.forEach(w => {
+
+        const card =
+            document.createElement("div");
+
+        card.className =
+            "worker-card";
+
+        card.dataset.status =
+            w.status;
+
+
+        card.innerHTML = `
+
+            <div class="worker-card-header">
+
+                <div class="worker-avatar">
+                    ${w.name[0].toUpperCase()}
+                </div>
+
+                <div>
+                    <h3>${w.name}</h3>
+                    <span>${w.display_id}</span>
+                </div>
+
+            </div>
+
+
+            <div class="worker-card-body">
+
+                <p>📧 ${w.email || "-"}</p>
+
+                <p>📞 ${w.phone}</p>
+
+                <p>📍 ${w.address || "-"}</p>
+
+                <span class="worker-status-badge">
+                    ● ${w.status}
+                </span>
+
+            </div>
+
+
+            <button
+                class="worker-view-btn"
+                onclick="viewWorker('${w.display_id}')"
+            >
+                View Profile →
+            </button>
+
+        `;
+
+        grid.appendChild(card);
+
+    });
+
+}
+
+
+function filterWorkers() {
+    renderWorkers();
+}
+
+
+function openAddWorker() {
+
+    document
+        .getElementById("workerModal")
+        .classList.add("show");
+
+}
+
+
+function closeAddWorker() {
+
+    document
+        .getElementById("workerModal")
+        .classList.remove("show");
+
+}
+
+
+function viewWorker(id) {
+
+    const w =
+        workers.find(
+            x => x.display_id === id
+        );
+
+
+    if (w) {
+
+        smartCleanAlert(
+
+            `${w.display_id}
+${w.name}
+${w.email || "-"}
+${w.phone}
+${w.address || "-"}
+Status: ${w.status}`,
+
+            "info",
+
+            "Worker Details"
+
+        );
+
+    }
+
+}
+
+
 loadWorkers();
+
 </script>
 
 
