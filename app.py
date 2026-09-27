@@ -2745,9 +2745,9 @@ def api_admin_workers():
         dictionary=True
     )
 
-
     try:
 
+        # Get all workers
         cur.execute(
             """
             SELECT
@@ -2758,30 +2758,76 @@ def api_admin_workers():
                 address,
                 status,
                 created_at
-
             FROM workers
-
             ORDER BY worker_id DESC
             """
         )
 
-
         rows = cur.fetchall()
+
+
+        # Total workers
+        cur.execute(
+            """
+            SELECT COUNT(*) AS total
+            FROM workers
+            """
+        )
+
+        total_workers = cur.fetchone()["total"]
+
+
+        # Available workers
+        cur.execute(
+            """
+            SELECT COUNT(*) AS total
+            FROM workers
+            WHERE LOWER(status) = 'available'
+            """
+        )
+
+        available_workers = cur.fetchone()["total"]
+
+
+        # On-duty workers
+        cur.execute(
+            """
+            SELECT COUNT(*) AS total
+            FROM workers
+            WHERE LOWER(status) IN ('on duty', 'onduty')
+            """
+        )
+
+        on_duty_workers = cur.fetchone()["total"]
+
+
+        # Active assigned tasks
+        cur.execute(
+            """
+            SELECT COUNT(*) AS total
+            FROM complaint_assignments ca
+            INNER JOIN complaints c
+                ON c.complaint_id = ca.complaint_id
+            WHERE LOWER(c.status)
+                NOT IN ('resolved', 'completed')
+            """
+        )
+
+        assigned_tasks = cur.fetchone()["total"]
 
 
     finally:
 
         cur.close()
-
         conn.close()
 
 
+    # Prepare worker data
     for row in rows:
 
         row["display_id"] = (
             f"WRK-{row['worker_id']:04d}"
         )
-
 
         row["created_at"] = (
             row["created_at"].strftime(
@@ -2792,8 +2838,17 @@ def api_admin_workers():
         )
 
 
-    return jsonify(rows)
-
+    return jsonify(
+        {
+            "workers": rows,
+            "stats": {
+                "total_workers": total_workers,
+                "available_workers": available_workers,
+                "on_duty_workers": on_duty_workers,
+                "assigned_tasks": assigned_tasks
+            }
+        }
+    )
 
 # ============================================================
 # ADMIN REPORTS API
