@@ -1122,3 +1122,37 @@
 .step.current .step-circle {
     color: #27ae60 !important;
 }
+/* =========================================
+   COMPLETED STEPPER - GREEN
+========================================= */
+
+.step.done .step-circle {
+    background: #27ae60 !important;
+    border-color: #27ae60 !important;
+    color: #ffffff !important;
+}
+
+.step.done strong {
+    color: #27ae60 !important;
+}
+
+.step.done .step-line {
+    background: #27ae60 !important;
+}
+
+
+/* Current Completed step */
+
+.step.current .step-circle {
+    background: #27ae60 !important;
+    border-color: #27ae60 !important;
+    color: #ffffff !important;
+}
+
+.step.current strong {
+    color: #27ae60 !important;
+}
+
+.step.current .step-line {
+    background: #27ae60 !important;
+}
