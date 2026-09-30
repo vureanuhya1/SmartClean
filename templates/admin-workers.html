@@ -16,9 +16,47 @@
     <link rel="stylesheet"
           href="{{ url_for('static', filename='css/admin-workers.css') }}">
 <style>
-    form input{
-        font-size:18px;
-    }
+/* =========================
+   ADD WORKER FORM FONT SIZE
+========================= */
+
+.worker-modal .modal-box form input {
+    font-size: 18px;
+    padding: 14px 16px;
+    min-height: 52px;
+}
+
+/* Placeholder text */
+.worker-modal .modal-box form input::placeholder {
+    font-size: 17px;
+}
+
+/* Add Worker button */
+.worker-modal .modal-box .modal-submit {
+    font-size: 18px;
+    padding: 14px 20px;
+    min-height: 52px;
+}
+
+/* Form spacing */
+.worker-modal .modal-box form {
+    gap: 14px;
+}
+
+/* Modal heading */
+.worker-modal .modal-box h2 {
+    font-size: 28px;
+}
+
+/* Description under heading */
+.worker-modal .modal-box > p {
+    font-size: 16px;
+}
+
+/* NEW TEAM MEMBER label */
+.worker-modal .modal-badge {
+    font-size: 13px;
+}
 </style>
 </head>
 
