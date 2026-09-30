@@ -476,10 +476,30 @@
 
 <script>
 const stages = ["Submitted", "Assigned", "In Progress", "Completed"];
-function getStatusClass(status) { return status === "Completed" ? "completed" : status === "Submitted" ? "submitted" : "progress"; }
+function getStatusClass(status) {
+
+    if (
+        status === "Completed" ||
+        status === "Resolved"
+    ) {
+        return "completed";
+    }
+
+    if (status === "Submitted") {
+        return "submitted";
+    }
+
+    return "progress";
+}
 function renderStepper(status) {
   const el=document.getElementById("stepper"); el.innerHTML="";
-  const idx=stages.indexOf(status);
+  const displayStatus =
+    status === "Resolved"
+        ? "Completed"
+        : status;
+
+const idx =
+    stages.indexOf(displayStatus);
   stages.forEach((stage,i)=>{ const step=document.createElement("div"); step.className="step"; if(i<idx) step.classList.add("done"); if(i===idx) step.classList.add("current"); step.innerHTML=`<div class="step-line"></div><div class="step-circle">${i<idx?"✓":i+1}</div><strong>${stage}</strong>`; el.appendChild(step); });
 }
 async function showComplaint(id) {
