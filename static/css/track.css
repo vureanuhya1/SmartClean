@@ -1118,3 +1118,14 @@
 .step.done .step-line {
     background: #27ae60 !important;
 }
+.step.done .step-circle {
+    background: #ffffff !important;
+    color: #27ae60 !important;
+    border: 2px solid #27ae60 !important;
+}
+
+.step.current .step-circle {
+    background: #ffffff !important;
+    color: #27ae60 !important;
+    border: 2px solid #27ae60 !important;
+}
