@@ -603,18 +603,19 @@ async function loadAdminComplaints() {
 
         }
 
+if (workersResponse.ok) {
 
-        if (workersResponse.ok) {
+    const workersData =
+        await workersResponse.json();
 
-            adminWorkers =
-                await workersResponse.json();
+    adminWorkers =
+        workersData.workers || [];
 
-        } else {
+} else {
 
-            adminWorkers = [];
+    adminWorkers = [];
 
-        }
-
+}
 
         renderAdminComplaints();
 
