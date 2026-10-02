@@ -505,111 +505,195 @@
          QUICK ACTIONS
     ================================================= -->
 
-    <section class="quick-section">
+   <section class="quick-section">
 
-        <div class="section-title">
+    <div class="section-title">
 
-            <span>
-                MANAGEMENT
-            </span>
+        <span>
+            MANAGEMENT
+        </span>
+
+        <h2>
+            Quick Actions
+        </h2>
+
+    </div>
+
+
+    <div class="quick-actions">
+
+
+        <a
+            href="/admin-complaints"
+            class="quick-card">
+
+            <div class="quick-icon blue">
+                📋
+            </div>
+
+            <div>
+
+                <strong>
+                    Manage Complaints
+                </strong>
+
+                <span>
+                    Review and assign complaints
+                </span>
+
+            </div>
+
+            <b>
+                →
+            </b>
+
+        </a>
+
+
+        <a
+            href="/admin-workers"
+            class="quick-card">
+
+            <div class="quick-icon green">
+                👷
+            </div>
+
+            <div>
+
+                <strong>
+                    Manage Workers
+                </strong>
+
+                <span>
+                    View and manage workers
+                </span>
+
+            </div>
+
+            <b>
+                →
+            </b>
+
+        </a>
+
+
+        <a
+            href="/admin-reports"
+            class="quick-card">
+
+            <div class="quick-icon purple">
+                📊
+            </div>
+
+            <div>
+
+                <strong>
+                    View Reports
+                </strong>
+
+                <span>
+                    Analyze system performance
+                </span>
+
+            </div>
+
+            <b>
+                →
+            </b>
+
+        </a>
+
+
+        <!-- ADD THIS -->
+     <a
+    href="#resolutionRequestsSection"
+    class="quick-card"
+    id="notificationsCard">
+
+    <div class="quick-icon orange">
+        🔔
+        <span id="notificationCount" class="notification-count">0</span>
+    </div>
+
+    <div>
+
+        <strong>
+            Notifications
+        </strong>
+
+        <span>
+            Worker resolution requests
+        </span>
+
+    </div>
+
+    <b>
+        →
+    </b>
+
+</a>
+
+
+    </div>
+
+</section>
+
+<!-- =================================================
+     RESOLUTION REQUESTS
+================================================= -->
+
+<section class="resolution-requests-section">
+
+    <div class="section-title-row">
+
+        <div>
+            <span>WORKER REQUESTS</span>
 
             <h2>
-                Quick Actions
+                Resolution Requests
             </h2>
-
         </div>
 
-
-        <div class="quick-actions">
-
-
-            <a
-                href="/admin-complaints"
-                class="quick-card">
-
-                <div class="quick-icon blue">
-                    📋
-                </div>
-
-                <div>
-
-                    <strong>
-                        Manage Complaints
-                    </strong>
-
-                    <span>
-                        Review and assign complaints
-                    </span>
-
-                </div>
-
-                <b>
-                    →
-                </b>
-
-            </a>
-
-
-            <a
-                href="/admin-workers"
-                class="quick-card">
-
-                <div class="quick-icon green">
-                    👷
-                </div>
-
-                <div>
-
-                    <strong>
-                        Manage Workers
-                    </strong>
-
-                    <span>
-                        View and manage workers
-                    </span>
-
-                </div>
-
-                <b>
-                    →
-                </b>
-
-            </a>
-
-
-            <a
-                href="/admin-reports"
-                class="quick-card">
-
-                <div class="quick-icon purple">
-                    📊
-                </div>
-
-                <div>
-
-                    <strong>
-                        View Reports
-                    </strong>
-
-                    <span>
-                        Analyze system performance
-                    </span>
-
-                </div>
-
-                <b>
-                    →
-                </b>
-
-            </a>
-
-
+        <div class="resolution-request-count"
+             id="resolutionRequestCount">
+            0 Pending
         </div>
 
-    </section>
+    </div>
 
 
+    <div class="resolution-requests-list"
+         id="resolutionRequestsList">
 
+        <div class="resolution-empty">
+            Loading resolution requests...
+        </div>
+
+    </div>
+
+</section>
+<!-- ADMIN PHOTO VIEWER -->
+<div id="adminPhotoViewer"
+     class="admin-photo-viewer"
+     onclick="closeAdminPhotoViewer()">
+
+    <div class="admin-photo-viewer-card"
+         onclick="event.stopPropagation()">
+
+        <button
+            type="button"
+            class="admin-photo-viewer-close"
+            onclick="closeAdminPhotoViewer()">
+            ×
+        </button>
+
+        <img
+            id="adminPhotoViewerImage"
+            src=""
+            alt="Full resolution photo">
+    </div>
+
+</div>
     <!-- =================================================
          RECENT COMPLAINTS
     ================================================= -->
@@ -643,27 +727,35 @@
 
             <div class="table-header">
 
-                <span>
-                    ID
-                </span>
+    <span>
+        ID
+    </span>
 
-                <span>
-                    Complaint
-                </span>
+    <span>
+        Complaint
+    </span>
 
-                <span>
-                    Location
-                </span>
+    <span>
+        Photo
+    </span>
 
-                <span>
-                    Worker
-                </span>
+    <span>
+        Complaint Date
+    </span>
 
-                <span>
-                    Status
-                </span>
+    <span>
+        Location
+    </span>
 
-            </div>
+    <span>
+        Worker
+    </span>
+
+    <span>
+        Status
+    </span>
+
+</div>
 
 
             <div id="recentComplaintsRows">
@@ -1050,31 +1142,64 @@ function renderDashboardRecentComplaints() {
                 complaint.status
             );
 
-        return `
-            <div class="table-row">
+   	const complaintDate =
+    complaint.date ||
+    complaint.complaint_date ||
+    "-";
 
-                <span>
-                    ${escapeDashboardHtml(id)}
-                </span>
+const photoUrl =
+    complaint.photo_path
+        ? `/static/${complaint.photo_path}`
+        : "";
 
-                <span>
-                    ${escapeDashboardHtml(description)}
-                </span>
+return `
+    <div class="table-row">
 
-                <span>
-                    ${escapeDashboardHtml(location)}
-                </span>
+        <span>
+            ${escapeDashboardHtml(id)}
+        </span>
 
-                <span>
-                    ${escapeDashboardHtml(worker)}
-                </span>
+        <span>
+            ${escapeDashboardHtml(description)}
+        </span>
 
-                <span class="table-status ${dashboardStatusClass(status)}">
-                    ${escapeDashboardHtml(status)}
-                </span>
+        <span>
+            ${
+                photoUrl
+                    ? `
+                        <img
+                            src="${escapeDashboardHtml(photoUrl)}"
+                            alt="Complaint photo"
+                            style="
+                                width: 55px;
+                                height: 45px;
+                                object-fit: cover;
+                                border-radius: 8px;
+                            "
+                        >
+                      `
+                    : "-"
+            }
+        </span>
 
-            </div>
-        `;
+        <span>
+            ${escapeDashboardHtml(complaintDate)}
+        </span>
+
+        <span>
+            ${escapeDashboardHtml(location)}
+        </span>
+
+        <span>
+            ${escapeDashboardHtml(worker)}
+        </span>
+
+        <span class="table-status ${dashboardStatusClass(status)}">
+            ${escapeDashboardHtml(status)}
+        </span>
+
+    </div>
+`;
 
     }).join("");
 }
@@ -1122,7 +1247,450 @@ function showCurrentDate() {
 showCurrentDate();
 </script>
 
+<script>
+/* =====================================================
+   ADMIN RESOLUTION REQUESTS
+===================================================== */
 
+let adminResolutionRequests = [];
+
+
+async function loadResolutionRequests() {
+
+    const list =
+        document.getElementById("resolutionRequestsList");
+
+    const count =
+        document.getElementById("resolutionRequestCount");
+
+    if (!list) return;
+
+    try {
+
+        const response = await fetch(
+            "/api/admin/resolution-requests",
+            {
+                cache: "no-store",
+                credentials: "same-origin"
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(
+                data.message ||
+                "Unable to load resolution requests."
+            );
+        }
+
+       adminResolutionRequests =
+    Array.isArray(data.requests)
+        ? data.requests
+        : [];
+
+if (count) {
+    count.textContent =
+        `${adminResolutionRequests.length} Pending`;
+}
+
+/* Update dashboard notification count */
+const notificationCount =
+    document.getElementById("notificationCount");
+
+if (notificationCount) {
+    notificationCount.textContent =
+        adminResolutionRequests.length;
+}
+
+renderResolutionRequests();
+
+    } catch (error) {
+
+        console.error(
+            "Resolution requests error:",
+            error
+        );
+
+        if (count) {
+            count.textContent = "0 Pending";
+        }
+
+        list.innerHTML = `
+            <div class="resolution-empty">
+                Unable to load resolution requests.
+            </div>
+        `;
+    }
+}
+
+
+function escapeResolutionHtml(value) {
+
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+function openAdminPhotoViewer(photoUrl) {
+    document.getElementById("adminPhotoViewerImage").src = photoUrl;
+    document.getElementById("adminPhotoViewer").classList.add("show");
+}
+
+function closeAdminPhotoViewer() {
+    document.getElementById("adminPhotoViewer").classList.remove("show");
+    document.getElementById("adminPhotoViewerImage").src = "";
+}
+function renderResolutionRequests() {
+
+    const list =
+        document.getElementById(
+            "resolutionRequestsList"
+        );
+
+    if (!list) return;
+
+
+    if (adminResolutionRequests.length === 0) {
+
+        list.innerHTML = `
+            <div class="resolution-empty">
+                ✓ No pending resolution requests.
+            </div>
+        `;
+
+        return;
+    }
+
+
+    list.innerHTML =
+        adminResolutionRequests.map(
+            function(request) {
+
+                const complaintId =
+                    escapeResolutionHtml(
+                        request.id ||
+                        request.complaint_id ||
+                        "-"
+                    );
+
+                const workerName =
+                    escapeResolutionHtml(
+                        request.worker_name ||
+                        "-"
+                    );
+
+                const complaintDate =
+                    escapeResolutionHtml(
+                        request.complaint_date ||
+                        "-"
+                    );
+
+                const resolvedDate =
+                    escapeResolutionHtml(
+                        request.resolved_date ||
+                        "-"
+                    );
+
+                const createdAt =
+                    escapeResolutionHtml(
+                        request.created_at ||
+                        "-"
+                    );
+
+                const photoUrl =
+                    request.photo_url ||
+                    "";
+
+
+                return `
+                    <div
+                        class="resolution-request-card"
+                        data-request-id="${request.request_id}"
+                    >
+
+                        <div class="resolution-request-top">
+
+                            <div class="resolution-request-info">
+
+                                <h3>
+                                    Complaint ${complaintId}
+                                </h3>
+
+                                <p>
+                                    Worker:
+                                    <strong>
+                                        ${workerName}
+                                    </strong>
+                                </p>
+
+                            </div>
+
+                            <span class="resolution-pending-badge">
+                                Pending Review
+                            </span>
+
+                        </div>
+
+
+                        <div class="resolution-request-body">
+
+                            <div class="resolution-photo-wrap">
+
+                                ${
+                                    photoUrl
+                                        ? `
+                                            <img
+    src="${escapeResolutionHtml(photoUrl)}"
+    alt="Resolution photo"
+    loading="lazy"
+    onclick="openAdminPhotoViewer('${escapeResolutionHtml(photoUrl)}')"
+    style="cursor: pointer;"
+>
+                                          `
+                                        : `
+                                            <div class="resolution-empty">
+                                                No photo
+                                            </div>
+                                          `
+                                }
+
+                            </div>
+
+
+                            <div>
+
+                                <div class="resolution-details">
+
+                                    <div class="resolution-detail">
+
+                                        <span>
+                                            Complaint Date
+                                        </span>
+
+                                        <strong>
+                                            ${complaintDate}
+                                        </strong>
+
+                                    </div>
+
+
+                                    <div class="resolution-detail">
+
+                                        <span>
+                                            Resolved Date
+                                        </span>
+
+                                        <strong>
+                                            ${resolvedDate}
+                                        </strong>
+
+                                    </div>
+
+
+                                    <div class="resolution-detail">
+
+                                        <span>
+                                            Request Submitted
+                                        </span>
+
+                                        <strong>
+                                            ${createdAt}
+                                        </strong>
+
+                                    </div>
+
+
+                                    <div class="resolution-detail">
+
+                                        <span>
+                                            Worker ID
+                                        </span>
+
+                                        <strong>
+                                            ${escapeResolutionHtml(
+                                                request.worker_id || "-"
+                                            )}
+                                        </strong>
+
+                                    </div>
+
+                                </div>
+
+
+                                <textarea
+                                    class="resolution-remarks"
+                                    id="remarks-${request.request_id}"
+                                    placeholder="Optional admin remarks..."
+                                ></textarea>
+
+
+                                <div class="resolution-actions">
+
+                                    <button
+                                        type="button"
+                                        class="resolution-action-btn resolution-reject"
+                                        onclick="decideResolutionRequest(
+                                            ${request.request_id},
+                                            'reject'
+                                        )"
+                                    >
+                                        Reject
+                                    </button>
+
+
+                                    <button
+                                        type="button"
+                                        class="resolution-action-btn resolution-approve"
+                                        onclick="decideResolutionRequest(
+                                            ${request.request_id},
+                                            'approve'
+                                        )"
+                                    >
+                                        Approve
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                `;
+            }
+        ).join("");
+}
+
+
+async function decideResolutionRequest(
+    requestId,
+    decision
+) {
+
+    const action =
+        decision === "approve"
+            ? "approve"
+            : "reject";
+
+
+    const title =
+        action === "approve"
+            ? "Approve Resolution?"
+            : "Reject Resolution?";
+
+
+    const message =
+        action === "approve"
+            ? "This will mark the complaint as Completed and notify the worker and citizen."
+            : "This will reject the resolution request. The complaint will remain In Progress.";
+
+
+    const confirmed =
+        await smartCleanConfirm(
+            message,
+            title
+        );
+
+
+    if (!confirmed) return;
+
+
+    const remarksElement =
+        document.getElementById(
+            `remarks-${requestId}`
+        );
+
+
+    const remarks =
+        remarksElement
+            ? remarksElement.value.trim()
+            : "";
+
+
+    try {
+
+        const response =
+            await fetch(
+                `/api/admin/resolution-requests/${requestId}/decision`,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    credentials: "same-origin",
+
+                    body: JSON.stringify({
+                        decision: action,
+                        remarks: remarks
+                    })
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.message ||
+                "Unable to process resolution request."
+            );
+        }
+
+
+        await smartCleanAlert(
+            data.message ||
+            "Resolution request processed successfully.",
+            "success",
+            action === "approve"
+                ? "Resolution Approved"
+                : "Resolution Rejected"
+        );
+
+
+        await loadResolutionRequests();
+
+        // Refresh dashboard complaint data
+        await loadAdminDashboardComplaints();
+
+    } catch (error) {
+
+        console.error(
+            "Resolution decision error:",
+            error
+        );
+
+
+        await smartCleanAlert(
+            error.message ||
+            "Unable to process resolution request.",
+            "error",
+            "Request Failed"
+        );
+    }
+}
+
+
+/* Load pending requests when dashboard opens */
+loadResolutionRequests();
+
+
+/* Refresh every 30 seconds */
+setInterval(
+    loadResolutionRequests,
+    30000
+);
+
+</script>
 <script>
 (async()=>{try{const r=await fetch('/api/admin/stats');const d=await r.json();if(!r.ok)return;const vals=document.querySelectorAll('.admin-stat-card .stat-content strong');if(vals[0])vals[0].textContent=d.total;if(vals[1])vals[1].textContent=d.pending;if(vals[2])vals[2].textContent=d.resolved;if(vals[3])vals[3].textContent=d.workers;const name=document.querySelector('.dashboard-header h1');if(name)name.textContent=`Good morning, {{ user.name }} 👋`;document.getElementById('currentDate').textContent=new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});}catch(e){}})();
 </script>
@@ -1150,6 +1718,244 @@ showCurrentDate();
     .bar-item{gap:4px;}
     .bar-value{font-size:6px;}
     .bar-item span{font-size:6px;}
+}
+/* =====================================================
+   RESOLUTION REQUESTS
+===================================================== */
+
+.resolution-requests-section {
+    margin-top: 24px;
+}
+
+.resolution-request-count {
+    padding: 8px 14px;
+    border-radius: 20px;
+    background: #fff4df;
+    color: #9a6414;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.resolution-requests-list {
+    display: grid;
+    gap: 18px;
+    margin-top: 18px;
+}
+
+.resolution-request-card {
+    background: #ffffff;
+    border: 1px solid #e3eee8;
+    border-radius: 18px;
+    padding: 20px;
+    box-shadow: 0 8px 24px rgba(30, 70, 50, 0.08);
+}
+
+.resolution-request-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 18px;
+}
+
+.resolution-request-info h3 {
+    margin: 0 0 6px;
+    color: #173c2c;
+    font-size: 18px;
+}
+
+.resolution-request-info p {
+    margin: 4px 0;
+    color: #66776e;
+    font-size: 13px;
+}
+
+.resolution-pending-badge {
+    padding: 6px 11px;
+    border-radius: 14px;
+    background: #fff4df;
+    color: #a66b17;
+    font-size: 11px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.resolution-request-body {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 22px;
+    align-items: start;
+}
+
+.resolution-photo-wrap {
+    width: 100%;
+    height: 170px;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #edf5f0;
+}
+
+.resolution-photo-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.resolution-details {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.resolution-detail {
+    padding: 12px;
+    border-radius: 12px;
+    background: #f6faf8;
+}
+
+.resolution-detail span {
+    display: block;
+    margin-bottom: 4px;
+    color: #7a8a82;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.resolution-detail strong {
+    color: #284b3b;
+    font-size: 14px;
+}
+
+.resolution-remarks {
+    width: 100%;
+    min-height: 75px;
+    margin-top: 14px;
+    padding: 11px 13px;
+    border: 1px solid #d7e5dd;
+    border-radius: 12px;
+    resize: vertical;
+    font: inherit;
+    box-sizing: border-box;
+}
+
+.resolution-remarks:focus {
+    outline: none;
+    border-color: #42a675;
+    box-shadow: 0 0 0 3px rgba(66, 166, 117, 0.12);
+}
+
+.resolution-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.resolution-action-btn {
+    border: none;
+    border-radius: 11px;
+    padding: 10px 18px;
+    font: inherit;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.resolution-reject {
+    background: #f8e9e9;
+    color: #a94444;
+}
+
+.resolution-approve {
+    background: #e2f4e9;
+    color: #247347;
+}
+
+.resolution-action-btn:hover {
+    transform: translateY(-1px);
+}
+
+.resolution-empty {
+    padding: 28px;
+    text-align: center;
+    color: #7c8d84;
+    background: #f7faf8;
+    border: 1px dashed #cbdcd2;
+    border-radius: 16px;
+}
+/* =====================================================
+   ADMIN PHOTO VIEWER
+===================================================== */
+
+.admin-photo-viewer {
+    position: fixed;
+    inset: 0;
+    z-index: 100001;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(0, 0, 0, 0.78);
+}
+
+.admin-photo-viewer.show {
+    display: flex;
+}
+
+.admin-photo-viewer-card {
+    position: relative;
+    max-width: 95vw;
+    max-height: 90vh;
+}
+
+.admin-photo-viewer-card img {
+    display: block;
+    max-width: 100%;
+    max-height: 85vh;
+    object-fit: contain;
+    border-radius: 14px;
+}
+
+.admin-photo-viewer-close {
+    position: absolute;
+    top: -14px;
+    right: -14px;
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 50%;
+    background: white;
+    color: #222;
+    font-size: 28px;
+    cursor: pointer;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+}
+@media (max-width: 700px) {
+
+    .resolution-request-top {
+        flex-direction: column;
+    }
+
+    .resolution-request-body {
+        grid-template-columns: 1fr;
+    }
+
+    .resolution-details {
+        grid-template-columns: 1fr;
+    }
+
+    .resolution-photo-wrap {
+        height: 210px;
+    }
+
+    .resolution-actions {
+        flex-direction: column;
+    }
+
+    .resolution-action-btn {
+        width: 100%;
+    }
 }
 </style>
 </style>
