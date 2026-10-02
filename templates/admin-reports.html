@@ -203,7 +203,7 @@
                 Category
             </label>
 
-            <select>
+            <select id="reportCategory">
 
                 <option>
                     All Categories
@@ -263,9 +263,9 @@
 
                 <strong id="adminTotal">0</strong>
 
-                <small>
-                    ↑ 12.5% from last month
-                </small>
+               <small id="adminTotalInfo">
+    Current report period
+</small>
 
             </div>
 
@@ -281,14 +281,14 @@
             <div>
 
                 <span>
-                    Resolved Complaints
+                    Completed Complaints
                 </span>
 
                 <strong id="adminResolved">0</strong>
 
-                <small class="positive">
-                    87.3% resolution rate
-                </small>
+               <small class="positive" id="adminResolutionRate">
+    0% resolution rate
+</small>
 
             </div>
 
@@ -309,9 +309,9 @@
 
                 <strong id="adminAvgTime">—</strong>
 
-                <small>
-                    ↓ 18% improvement
-                </small>
+              <small id="adminAvgInfo">
+    Based on completed complaints
+</small>
 
             </div>
 
@@ -332,9 +332,9 @@
 
                 <strong id="adminActiveWorkers">0</strong>
 
-                <small>
-                    34 available today
-                </small>
+               <small id="adminWorkersInfo">
+    Currently available
+</small>
 
             </div>
 
@@ -370,8 +370,8 @@
                 </div>
 
                 <span class="trend-badge">
-                    +12.5%
-                </span>
+    0 complaints
+</span>
 
             </div>
 
@@ -554,7 +554,7 @@
 
         <div class="performance-table" id="adminPerformanceTable">
             <div class="performance-row header">
-                <span>Worker</span><span>Resolved</span><span>Active</span><span>Efficiency</span>
+                <span>Worker</span><span>Completed</span><span>Active</span><span>Efficiency</span>
             </div>
         </div>
 
@@ -592,65 +592,476 @@
 
 <script>
 async function loadAdminReports() {
+
     try {
-        const response = await fetch("/api/admin/reports");
+
+        const period =
+            document.getElementById("period")?.value ||
+            "This Month";
+
+        const categorySelect =
+    document.getElementById("reportCategory");
+
+        const category =
+            categorySelect?.value ||
+            "All Categories";
+
+
+        const response = await fetch(
+            `/api/admin/reports?period=${encodeURIComponent(period)}&category=${encodeURIComponent(category)}`,
+            {
+                cache: "no-store"
+            }
+        );
+
+
         const data = await response.json();
-        if (!response.ok) throw new Error(data.message || "Unable to load reports.");
 
-        const categories = data.categories || [];
-        const totalCategories = categories.reduce((sum, item) => sum + Number(item.count || 0), 0);
-        const list = document.getElementById("adminCategoryList");
-        if (list) {
-            list.innerHTML = categories.length ? categories.map(item => {
-                const pct = totalCategories ? ((Number(item.count || 0) / totalCategories) * 100).toFixed(1) : "0.0";
-                return `<div class="category-item">
-                    <div class="category-title"><span>${escapeHtml(item.issue_type || "Other")}</span><strong>${pct}%</strong></div>
-                    <div class="category-track"><div style="width:${pct}%;"></div></div>
-                </div>`;
-            }).join("") : `<p>No complaint data available.</p>`;
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.message ||
+                "Unable to load reports."
+            );
+
         }
 
-        const statuses = data.statuses || [];
-        const total = statuses.reduce((sum, x) => sum + Number(x.count || 0), 0);
-        const resolved = statuses.filter(x => x.status === "Resolved").reduce((sum,x)=>sum+Number(x.count||0),0);
-        const active = statuses.filter(x => ["Pending","Assigned","In Progress"].includes(x.status)).reduce((sum,x)=>sum+Number(x.count||0),0);
 
-        const totalEl=document.getElementById("adminTotal");
-        const resolvedEl=document.getElementById("adminResolved");
-        const activeEl=document.getElementById("adminActiveWorkers");
-        if(totalEl) totalEl.textContent=total;
-        if(resolvedEl) resolvedEl.textContent=resolved;
-        if(activeEl) activeEl.textContent="Loading...";
-        const avgEl=document.getElementById("adminAvgTime");
-        if(avgEl) avgEl.textContent="—";
+        // ====================================================
+        // SUMMARY
+        // ====================================================
 
-        const perf = document.getElementById("adminPerformanceTable");
-        if (perf) {
-            const workersResponse = await fetch("/api/admin/workers");
-            const workers = workersResponse.ok ? await workersResponse.json() : [];
-            if(activeEl) activeEl.textContent = workers.filter(w => w.status === "Available" || w.status === "Busy").length;
-            const complaintResponse = await fetch("/api/admin/complaints");
-            const complaints = complaintResponse.ok ? await complaintResponse.json() : [];
+        const summary =
+            data.summary || {};
 
-            const rows = workers.map(w => {
-                const mine = complaints.filter(c => c.worker_id === w.worker_id || c.worker_name === w.name);
-                const done = mine.filter(c => c.status === "Resolved").length;
-                const activeCount = mine.filter(c => ["Assigned","In Progress"].includes(c.status)).length;
-                const efficiency = mine.length ? Math.round(done / mine.length * 100) : 0;
-                return {w,done,activeCount,efficiency};
-            }).filter(x => x.mine !== undefined || x.done > 0 || x.activeCount > 0)
-              .sort((a,b)=>b.done-a.done)
-              .slice(0,5);
 
-            perf.innerHTML = `<div class="performance-row header"><span>Worker</span><span>Resolved</span><span>Active</span><span>Efficiency</span></div>` +
-                (rows.length ? rows.map((x,i)=>`<div class="performance-row">
-                    <span class="worker-name"><b>${String(i+1).padStart(2,"0")}</b> ${escapeHtml(x.w.name)}</span>
-                    <span>${x.done}</span><span>${x.activeCount}</span><span>${x.efficiency}%</span>
-                </div>`).join("") : `<div class="performance-row"><span>No worker activity yet.</span></div>`);
+        const total =
+            Number(summary.total || 0);
+
+        const completed =
+            Number(summary.completed || 0);
+
+        const avgDays =
+            summary.avg_resolution_days;
+
+        const activeWorkers =
+            Number(summary.active_workers || 0);
+
+        const resolutionRate =
+            Number(summary.resolution_rate || 0);
+
+
+        const totalEl =
+            document.getElementById(
+                "adminTotal"
+            );
+
+        const completedEl =
+            document.getElementById(
+                "adminResolved"
+            );
+
+        const avgEl =
+            document.getElementById(
+                "adminAvgTime"
+            );
+
+        const activeEl =
+            document.getElementById(
+                "adminActiveWorkers"
+            );
+
+
+        if (totalEl) {
+            totalEl.textContent = total;
         }
-    } catch (error) {
-        console.error("Admin reports:", error);
+
+
+        if (completedEl) {
+            completedEl.textContent =
+                completed;
+        }
+
+
+        if (avgEl) {
+
+            avgEl.textContent =
+                avgDays !== null &&
+                avgDays !== undefined
+                    ? `${avgDays} days`
+                    : "—";
+
+        }
+
+
+        if (activeEl) {
+            activeEl.textContent =
+                activeWorkers;
+        }
+
+
+        // ====================================================
+        // RESOLUTION RATE
+        // ====================================================
+
+        const resolutionRateText =
+            document.querySelector(
+                "#adminResolved + small"
+            );
+
+        if (resolutionRateText) {
+
+            resolutionRateText.textContent =
+                `${resolutionRate}% resolution rate`;
+
+        }
+
+
+        // ====================================================
+        // CATEGORY LIST
+        // ====================================================
+
+        const categories =
+            data.categories || [];
+
+        const categoryList =
+            document.getElementById(
+                "adminCategoryList"
+            );
+	const categoryFilter =
+    document.getElementById("reportCategory");
+
+if (categoryFilter) {
+
+    const currentCategory =
+        categoryFilter.value;
+
+    categoryFilter.innerHTML =
+        `<option>All Categories</option>` +
+        categories.map(item => `
+            <option>
+                ${escapeHtml(item.issue_type)}
+            </option>
+        `).join("");
+
+    if (
+        currentCategory &&
+        [...categoryFilter.options].some(
+            option =>
+                option.value === currentCategory
+        )
+    ) {
+        categoryFilter.value =
+            currentCategory;
     }
+}
+
+        const categoryTotal =
+            categories.reduce(
+                (sum, item) =>
+                    sum +
+                    Number(item.count || 0),
+                0
+            );
+
+
+        if (categoryList) {
+
+            if (!categories.length) {
+
+                categoryList.innerHTML =
+                    `<p>No complaint data available.</p>`;
+
+            } else {
+
+                categoryList.innerHTML =
+                    categories.map(item => {
+
+                        const count =
+                            Number(item.count || 0);
+
+                        const percentage =
+                            categoryTotal
+                                ? (
+                                    count /
+                                    categoryTotal *
+                                    100
+                                ).toFixed(1)
+                                : "0.0";
+
+
+                        return `
+                            <div class="category-item">
+
+                                <div class="category-title">
+
+                                    <span>
+                                        ${escapeHtml(
+                                            item.issue_type ||
+                                            "Other"
+                                        )}
+                                    </span>
+
+                                    <strong>
+                                        ${percentage}%
+                                    </strong>
+
+                                </div>
+
+                                <div class="category-track">
+
+                                    <div
+                                        style="width:${percentage}%;">
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        `;
+
+                    }).join("");
+
+            }
+
+        }
+
+
+        // ====================================================
+        // MONTHLY COMPLAINT CHART
+        // ====================================================
+
+        const monthly =
+            data.monthly || [];
+
+        const bars =
+            document.querySelector(
+                ".bars"
+            );
+
+
+        if (bars) {
+
+            if (!monthly.length) {
+
+                bars.innerHTML =
+                    `<p>No complaint data available.</p>`;
+
+            } else {
+
+                const maxCount =
+                    Math.max(
+                        ...monthly.map(
+                            item =>
+                                Number(
+                                    item.count || 0
+                                )
+                        ),
+                        1
+                    );
+
+
+                bars.innerHTML =
+                    monthly.map(item => {
+
+                        const count =
+                            Number(
+                                item.count || 0
+                            );
+
+                        const height =
+                            Math.max(
+                                8,
+                                (
+                                    count /
+                                    maxCount
+                                ) * 100
+                            );
+
+
+                        return `
+                            <div class="bar-column">
+
+                                <div
+                                    class="bar"
+                                    style="height:${height}%;">
+                                </div>
+
+                                <span>
+                                    ${escapeHtml(
+                                        item.month
+                                    )}
+                                </span>
+
+                            </div>
+                        `;
+
+                    }).join("");
+
+            }
+
+        }
+
+
+        // ====================================================
+        // MONTHLY CHART Y-AXIS
+        // ====================================================
+
+        const chartY =
+            document.querySelector(
+                ".chart-y"
+            );
+
+
+        if (chartY && monthly.length) {
+
+            const maxCount =
+                Math.max(
+                    ...monthly.map(
+                        item =>
+                            Number(
+                                item.count || 0
+                            )
+                    ),
+                    1
+                );
+
+
+            const values = [
+                maxCount,
+                Math.round(maxCount * 0.75),
+                Math.round(maxCount * 0.5),
+                Math.round(maxCount * 0.25),
+                0
+            ];
+
+
+            chartY.innerHTML =
+                values.map(
+                    value =>
+                        `<span>${value}</span>`
+                ).join("");
+
+        }
+
+
+        // ====================================================
+        // TREND BADGE
+        // ====================================================
+
+        const trendBadge =
+            document.querySelector(
+                ".trend-badge"
+            );
+
+
+        if (trendBadge) {
+
+            trendBadge.textContent =
+                `${total} complaints`;
+
+        }
+
+
+        // ====================================================
+        // WORKER PERFORMANCE
+        // ====================================================
+
+        const workers =
+            data.workers || [];
+
+        const performance =
+            document.getElementById(
+                "adminPerformanceTable"
+            );
+
+
+        if (performance) {
+
+            performance.innerHTML =
+                `
+                <div class="performance-row header">
+                    <span>Worker</span>
+                    <span>Completed</span>
+                    <span>Active</span>
+                    <span>Efficiency</span>
+                </div>
+                `;
+
+
+            if (!workers.length) {
+
+                performance.innerHTML += `
+                    <div class="performance-row">
+                        <span>
+                            No worker activity yet.
+                        </span>
+                    </div>
+                `;
+
+            } else {
+
+                performance.innerHTML +=
+                    workers.map(
+                        (worker, index) => `
+
+                        <div class="performance-row">
+
+                            <span class="worker-name">
+
+                                <b>
+                                    ${String(
+                                        index + 1
+                                    ).padStart(2, "0")}
+                                </b>
+
+                                ${escapeHtml(
+                                    worker.name ||
+                                    "-"
+                                )}
+
+                            </span>
+
+                            <span>
+                                ${Number(
+                                    worker.completed ||
+                                    0
+                                )}
+                            </span>
+
+                            <span>
+                                ${Number(
+                                    worker.active ||
+                                    0
+                                )}
+                            </span>
+
+                            <span>
+                                ${Number(
+                                    worker.efficiency ||
+                                    0
+                                )}%
+                            </span>
+
+                        </div>
+
+                    `
+                    ).join("");
+
+            }
+
+        }
+
+
+    } catch (error) {
+
+        console.error(
+            "Admin reports:",
+            error
+        );
+
+    }
+
 }
 function escapeHtml(value) {
     return String(value ?? "").replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[ch]));
@@ -660,14 +1071,42 @@ async function logoutAdmin(event) {
     const ok = await smartCleanConfirm("Are you sure you want to logout from SmartClean?","Logout Confirmation");
     if(ok) window.location.href="/admin-logout";
 }
-function generateReport() {
-    const button=document.querySelector(".generate-btn");
+async function generateReport() {
+    const button = document.querySelector(".generate-btn");
+
     if (!button) return;
-    button.textContent="Generating...";
-    setTimeout(()=>button.textContent="✓ Report Generated",700);
+
+    button.textContent = "Generating...";
+    button.disabled = true;
+
+    try {
+        await loadAdminReports();
+
+        button.textContent = "✓ Report Generated";
+    } catch (error) {
+        console.error("Generate report:", error);
+        button.textContent = "Generate Report";
+    }
+
+    setTimeout(() => {
+        button.textContent = "Generate Report";
+        button.disabled = false;
+    }, 1200);
 }
 function downloadReport() {
-    window.location.href="/admin-reports/download";
+
+    const period =
+        document.getElementById("period")?.value ||
+        "This Month";
+
+    const category =
+        document.getElementById("reportCategory")?.value ||
+        "All Categories";
+
+    const url =
+        `/admin-reports/download?period=${encodeURIComponent(period)}&category=${encodeURIComponent(category)}`;
+
+    window.location.href = url;
 }
 loadAdminReports();
 </script>
