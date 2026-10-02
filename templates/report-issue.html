@@ -748,33 +748,71 @@
                 </div>
 
 
-                <!-- =================================================
-                     LOCATION
-                ================================================== -->
+            <!-- =================================================
+     STREET NAME
+================================================== -->
 
-                <div class="form-group">
+<div class="form-group">
 
-                    <label for="location">
+    <label for="street_name">
 
-                        Location
+        Street Name
 
-                    </label>
+        <span>
+            (Required)
+        </span>
+
+    </label>
 
 
-                    <input
-                        type="text"
-                        id="location"
-                        name="location"
-                        placeholder="Enter garbage location"
-                        value="{{
-                            form_data.get('location', '')
-                            if form_data
-                            else ''
-                        }}"
-                        required
-                    >
+    <input
+        type="text"
+        id="street_name"
+        name="street_name"
+        placeholder="Enter street name"
+        value="{{
+            form_data.get('street_name', '')
+            if form_data
+            else ''
+        }}"
+        required
+    >
 
-                </div>
+</div>
+
+
+<!-- =================================================
+     WARD NUMBER
+================================================== -->
+
+<div class="form-group">
+
+    <label for="ward_number">
+
+        Ward Number
+
+        <span>
+            (Required)
+        </span>
+
+    </label>
+
+
+    <input
+        type="number"
+        id="ward_number"
+        name="ward_number"
+        placeholder="Enter ward number"
+        value="{{
+            form_data.get('ward_number', '')
+            if form_data
+            else ''
+        }}"
+        min="1"
+        required
+    >
+
+</div>
 
 
                 <!-- =================================================
@@ -812,7 +850,7 @@
                         Upload Photo
 
                         <span>
-                            (Optional)
+                            (Required)
                         </span>
 
                     </label>
@@ -842,7 +880,7 @@
                             type="file"
                             id="photo"
                             name="photo"
-                            accept="image/png,image/jpeg"
+                            accept="image/png,image/jpeg" required
                         >
 
                     </div>
