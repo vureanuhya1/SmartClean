@@ -639,36 +639,129 @@ def login():
 )
 def report_issue():
     if session.get("role") != "citizen":
-        return redirect(url_for("citizen_login", next="/report-issue"))
-    user=current_user()
-    if not user:
-        session.clear(); return redirect(url_for("citizen_login", next="/report-issue"))
-    if request.method=="GET":
-        return render_template("report-issue.html",user=user,form_data={})
-    category=request.form.get("category","").strip()
-    issue_type=CATEGORY_MAP.get(category,category)
-    location=request.form.get("location","").strip()
-    description=request.form.get("description","").strip()
-    form_data={"name":request.form.get("name","").strip(),"email":request.form.get("email","").strip(),"category":category,"location":location,"description":description}
-    if not issue_type or not location or not description:
-        return render_template("report-issue.html",user=user,form_data=form_data,error="Please fill all required fields."),400
-    photo_path=None; photo=request.files.get("photo")
-    if photo and photo.filename:
-        ext=Path(photo.filename).suffix.lower()
-        if ext not in {".jpg",".jpeg",".png"}:
-            return render_template("report-issue.html",user=user,form_data=form_data,error="Only JPG and PNG images are allowed."),400
-        filename=f"{secrets.token_hex(12)}{ext}"; photo.save(Path(app.config["UPLOAD_FOLDER"])/filename); photo_path=f"uploads/{filename}"
-    conn=get_db_connection(); cur=conn.cursor()
-    try:
-        cur.execute("""INSERT INTO complaints (citizen_id,issue_type,ward_number,street_number,description,photo_path,status)
-                       VALUES (%s,%s,%s,%s,%s,%s,'Pending')""",
-                    (user["citizen_id"],issue_type,user.get("ward_number") or 0,location,description,photo_path))
-        complaint_id=cur.lastrowid; conn.commit()
-    except Exception: conn.rollback(); raise
-    finally: cur.close(); conn.close()
-    cid=complaint_display_id(complaint_id)
-    return render_template("report-issue.html",user=user,form_data={},success=True,complaint_id=cid,success_message=f"Complaint {cid} submitted successfully.")
+        return redirect(
+            url_for("citizen_login", next="/report-issue")
+        )
 
+    user = current_user()
+
+    if not user:
+        session.clear()
+        return redirect(
+            url_for("citizen_login", next="/report-issue")
+        )
+
+    if request.method == "GET":
+        return render_template(
+            "report-issue.html",
+            user=user,
+            form_data={}
+        )
+
+    category = request.form.get("category", "").strip()
+    issue_type = CATEGORY_MAP.get(category, category)
+
+    street_name = request.form.get("street_name", "").strip()
+    ward_number = request.form.get("ward_number", "").strip()
+    description = request.form.get("description", "").strip()
+
+    form_data = {
+        "name": request.form.get("name", "").strip(),
+        "email": request.form.get("email", "").strip(),
+        "category": category,
+        "street_name": street_name,
+        "ward_number": ward_number,
+        "description": description
+    }
+
+    # Validate required complaint fields
+    if not issue_type or not street_name or not ward_number or not description:
+        return render_template(
+            "report-issue.html",
+            user=user,
+            form_data=form_data,
+            error="Please fill all required fields."
+        ), 400
+
+    # Complaint photo is mandatory
+    photo = request.files.get("photo")
+
+    if not photo or not photo.filename:
+        return render_template(
+            "report-issue.html",
+            user=user,
+            form_data=form_data,
+            error="Complaint photo is required."
+        ), 400
+
+    # Validate photo type
+    ext = Path(photo.filename).suffix.lower()
+
+    if ext not in {".jpg", ".jpeg", ".png"}:
+        return render_template(
+            "report-issue.html",
+            user=user,
+            form_data=form_data,
+            error="Only JPG and PNG images are allowed."
+        ), 400
+
+    # Save complaint photo
+    filename = f"{secrets.token_hex(12)}{ext}"
+
+    photo.save(
+        Path(app.config["UPLOAD_FOLDER"]) / filename
+    )
+
+    photo_path = f"uploads/{filename}"
+
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    try:
+        cur.execute(
+            """
+            INSERT INTO complaints
+            (
+                citizen_id,
+                issue_type,
+                ward_number,
+                street_number,
+                description,
+                photo_path,
+                status
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, 'Pending')
+            """,
+            (
+                user["citizen_id"],
+                issue_type,
+                int(ward_number),
+                street_name,
+                description,
+                photo_path
+            )
+        )
+
+        complaint_id = cur.lastrowid
+        conn.commit()
+
+    except Exception:
+        conn.rollback()
+        raise
+
+    finally:
+        cur.close()
+        conn.close()
+    cid = complaint_display_id(complaint_id)
+
+    return render_template(
+        "report-issue.html",
+        user=user,
+        form_data={},
+        success=True,
+        complaint_id=cid,
+        success_message=f"Complaint {cid} submitted successfully."
+    )
 @app.route("/track")
 def track():
 
@@ -795,7 +888,6 @@ def api_track(raw_id):
         raw_id
     )
 
-
     if complaint_id is None:
 
         return safe_json_error(
@@ -803,13 +895,11 @@ def api_track(raw_id):
             400
         )
 
-
     conn = get_db_connection()
 
     cur = conn.cursor(
         dictionary=True
     )
-
 
     try:
 
@@ -826,7 +916,12 @@ def api_track(raw_id):
                     FROM complaint_updates cu
                     WHERE cu.complaint_id =
                           c.complaint_id
-                ) AS last_updated
+                ) AS last_updated,
+
+                rr.resolved_photo_path,
+                rr.resolved_date,
+                rr.request_status AS resolution_status,
+                rr.decided_at AS resolution_decided_at
 
             FROM complaints c
 
@@ -842,21 +937,28 @@ def api_track(raw_id):
                 ON w.worker_id =
                    ca.worker_id
 
+            LEFT JOIN resolution_requests rr
+                ON rr.request_id = (
+                    SELECT MAX(rr2.request_id)
+                    FROM resolution_requests rr2
+                    WHERE rr2.complaint_id =
+                          c.complaint_id
+                      AND rr2.request_status =
+                          'Approved'
+                )
+
             WHERE c.complaint_id=%s
             """,
             (complaint_id,)
         )
 
-
         row = cur.fetchone()
-
 
     finally:
 
         cur.close()
 
         conn.close()
-
 
     if not row:
 
@@ -865,24 +967,19 @@ def api_track(raw_id):
             404
         )
 
-
     status = row["status"]
-
 
     if status == "Pending":
 
         display_status = "Submitted"
 
-
     elif status == "In Progress":
 
         display_status = "In Progress"
 
-
     elif status == "Assigned":
 
         display_status = "Assigned"
-
 
     elif status in (
         "Resolved",
@@ -891,16 +988,13 @@ def api_track(raw_id):
 
         display_status = "Completed"
 
-
     else:
 
         display_status = status
 
-
     description = (
         row["description"] or ""
     )
-
 
     if len(description) > 70:
 
@@ -913,6 +1007,20 @@ def api_track(raw_id):
 
         title = description
 
+    resolution_photo = (
+        row["resolved_photo_path"]
+        if row["resolution_status"] == "Approved"
+        else None
+    )
+
+    resolution_date = (
+        row["resolved_date"].strftime("%d %b %Y")
+        if (
+            row["resolution_status"] == "Approved"
+            and row["resolved_date"]
+        )
+        else None
+    )
 
     return jsonify(
         {
@@ -951,7 +1059,8 @@ def api_track(raw_id):
 
             "category":
                 row["issue_type"],
-
+	    "photo_path":
+ 		   row["photo_path"],
             "updated":
                 (
                     row["last_updated"]
@@ -961,10 +1070,22 @@ def api_track(raw_id):
                     if row["last_updated"]
                     else
                     "Not updated yet"
+                ),
+
+            "resolution_photo":
+                resolution_photo,
+
+            "resolution_date":
+                resolution_date,
+
+            "resolution_status":
+                (
+                    row["resolution_status"]
+                    if row["resolution_status"]
+                    else None
                 )
         }
     )
-
 
 # ============================================================
 # CITIZEN LOGIN
@@ -1229,7 +1350,7 @@ def api_citizen_dashboard():
         cur.execute("""SELECT COUNT(*) total,COALESCE(SUM(status='Pending'),0) pending,
                               COALESCE(SUM(status='Assigned'),0) assigned,
                               COALESCE(SUM(status='In Progress'),0) in_progress,
-                              COALESCE(SUM(status='Resolved'),0) resolved
+                              COALESCE(SUM(status='Completed'),0) completed
                        FROM complaints WHERE citizen_id=%s""",(cid,))
         stats=cur.fetchone() or {}
         cur.execute("""SELECT complaint_id,issue_type,street_number,complaint_date,status
@@ -1240,7 +1361,7 @@ def api_citizen_dashboard():
              "date":r["complaint_date"].strftime("%d %b %Y") if r["complaint_date"] else "-","status":r["status"] or "-"} for r in rows]
     return jsonify({"total":int(stats.get("total") or 0),"pending":int(stats.get("pending") or 0),
                     "assigned":int(stats.get("assigned") or 0),"in_progress":int(stats.get("in_progress") or 0),
-                    "resolved":int(stats.get("resolved") or 0),"recent":recent})
+                    "completed":int(stats.get("completed") or 0),"recent":recent})
 @app.route(
     "/citizen-profile",
     methods=["GET", "POST"]
@@ -1592,14 +1713,15 @@ def api_worker_complaints():
 
         cur.execute(
             """
-            SELECT
-                c.complaint_id,
-                c.issue_type,
-                c.street_number,
-                c.description,
-                c.complaint_date,
-                c.status,
-                ci.name AS citizen_name
+           SELECT
+    c.complaint_id,
+    c.issue_type,
+    c.street_number,
+    c.description,
+    c.photo_path,
+    c.complaint_date,
+    c.status,
+    ci.name AS citizen_name
 
             FROM complaint_assignments ca
 
@@ -1663,35 +1785,22 @@ def api_worker_complaints():
 @role_required("worker")
 def api_worker_update(raw_id):
 
-    complaint_id = parse_complaint_id(
-        raw_id
-    )
-
+    complaint_id = parse_complaint_id(raw_id)
 
     data = (
-        request.get_json(
-            silent=True
-        )
+        request.get_json(silent=True)
         or request.form
     )
 
+    new_status = data.get("status")
 
-    new_status = data.get(
-        "status"
-    )
-
-
-    allowed_statuses = {
-        "In Progress",
-        "Resolved"
-    }
-
-    if complaint_id is None or new_status not in allowed_statuses:
+    # Worker can ONLY move:
+    # Assigned -> In Progress
+    if complaint_id is None or new_status != "In Progress":
         return safe_json_error(
-            "Invalid complaint or status. Use In Progress or Resolved.",
+            "Workers can only change an Assigned complaint to In Progress.",
             400
         )
-
 
     conn = get_db_connection()
 
@@ -1699,23 +1808,24 @@ def api_worker_update(raw_id):
         dictionary=True
     )
 
-
     try:
 
         cur.execute(
             """
             SELECT
-                c.status
+                c.status,
+                ca.assignment_id
 
             FROM complaints c
 
             JOIN complaint_assignments ca
-                ON ca.complaint_id =
-                   c.complaint_id
+                ON ca.complaint_id = c.complaint_id
 
             WHERE
                 c.complaint_id=%s
                 AND ca.worker_id=%s
+
+            LIMIT 1
             """,
             (
                 complaint_id,
@@ -1723,53 +1833,41 @@ def api_worker_update(raw_id):
             )
         )
 
-
         row = cur.fetchone()
 
-
         if not row:
-
             return safe_json_error(
                 "Complaint is not assigned to you.",
                 403
             )
 
-
         old_status = row["status"]
 
-        # Enforce the Worker workflow:
-        # Assigned -> In Progress -> Resolved
-        valid_transition = (
-            (old_status == "Assigned" and new_status == "In Progress")
-            or (old_status == "In Progress" and new_status == "Resolved")
-        )
-
-        if not valid_transition:
+        # Only valid worker transition
+        if old_status != "Assigned":
             return safe_json_error(
-                f"Invalid status transition: {old_status} -> {new_status}. "
-                "Worker flow is Assigned -> In Progress -> Resolved.",
+                f"Invalid status transition: {old_status} -> In Progress.",
                 400
             )
 
         cur.execute(
             """
             UPDATE complaints
-            SET status=%s
+            SET status='In Progress'
             WHERE complaint_id=%s
             """,
-            (new_status, complaint_id)
+            (complaint_id,)
         )
 
         cur.execute(
             """
             UPDATE complaint_assignments
-            SET assignment_status=%s
+            SET assignment_status='In Progress'
             WHERE
                 complaint_id=%s
                 AND worker_id=%s
             """,
             (
-                new_status,
                 complaint_id,
                 session["user_id"]
             )
@@ -1790,34 +1888,339 @@ def api_worker_update(raw_id):
                 %s,
                 NULL,
                 %s,
-                %s,
+                'In Progress',
                 %s
             )
             """,
             (
                 complaint_id,
                 old_status,
-                new_status,
                 "Status updated by assigned worker"
             )
         )
 
         conn.commit()
 
+    except Exception:
+
+        conn.rollback()
+        raise
 
     finally:
 
         cur.close()
-
         conn.close()
-
 
     return jsonify(
         {
-            "success": True
+            "success": True,
+            "message": "Complaint moved to In Progress."
         }
     )
+    
+# ============================================================
+# WORKER RESOLUTION REQUEST
+# ============================================================
 
+@app.route(
+    "/api/worker/complaints/<raw_id>/resolution-request",
+    methods=["POST"]
+)
+@role_required("worker")
+def api_worker_resolution_request(raw_id):
+
+    complaint_id = parse_complaint_id(raw_id)
+
+    if complaint_id is None:
+        return safe_json_error(
+            "Invalid complaint ID.",
+            400
+        )
+
+    worker_id = session["user_id"]
+
+    resolved_date = request.form.get(
+        "resolved_date",
+        ""
+    ).strip()
+
+    resolution_photo = request.files.get(
+        "resolution_photo"
+    )
+
+
+    # --------------------------------------------------------
+    # Validate resolved date
+    # --------------------------------------------------------
+
+    if not resolved_date:
+        return safe_json_error(
+            "Resolved date is required.",
+            400
+        )
+
+    try:
+        datetime.strptime(
+            resolved_date,
+            "%Y-%m-%d"
+        )
+    except ValueError:
+        return safe_json_error(
+            "Invalid resolved date.",
+            400
+        )
+
+
+    # --------------------------------------------------------
+    # Validate resolution photo
+    # --------------------------------------------------------
+
+    if (
+        not resolution_photo
+        or not resolution_photo.filename
+    ):
+        return safe_json_error(
+            "Resolution photo is required.",
+            400
+        )
+
+
+    ext = Path(
+        resolution_photo.filename
+    ).suffix.lower()
+
+    if ext not in {
+        ".jpg",
+        ".jpeg",
+        ".png"
+    }:
+        return safe_json_error(
+            "Only JPG and PNG images are allowed.",
+            400
+        )
+
+
+    # --------------------------------------------------------
+    # Check complaint belongs to this worker
+    # --------------------------------------------------------
+
+    conn = get_db_connection()
+
+    cur = conn.cursor(
+        dictionary=True
+    )
+
+    try:
+
+        cur.execute(
+            """
+            SELECT
+                c.complaint_id,
+                c.status,
+                ca.assignment_id
+            FROM complaints c
+            JOIN complaint_assignments ca
+                ON ca.complaint_id = c.complaint_id
+            WHERE
+                c.complaint_id=%s
+                AND ca.worker_id=%s
+            LIMIT 1
+            """,
+            (
+                complaint_id,
+                worker_id
+            )
+        )
+
+        complaint = cur.fetchone()
+
+
+        if not complaint:
+            return safe_json_error(
+                "This complaint is not assigned to you.",
+                403
+            )
+
+
+        # ----------------------------------------------------
+        # Worker can request resolution ONLY from In Progress
+        # ----------------------------------------------------
+
+        if complaint["status"] != "In Progress":
+            return safe_json_error(
+                "Resolution can only be requested for an In Progress complaint.",
+                400
+            )
+
+
+        # ----------------------------------------------------
+        # Prevent duplicate pending requests
+        # ----------------------------------------------------
+
+        cur.execute(
+            """
+            SELECT request_id
+            FROM resolution_requests
+            WHERE
+                complaint_id=%s
+                AND worker_id=%s
+                AND request_status='Pending'
+            LIMIT 1
+            """,
+            (
+                complaint_id,
+                worker_id
+            )
+        )
+
+        existing_request = cur.fetchone()
+
+
+        if existing_request:
+            return safe_json_error(
+                "A resolution request is already pending for this complaint.",
+                400
+            )
+
+
+        # ----------------------------------------------------
+        # Save resolution photo
+        # ----------------------------------------------------
+
+        filename = (
+            f"resolution_"
+            f"{secrets.token_hex(12)}"
+            f"{ext}"
+        )
+
+        resolution_photo.save(
+            Path(
+                app.config["UPLOAD_FOLDER"]
+            ) / filename
+        )
+
+        photo_path = (
+            f"uploads/{filename}"
+        )
+
+
+        # ----------------------------------------------------
+        # Create resolution request
+        # ----------------------------------------------------
+
+        cur.execute(
+            """
+            INSERT INTO resolution_requests
+            (
+                complaint_id,
+                worker_id,
+                resolved_photo_path,
+                resolved_date,
+                request_status
+            )
+            VALUES
+            (
+                %s,
+                %s,
+                %s,
+                %s,
+                'Pending'
+            )
+            """,
+            (
+                complaint_id,
+                worker_id,
+                photo_path,
+                resolved_date
+            )
+        )
+
+
+        # ----------------------------------------------------
+        # Notification for admin
+        # ----------------------------------------------------
+
+        cur.execute(
+            """
+            SELECT admin_id
+            FROM admins
+            """
+        )
+
+        admins = cur.fetchall()
+
+
+        for admin in admins:
+
+            cur.execute(
+                """
+                INSERT INTO notifications
+                (
+                    recipient_role,
+                    recipient_id,
+                    complaint_id,
+                    notification_type,
+                    message
+                )
+                VALUES
+                (
+                    'admin',
+                    %s,
+                    %s,
+                    'resolution_request',
+                    %s
+                )
+                """,
+                (
+                    admin["admin_id"],
+                    complaint_id,
+                    (
+                        f"Worker submitted a resolution "
+                        f"request for complaint "
+                        f"{complaint_display_id(complaint_id)}."
+                    )
+                )
+            )
+
+
+        conn.commit()
+
+
+        return jsonify(
+            {
+                "success": True,
+                "message": (
+                    "Resolution request submitted successfully. "
+                    "Admin will review it."
+                )
+            }
+        )
+
+
+    except mysql.connector.Error as e:
+
+        conn.rollback()
+
+        return safe_json_error(
+            f"Could not submit resolution request: {e.msg}",
+            500
+        )
+
+
+    except Exception as e:
+
+        conn.rollback()
+
+        return safe_json_error(
+            f"Could not submit resolution request: {e}",
+            500
+        )
+
+
+    finally:
+
+        cur.close()
+        conn.close()
 
 # ============================================================
 # WORKER DASHBOARD API
@@ -1893,7 +2296,7 @@ def api_worker_dashboard():
             SELECT COUNT(*) AS n
             FROM complaint_assignments ca
             JOIN complaints c ON c.complaint_id=ca.complaint_id
-            WHERE ca.worker_id=%s AND c.status='Resolved'
+            WHERE ca.worker_id=%s AND c.status='Completed'
             """,
             (worker_id,)
         )
@@ -1941,7 +2344,7 @@ def api_worker_dashboard():
                     DATE_FORMAT(CURDATE(), '%Y-%m-01'),
                     INTERVAL 1 MONTH
               )
-              AND c.status = 'Resolved'
+              AND c.status = 'Completed'
             """,
             (worker_id,)
         )
@@ -2607,7 +3010,447 @@ def api_admin_stats():
                 available_workers
         }
     )
+# ============================================================
+# ADMIN RESOLUTION REQUESTS
+# ============================================================
 
+@app.route(
+    "/api/admin/resolution-requests"
+)
+@role_required("admin")
+def api_admin_resolution_requests():
+
+    admin_id = session["user_id"]
+
+    conn = get_db_connection()
+
+    cur = conn.cursor(
+        dictionary=True
+    )
+
+    try:
+
+        cur.execute(
+            """
+            SELECT
+                rr.request_id,
+                rr.complaint_id,
+                rr.worker_id,
+                rr.resolved_photo_path,
+                rr.resolved_date,
+                rr.request_status,
+                rr.created_at,
+
+                w.name AS worker_name,
+
+                c.issue_type,
+                c.complaint_date
+
+            FROM resolution_requests rr
+
+            JOIN workers w
+                ON w.worker_id = rr.worker_id
+
+            JOIN complaints c
+                ON c.complaint_id = rr.complaint_id
+
+            WHERE rr.request_status = 'Pending'
+
+            ORDER BY
+                rr.created_at DESC
+            """
+        )
+
+        rows = cur.fetchall()
+
+    finally:
+
+        cur.close()
+        conn.close()
+
+    for row in rows:
+
+        row["id"] = complaint_display_id(
+            row["complaint_id"]
+        )
+
+        row["resolved_date"] = (
+            row["resolved_date"].strftime(
+                "%d %b %Y"
+            )
+            if row["resolved_date"]
+            else "-"
+        )
+
+        row["complaint_date"] = (
+            row["complaint_date"].strftime(
+                "%d %b %Y"
+            )
+            if row["complaint_date"]
+            else "-"
+        )
+
+        row["created_at"] = (
+            row["created_at"].strftime(
+                "%d %b %Y %I:%M %p"
+            )
+            if row["created_at"]
+            else "-"
+        )
+
+        row["photo_url"] = (
+            "/static/"
+            + row["resolved_photo_path"]
+            if row["resolved_photo_path"]
+            else ""
+        )
+
+    return jsonify(
+        {
+            "success": True,
+            "requests": rows,
+            "count": len(rows)
+        }
+    )
+    
+# ============================================================
+# ADMIN APPROVE / REJECT RESOLUTION REQUEST
+# ============================================================
+
+@app.route(
+    "/api/admin/resolution-requests/<int:request_id>/decision",
+    methods=["POST"]
+)
+@role_required("admin")
+def api_admin_resolution_decision(request_id):
+
+    data = request.get_json(silent=True) or request.form
+
+    decision = str(
+        data.get("decision", "")
+    ).strip().lower()
+
+    remarks = str(
+        data.get("remarks", "")
+    ).strip()
+
+    if decision not in {
+        "approve",
+        "reject"
+    }:
+        return safe_json_error(
+            "Decision must be approve or reject.",
+            400
+        )
+
+    admin_id = session["user_id"]
+
+    conn = get_db_connection()
+
+    cur = conn.cursor(
+        dictionary=True
+    )
+
+    try:
+
+        # ----------------------------------------------------
+        # GET PENDING REQUEST
+        # ----------------------------------------------------
+
+        cur.execute(
+            """
+            SELECT
+                rr.request_id,
+                rr.complaint_id,
+                rr.worker_id,
+                rr.request_status,
+
+                c.citizen_id,
+                c.status AS complaint_status
+
+            FROM resolution_requests rr
+
+            JOIN complaints c
+                ON c.complaint_id = rr.complaint_id
+
+            WHERE
+                rr.request_id=%s
+                AND rr.request_status='Pending'
+
+            FOR UPDATE
+            """,
+            (
+                request_id,
+            )
+        )
+
+        resolution_request = cur.fetchone()
+
+        if not resolution_request:
+
+            return safe_json_error(
+                "Pending resolution request not found.",
+                404
+            )
+
+        complaint_id = resolution_request[
+            "complaint_id"
+        ]
+
+        worker_id = resolution_request[
+            "worker_id"
+        ]
+
+        citizen_id = resolution_request[
+            "citizen_id"
+        ]
+
+        # ----------------------------------------------------
+        # APPROVE
+        # ----------------------------------------------------
+
+        if decision == "approve":
+
+            cur.execute(
+                """
+                UPDATE resolution_requests
+                SET
+                    request_status='Approved',
+                    admin_id=%s,
+                    admin_remarks=%s,
+                    decided_at=CURRENT_TIMESTAMP
+                WHERE request_id=%s
+                """,
+                (
+                    admin_id,
+                    remarks or None,
+                    request_id
+                )
+            )
+
+            cur.execute(
+                """
+                UPDATE complaints
+                SET status='Completed'
+                WHERE complaint_id=%s
+                """,
+                (
+                    complaint_id,
+                )
+            )
+
+            cur.execute(
+                """
+                UPDATE complaint_assignments
+                SET assignment_status='Completed'
+                WHERE complaint_id=%s
+                  AND worker_id=%s
+                """,
+                (
+                    complaint_id,
+                    worker_id
+                )
+            )
+
+            # Complaint history
+            cur.execute(
+                """
+                INSERT INTO complaint_updates
+                (
+                    complaint_id,
+                    updated_by,
+                    old_status,
+                    new_status,
+                    update_description
+                )
+                VALUES
+                (
+                    %s,
+                    %s,
+                    'In Progress',
+                    'Completed',
+                    %s
+                )
+                """,
+                (
+                    complaint_id,
+                    admin_id,
+                    (
+                        "Admin approved the worker "
+                        "resolution request."
+                    )
+                )
+            )
+
+            # Notify worker
+            cur.execute(
+                """
+                INSERT INTO notifications
+                (
+                    recipient_role,
+                    recipient_id,
+                    complaint_id,
+                    notification_type,
+                    message
+                )
+                VALUES
+                (
+                    'worker',
+                    %s,
+                    %s,
+                    'resolution_approved',
+                    %s
+                )
+                """,
+                (
+                    worker_id,
+                    complaint_id,
+                    (
+                        f"Resolution request for complaint "
+                        f"{complaint_display_id(complaint_id)} "
+                        f"was approved. The complaint is now "
+                        f"Completed."
+                    )
+                )
+            )
+
+            # Notify citizen
+            cur.execute(
+                """
+                INSERT INTO notifications
+                (
+                    recipient_role,
+                    recipient_id,
+                    complaint_id,
+                    notification_type,
+                    message
+                )
+                VALUES
+                (
+                    'citizen',
+                    %s,
+                    %s,
+                    'complaint_completed',
+                    %s
+                )
+                """,
+                (
+                    citizen_id,
+                    complaint_id,
+                    (
+                        f"Your complaint "
+                        f"{complaint_display_id(complaint_id)} "
+                        f"has been completed."
+                    )
+                )
+            )
+
+            conn.commit()
+
+            return jsonify(
+                {
+                    "success": True,
+                    "message": (
+                        f"Complaint "
+                        f"{complaint_display_id(complaint_id)} "
+                        f"has been marked Completed."
+                    )
+                }
+            )
+
+        # ----------------------------------------------------
+        # REJECT
+        # ----------------------------------------------------
+
+        cur.execute(
+            """
+            UPDATE resolution_requests
+            SET
+                request_status='Rejected',
+                admin_id=%s,
+                admin_remarks=%s,
+                decided_at=CURRENT_TIMESTAMP
+            WHERE request_id=%s
+            """,
+            (
+                admin_id,
+                remarks or None,
+                request_id
+            )
+        )
+
+        # Complaint deliberately remains In Progress.
+
+        cur.execute(
+            """
+            INSERT INTO notifications
+            (
+                recipient_role,
+                recipient_id,
+                complaint_id,
+                notification_type,
+                message
+            )
+            VALUES
+            (
+                'worker',
+                %s,
+                %s,
+                'resolution_rejected',
+                %s
+            )
+            """,
+            (
+                worker_id,
+                complaint_id,
+                (
+                    f"Resolution request for complaint "
+                    f"{complaint_display_id(complaint_id)} "
+                    f"was rejected."
+                    + (
+                        f" Admin remarks: {remarks}"
+                        if remarks
+                        else ""
+                    )
+                )
+            )
+        )
+
+        conn.commit()
+
+        return jsonify(
+            {
+                "success": True,
+                "message": (
+                    f"Resolution request for "
+                    f"{complaint_display_id(complaint_id)} "
+                    f"was rejected."
+                )
+            }
+        )
+
+    except mysql.connector.Error as e:
+
+        conn.rollback()
+
+        return safe_json_error(
+            f"Could not process resolution request: {e.msg}",
+            500
+        )
+
+    except Exception as e:
+
+        conn.rollback()
+
+        return safe_json_error(
+            f"Could not process resolution request: {e}",
+            500
+        )
+
+    finally:
+
+        cur.close()
+        conn.close()
 
 # ============================================================
 # ADMIN COMPLAINTS API
@@ -2850,6 +3693,8 @@ def api_admin_workers():
         }
     )
 
+
+
 # ============================================================
 # ADMIN REPORTS API
 # ============================================================
@@ -2860,6 +3705,105 @@ def api_admin_workers():
 @role_required("admin")
 def api_admin_reports():
 
+    period = request.args.get(
+        "period",
+        "This Month"
+    ).strip()
+
+    category = request.args.get(
+        "category",
+        "All Categories"
+    ).strip()
+
+
+    # --------------------------------------------------------
+    # DATE FILTER
+    # --------------------------------------------------------
+
+    if period == "Last Month":
+
+        date_condition = """
+            c.complaint_date >=
+                DATE_FORMAT(
+                    DATE_SUB(CURDATE(), INTERVAL 1 MONTH),
+                    '%Y-%m-01'
+                )
+            AND
+            c.complaint_date <
+                DATE_FORMAT(
+                    CURDATE(),
+                    '%Y-%m-01'
+                )
+        """
+
+    elif period == "Last 3 Months":
+
+        date_condition = """
+            c.complaint_date >=
+                DATE_SUB(
+                    DATE_FORMAT(
+                        CURDATE(),
+                        '%Y-%m-01'
+                    ),
+                    INTERVAL 2 MONTH
+                )
+            AND
+            c.complaint_date <
+                DATE_ADD(
+                    DATE_FORMAT(
+                        CURDATE(),
+                        '%Y-%m-01'
+                    ),
+                    INTERVAL 1 MONTH
+                )
+        """
+
+    elif period == "This Year":
+
+        date_condition = """
+            YEAR(c.complaint_date) =
+            YEAR(CURDATE())
+        """
+
+    else:
+
+        # This Month
+        date_condition = """
+            c.complaint_date >=
+                DATE_FORMAT(
+                    CURDATE(),
+                    '%Y-%m-01'
+                )
+            AND
+            c.complaint_date <
+                DATE_ADD(
+                    DATE_FORMAT(
+                        CURDATE(),
+                        '%Y-%m-01'
+                    ),
+                    INTERVAL 1 MONTH
+                )
+        """
+
+
+    # --------------------------------------------------------
+    # CATEGORY FILTER
+    # --------------------------------------------------------
+
+    category_condition = ""
+    category_params = ()
+
+    if category and category != "All Categories":
+
+        category_condition = """
+            AND c.issue_type = %s
+        """
+
+        category_params = (
+            category,
+        )
+
+
     conn = get_db_connection()
 
     cur = conn.cursor(
@@ -2869,79 +3813,598 @@ def api_admin_reports():
 
     try:
 
+        # ====================================================
+        # SUMMARY
+        # ====================================================
+
+        cur.execute(
+            f"""
+            SELECT
+                COUNT(*) AS total,
+
+                SUM(
+                    CASE
+                        WHEN c.status = 'Completed'
+                        THEN 1
+                        ELSE 0
+                    END
+                ) AS completed
+
+            FROM complaints c
+
+            WHERE
+                {date_condition}
+
+                {category_condition}
+            """,
+            category_params
+        )
+
+        summary = cur.fetchone() or {}
+
+        total = int(
+            summary.get("total") or 0
+        )
+
+        completed = int(
+            summary.get("completed") or 0
+        )
+
+
+        # ====================================================
+        # AVERAGE RESOLUTION TIME
+        # ====================================================
+
+        cur.execute(
+            f"""
+            SELECT
+                AVG(
+                    DATEDIFF(
+                        rr.resolved_date,
+                        c.complaint_date
+                    )
+                ) AS avg_days
+
+            FROM complaints c
+
+            INNER JOIN resolution_requests rr
+                ON rr.complaint_id =
+                   c.complaint_id
+
+            WHERE
+                rr.request_status = 'Approved'
+
+                AND {date_condition}
+
+                {category_condition}
+            """,
+            category_params
+        )
+
+        avg_row = cur.fetchone() or {}
+
+        avg_days = avg_row.get(
+            "avg_days"
+        )
+
+        if avg_days is not None:
+            avg_days = round(
+                float(avg_days),
+                1
+            )
+
+
+        # ====================================================
+        # ACTIVE WORKERS
+        # ====================================================
+
         cur.execute(
             """
             SELECT
-                issue_type,
                 COUNT(*) AS count
 
-            FROM complaints
+            FROM workers
 
-            GROUP BY issue_type
-
-            ORDER BY count DESC
+            WHERE status IN
+            (
+                'Available',
+                'Busy'
+            )
             """
         )
 
+        worker_row = cur.fetchone() or {}
+
+        active_workers = int(
+            worker_row.get("count") or 0
+        )
+
+
+        # ====================================================
+        # STATUS COUNTS
+        # ====================================================
+
+        cur.execute(
+            f"""
+            SELECT
+                c.status,
+                COUNT(*) AS count
+
+            FROM complaints c
+
+            WHERE
+                {date_condition}
+
+                {category_condition}
+
+            GROUP BY c.status
+
+            ORDER BY count DESC
+            """,
+            category_params
+        )
+
+        statuses = cur.fetchall()
+
+
+        # ====================================================
+        # CATEGORY COUNTS
+        # ====================================================
+
+        cur.execute(
+            f"""
+            SELECT
+                c.issue_type,
+                COUNT(*) AS count
+
+            FROM complaints c
+
+            WHERE
+                {date_condition}
+
+                {category_condition}
+
+            GROUP BY c.issue_type
+
+            ORDER BY count DESC
+            """,
+            category_params
+        )
 
         categories = cur.fetchall()
 
 
+        # ====================================================
+        # MONTHLY COMPLAINT DATA
+        # ====================================================
+
         cur.execute(
-            """
+            f"""
             SELECT
-                status,
+                DATE_FORMAT(
+                    c.complaint_date,
+                    '%Y-%m'
+                ) AS month_key,
+
+                DATE_FORMAT(
+                    c.complaint_date,
+                    '%b'
+                ) AS month,
+
                 COUNT(*) AS count
 
-            FROM complaints
+            FROM complaints c
 
-            GROUP BY status
+            WHERE
+                {date_condition}
 
-            ORDER BY count DESC
-            """
+                {category_condition}
+
+            GROUP BY
+                DATE_FORMAT(
+                    c.complaint_date,
+                    '%Y-%m'
+                ),
+                DATE_FORMAT(
+                    c.complaint_date,
+                    '%b'
+                )
+
+            ORDER BY month_key
+            """,
+            category_params
         )
 
+        monthly = cur.fetchall()
 
-        statuses = cur.fetchall()
+
+        # ====================================================
+        # WORKER PERFORMANCE
+        # ====================================================
+
+        cur.execute(
+            f"""
+            SELECT
+
+                w.worker_id,
+                w.name,
+
+                COUNT(
+                    DISTINCT ca.complaint_id
+                ) AS assigned,
+
+                COUNT(
+                    DISTINCT CASE
+                        WHEN c.status = 'Completed'
+                        THEN c.complaint_id
+                    END
+                ) AS completed,
+
+                COUNT(
+                    DISTINCT CASE
+                        WHEN c.status IN
+                        (
+                            'Assigned',
+                            'In Progress'
+                        )
+                        THEN c.complaint_id
+                    END
+                ) AS active
+
+            FROM workers w
+
+            LEFT JOIN complaint_assignments ca
+                ON ca.worker_id =
+                   w.worker_id
+
+            LEFT JOIN complaints c
+                ON c.complaint_id =
+                   ca.complaint_id
+
+                AND c.complaint_date IS NOT NULL
+
+                AND {date_condition}
+
+                {category_condition}
+
+            GROUP BY
+                w.worker_id,
+                w.name
+
+            HAVING
+                assigned > 0
+
+            ORDER BY
+                completed DESC,
+                assigned DESC,
+                w.name ASC
+
+            LIMIT 5
+            """,
+            category_params
+        )
+
+        workers = cur.fetchall()
 
 
     finally:
 
         cur.close()
-
         conn.close()
 
 
-    return jsonify(
-        {
-            "categories": categories,
-            "statuses": statuses
-        }
+    # ========================================================
+    # FORMAT WORKER DATA
+    # ========================================================
+
+    worker_data = []
+
+    for worker in workers:
+
+        assigned = int(
+            worker.get("assigned") or 0
+        )
+
+        completed_worker = int(
+            worker.get("completed") or 0
+        )
+
+        active = int(
+            worker.get("active") or 0
+        )
+
+        efficiency = (
+            round(
+                (
+                    completed_worker /
+                    assigned
+                ) * 100
+            )
+            if assigned
+            else 0
+        )
+
+        worker_data.append(
+            {
+                "worker_id":
+                    worker["worker_id"],
+
+                "name":
+                    worker["name"] or "-",
+
+                "assigned":
+                    assigned,
+
+                "completed":
+                    completed_worker,
+
+                "active":
+                    active,
+
+                "efficiency":
+                    efficiency
+            }
+        )
+
+
+    # ========================================================
+    # RESOLUTION RATE
+    # ========================================================
+
+    resolution_rate = (
+        round(
+            (
+                completed /
+                total
+            ) * 100,
+            1
+        )
+        if total
+        else 0
     )
 
 
+    # ========================================================
+    # RESPONSE
+    # ========================================================
+
+    return jsonify(
+        {
+            "period": period,
+
+            "category":
+                category,
+
+            "summary":
+                {
+                    "total":
+                        total,
+
+                    "completed":
+                        completed,
+
+                    "avg_resolution_days":
+                        avg_days,
+
+                    "active_workers":
+                        active_workers,
+
+                    "resolution_rate":
+                        resolution_rate
+                },
+
+            "statuses":
+                statuses,
+
+            "categories":
+                categories,
+
+            "monthly":
+                monthly,
+
+            "workers":
+                worker_data
+        }
+    )
 @app.route("/admin-reports/download")
 @role_required("admin")
 def admin_reports_download():
+
     import csv
     from io import StringIO
-    conn=get_db_connection(); cur=conn.cursor(dictionary=True)
+
+    period = request.args.get(
+        "period",
+        "This Month"
+    ).strip()
+
+    category = request.args.get(
+        "category",
+        "All Categories"
+    ).strip()
+
+    if period == "Last Month":
+
+        date_condition = """
+            c.complaint_date >=
+                DATE_FORMAT(
+                    DATE_SUB(CURDATE(), INTERVAL 1 MONTH),
+                    '%Y-%m-01'
+                )
+            AND
+            c.complaint_date <
+                DATE_FORMAT(
+                    CURDATE(),
+                    '%Y-%m-01'
+                )
+        """
+
+    elif period == "Last 3 Months":
+
+        date_condition = """
+            c.complaint_date >=
+                DATE_SUB(
+                    DATE_FORMAT(
+                        CURDATE(),
+                        '%Y-%m-01'
+                    ),
+                    INTERVAL 2 MONTH
+                )
+            AND
+            c.complaint_date <
+                DATE_ADD(
+                    DATE_FORMAT(
+                        CURDATE(),
+                        '%Y-%m-01'
+                    ),
+                    INTERVAL 1 MONTH
+                )
+        """
+
+    elif period == "This Year":
+
+        date_condition = """
+            YEAR(c.complaint_date) =
+            YEAR(CURDATE())
+        """
+
+    else:
+
+        date_condition = """
+            c.complaint_date >=
+                DATE_FORMAT(
+                    CURDATE(),
+                    '%Y-%m-01'
+                )
+            AND
+            c.complaint_date <
+                DATE_ADD(
+                    DATE_FORMAT(
+                        CURDATE(),
+                        '%Y-%m-01'
+                    ),
+                    INTERVAL 1 MONTH
+                )
+        """
+
+    category_condition = ""
+    params = []
+
+    if category and category != "All Categories":
+
+        category_condition = """
+            AND c.issue_type = %s
+        """
+
+        params.append(category)
+
+    conn = get_db_connection()
+    cur = conn.cursor(dictionary=True)
+
     try:
-        cur.execute("""SELECT c.complaint_id,c.issue_type,c.ward_number,c.street_number,ci.name citizen_name,
-                              c.complaint_date,c.status,w.name worker_name
-                       FROM complaints c JOIN citizens ci ON ci.citizen_id=c.citizen_id
-                       LEFT JOIN complaint_assignments ca ON ca.complaint_id=c.complaint_id
-                       LEFT JOIN workers w ON w.worker_id=ca.worker_id ORDER BY c.complaint_id DESC""")
-        rows=cur.fetchall()
-    finally: cur.close(); conn.close()
-    out=StringIO(); writer=csv.writer(out)
-    writer.writerow(["Complaint ID","Issue Type","Ward","Location","Citizen","Date","Status","Worker"])
+
+        cur.execute(
+            f"""
+            SELECT
+                c.complaint_id,
+                c.issue_type,
+                c.ward_number,
+                c.street_number,
+                ci.name AS citizen_name,
+                c.complaint_date,
+                c.status,
+                w.name AS worker_name
+
+            FROM complaints c
+
+            JOIN citizens ci
+                ON ci.citizen_id =
+                   c.citizen_id
+
+            LEFT JOIN complaint_assignments ca
+                ON ca.complaint_id =
+                   c.complaint_id
+
+            LEFT JOIN workers w
+                ON w.worker_id =
+                   ca.worker_id
+
+            WHERE
+                {date_condition}
+
+                {category_condition}
+
+            ORDER BY
+                c.complaint_id DESC
+            """,
+            tuple(params)
+        )
+
+        rows = cur.fetchall()
+
+    finally:
+
+        cur.close()
+        conn.close()
+
+    out = StringIO()
+
+    writer = csv.writer(out)
+
+    writer.writerow(
+        [
+            "Complaint ID",
+            "Issue Type",
+            "Ward",
+            "Location",
+            "Citizen",
+            "Date",
+            "Status",
+            "Worker"
+        ]
+    )
+
     for r in rows:
-        writer.writerow([complaint_display_id(r["complaint_id"]),r["issue_type"] or "",r["ward_number"] or "",
-                          r["street_number"] or "",r["citizen_name"] or "",r["complaint_date"].strftime("%Y-%m-%d") if r["complaint_date"] else "",
-                          r["status"] or "",r["worker_name"] or "Not Assigned"])
-    resp=app.response_class(out.getvalue(),mimetype="text/csv")
-    resp.headers["Content-Disposition"]='attachment; filename="smartclean_complaints_report.csv"'
+
+        writer.writerow(
+            [
+                complaint_display_id(
+                    r["complaint_id"]
+                ),
+
+                r["issue_type"] or "",
+
+                r["ward_number"] or "",
+
+                r["street_number"] or "",
+
+                r["citizen_name"] or "",
+
+                (
+                    r["complaint_date"].strftime(
+                        "%Y-%m-%d"
+                    )
+                    if r["complaint_date"]
+                    else ""
+                ),
+
+                r["status"] or "",
+
+                r["worker_name"] or
+                "Not Assigned"
+            ]
+        )
+
+    resp = app.response_class(
+        out.getvalue(),
+        mimetype="text/csv"
+    )
+
+    resp.headers["Content-Disposition"] = (
+        'attachment; '
+        'filename="smartclean_complaints_report.csv"'
+    )
+
     return resp
 # ============================================================
 # WORKER REPORTS API
@@ -2964,7 +4427,7 @@ def api_worker_reports():
             """
             SELECT
                 COUNT(*) AS assigned,
-                COALESCE(SUM(c.status = 'Resolved'), 0) AS resolved,
+                COALESCE(SUM(c.status = 'Completed'), 0) AS resolved,
                 COALESCE(SUM(c.status IN ('Assigned', 'In Progress')), 0) AS pending
             FROM complaint_assignments ca
             JOIN complaints c
@@ -2991,7 +4454,7 @@ def api_worker_reports():
             JOIN complaints c
                 ON c.complaint_id = ca.complaint_id
             WHERE ca.worker_id=%s
-              AND c.status='Resolved'
+              AND c.status='Completed'
             GROUP BY c.issue_type
             ORDER BY count DESC, c.issue_type ASC
             """,
@@ -4236,4 +5699,3 @@ if __name__ == "__main__":
         ),
         debug=os.getenv("FLASK_DEBUG", "false").lower() == "true"
     )
-
