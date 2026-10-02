@@ -303,7 +303,91 @@
         ></div>
 
 
+<!-- =================================================
+     CITIZEN UPLOADED PHOTO
+================================================= -->
 
+<div
+    id="citizenPhotoSection"
+    style="
+        display:none;
+        margin:25px 0;
+        padding:20px;
+        background:#f7fcf9;
+        border:1px solid #dcebe2;
+        border-radius:18px;
+    "
+>
+
+    <div style="
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        gap:15px;
+        flex-wrap:wrap;
+        margin-bottom:15px;
+    ">
+
+        <div>
+
+            <span style="
+                display:block;
+                font-size:12px;
+                font-weight:800;
+                letter-spacing:.08em;
+                color:#628074;
+                text-transform:uppercase;
+            ">
+                YOUR COMPLAINT PHOTO
+            </span>
+
+            <h3 style="
+                margin:5px 0 0;
+                color:#173c2c;
+            ">
+                Uploaded Photo
+            </h3>
+
+        </div>
+
+
+        <button
+            type="button"
+            onclick="openCitizenTrackPhotoViewer()"
+            style="
+                border:0;
+                padding:10px 16px;
+                border-radius:10px;
+                background:#15956f;
+                color:#fff;
+                font-weight:700;
+                cursor:pointer;
+            "
+        >
+            🔍 View Larger
+        </button>
+
+    </div>
+
+
+    <img
+        id="citizenUploadedPhoto"
+        src=""
+        alt="Your uploaded complaint photo"
+        style="
+            display:block;
+            width:100%;
+            max-height:380px;
+            object-fit:contain;
+            background:#eef5f1;
+            border-radius:14px;
+            border:1px solid #d8e7df;
+            cursor:pointer;
+        "
+        onclick="openCitizenTrackPhotoViewer()"
+    >
+
+</div>
         <!-- =================================================
              DETAILS
         ================================================= -->
@@ -439,7 +523,60 @@
 
 </main>
 
+<!-- COMPLETION DETAILS POPUP -->
+<div id="completionPopup" class="completion-popup">
 
+    <div class="completion-popup-card">
+
+        <button
+            type="button"
+            class="completion-popup-close"
+            onclick="closeCompletionPopup()"
+        >
+            ×
+        </button>
+
+        <h2>Complaint Completed</h2>
+
+        <p class="completion-popup-subtitle">
+            Your complaint has been completed successfully.
+        </p>
+
+        <div class="completion-popup-details">
+
+            <div>
+                <strong>Complaint ID</strong>
+                <span id="completionComplaintId">-</span>
+            </div>
+
+            <div>
+                <strong>Worker</strong>
+                <span id="completionWorker">-</span>
+            </div>
+
+            <div>
+                <strong>Completed Date</strong>
+                <span id="completionDate">-</span>
+            </div>
+
+        </div>
+
+        <div class="completion-photo-section">
+
+            <h3>Resolution Photo</h3>
+
+            <img
+                id="completionPhoto"
+                src=""
+                alt="Resolution photo"
+                onclick="openCompletionPhotoViewer()"
+            >
+
+        </div>
+
+    </div>
+
+</div>
 
 <!-- =====================================================
      FOOTER
@@ -474,6 +611,7 @@
      JAVASCRIPT
 ===================================================== -->
 
+
 <script>
 
 const stages = [
@@ -482,7 +620,8 @@ const stages = [
     "In Progress",
     "Completed"
 ];
-
+let currentCitizenPhotoPath = "";
+let currentCitizenComplaintId = "";
 
 /* =========================================
    CONVERT DATABASE STATUS TO TRACK STATUS
@@ -534,16 +673,13 @@ function getStatusClass(status) {
     const displayStatus =
         getDisplayStatus(status);
 
-
     if (displayStatus === "Completed") {
         return "completed";
     }
 
-
     if (displayStatus === "Submitted") {
         return "submitted";
     }
-
 
     return "progress";
 }
@@ -558,43 +694,30 @@ function renderStepper(status) {
     const el =
         document.getElementById("stepper");
 
-
     if (!el) return;
 
-
     el.innerHTML = "";
-
 
     const displayStatus =
         getDisplayStatus(status);
 
-
     const currentIndex =
         stages.indexOf(displayStatus);
-
 
     stages.forEach((stage, i) => {
 
         const step =
             document.createElement("div");
 
-
         step.className = "step";
 
-
         if (i < currentIndex) {
-
             step.classList.add("done");
-
         }
-
 
         if (i === currentIndex) {
-
             step.classList.add("current");
-
         }
-
 
         step.innerHTML = `
 
@@ -616,7 +739,6 @@ function renderStepper(status) {
 
         `;
 
-
         el.appendChild(step);
 
     });
@@ -633,10 +755,8 @@ async function showComplaint(id) {
     const result =
         document.getElementById("result");
 
-
     const notFound =
         document.getElementById("notFound");
-
 
     try {
 
@@ -648,10 +768,8 @@ async function showComplaint(id) {
                 }
             );
 
-
         const data =
             await response.json();
-
 
         if (!response.ok) {
 
@@ -662,20 +780,8 @@ async function showComplaint(id) {
 
         }
 
-
-        /*
-           Convert database status:
-
-           Pending    → Submitted
-           Assigned  → Assigned
-           In Progress → In Progress
-           Resolved   → Completed
-           Completed  → Completed
-        */
-
         const displayStatus =
             getDisplayStatus(data.status);
-
 
         /* ================================
            HIDE ERROR
@@ -692,11 +798,9 @@ async function showComplaint(id) {
             .textContent =
                 data.id || "-";
 
-
         document.getElementById("rTitle")
             .textContent =
                 data.title || "Garbage Complaint";
-
 
         document.getElementById("rMeta")
             .textContent =
@@ -710,10 +814,8 @@ async function showComplaint(id) {
         const badge =
             document.getElementById("rBadge");
 
-
         badge.textContent =
             displayStatus;
-
 
         badge.className =
             "status-badge " +
@@ -728,21 +830,68 @@ async function showComplaint(id) {
             .textContent =
                 data.location || "-";
 
-
         document.getElementById("rWorker")
             .textContent =
                 data.worker || "Not Assigned";
-
 
         document.getElementById("rCategory")
             .textContent =
                 data.category || "-";
 
-
         document.getElementById("rUpdated")
             .textContent =
                 data.updated || "-";
+/* ================================
+   CITIZEN UPLOADED PHOTO
+================================ */
 
+const citizenPhotoSection =
+    document.getElementById(
+        "citizenPhotoSection"
+    );
+
+const citizenUploadedPhoto =
+    document.getElementById(
+        "citizenUploadedPhoto"
+    );
+
+
+currentCitizenPhotoPath =
+    data.photo_path || "";
+
+currentCitizenComplaintId =
+    data.id || "-";
+
+
+if (
+    citizenPhotoSection &&
+    citizenUploadedPhoto
+) {
+
+    if (data.photo_path) {
+
+        citizenUploadedPhoto.src =
+            `/static/${data.photo_path}`;
+
+        citizenUploadedPhoto.style.display =
+            "block";
+
+        citizenPhotoSection.style.display =
+            "block";
+
+    } else {
+
+        citizenUploadedPhoto.src = "";
+
+        citizenUploadedPhoto.style.display =
+            "none";
+
+        citizenPhotoSection.style.display =
+            "none";
+
+    }
+
+}
 
         /* ================================
            STEPPER
@@ -752,11 +901,24 @@ async function showComplaint(id) {
 
 
         /* ================================
+           COMPLETION POPUP
+        ================================= */
+
+        if (
+            displayStatus === "Completed" &&
+            data.resolution_status === "Approved"
+        ) {
+
+            showCompletionPopup(data);
+
+        }
+
+
+        /* ================================
            SHOW RESULT
         ================================= */
 
         result.classList.add("show");
-
 
         result.scrollIntoView({
             behavior: "smooth",
@@ -771,9 +933,7 @@ async function showComplaint(id) {
             error
         );
 
-
         result.classList.remove("show");
-
 
         notFound.classList.add("show");
 
@@ -781,6 +941,209 @@ async function showComplaint(id) {
 
 }
 
+
+/* =========================================
+   COMPLETION POPUP
+========================================= */
+
+function showCompletionPopup(data) {
+
+    document.getElementById(
+        "completionComplaintId"
+    ).textContent =
+        data.id || "-";
+
+    document.getElementById(
+        "completionWorker"
+    ).textContent =
+        data.worker || "Not Assigned";
+
+    document.getElementById(
+        "completionDate"
+    ).textContent =
+        data.resolution_date || "-";
+
+
+    const photo =
+        document.getElementById(
+            "completionPhoto"
+        );
+
+    if (data.resolution_photo) {
+
+        photo.src =
+            `/static/${data.resolution_photo}`;
+
+        photo.style.display =
+            "block";
+
+    } else {
+
+        photo.src = "";
+
+        photo.style.display =
+            "none";
+
+    }
+
+    document.getElementById(
+        "completionPopup"
+    ).classList.add("show");
+
+}
+
+
+function closeCompletionPopup() {
+
+    const popup =
+        document.getElementById(
+            "completionPopup"
+        );
+
+    popup.classList.remove("show");
+
+}
+/* =========================================
+   CITIZEN UPLOADED PHOTO VIEWER
+========================================= */
+
+function openCitizenTrackPhotoViewer() {
+
+    if (!currentCitizenPhotoPath) {
+        return;
+    }
+
+
+    const existing =
+        document.getElementById(
+            "citizenTrackPhotoViewer"
+        );
+
+    if (existing) {
+        existing.remove();
+    }
+
+
+    const viewer =
+        document.createElement("div");
+
+    viewer.id =
+        "citizenTrackPhotoViewer";
+
+    viewer.style.cssText = `
+        position:fixed;
+        inset:0;
+        z-index:100000;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        padding:25px;
+        background:rgba(0,0,0,.75);
+        backdrop-filter:blur(6px);
+    `;
+
+
+    viewer.innerHTML = `
+
+        <div style="
+            position:relative;
+            width:min(900px,95vw);
+            max-height:90vh;
+            background:#ffffff;
+            border-radius:20px;
+            padding:20px;
+            box-shadow:0 25px 80px rgba(0,0,0,.35);
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+            gap:15px;
+        ">
+
+            <button
+                type="button"
+                id="closeCitizenTrackPhotoViewer"
+                style="
+                    position:absolute;
+                    right:14px;
+                    top:12px;
+                    width:38px;
+                    height:38px;
+                    border:0;
+                    border-radius:50%;
+                    background:#eef5f1;
+                    color:#173c2c;
+                    font-size:24px;
+                    font-weight:700;
+                    cursor:pointer;
+                "
+            >
+                ×
+            </button>
+
+
+            <h2 style="
+                margin:0;
+                color:#173c2c;
+                font-size:22px;
+            ">
+                Your Uploaded Complaint Photo
+            </h2>
+
+
+            <p style="
+                margin:0;
+                color:#60756b;
+                font-size:14px;
+            ">
+                Complaint ${currentCitizenComplaintId}
+            </p>
+
+
+            <img
+                src="/static/${encodeURI(
+                    currentCitizenPhotoPath
+                )}"
+                alt="Your uploaded complaint photo"
+                style="
+                    display:block;
+                    max-width:100%;
+                    max-height:70vh;
+                    object-fit:contain;
+                    border-radius:14px;
+                    border:1px solid #dce8e1;
+                "
+            >
+
+        </div>
+
+    `;
+
+
+    document.body.appendChild(viewer);
+
+
+    document
+        .getElementById(
+            "closeCitizenTrackPhotoViewer"
+        )
+        .onclick = function() {
+
+            viewer.remove();
+
+        };
+
+
+    viewer.onclick = function(event) {
+
+        if (event.target === viewer) {
+
+            viewer.remove();
+
+        }
+
+    };
+
+}
 
 /* =========================================
    TRACK BUTTON
@@ -793,12 +1156,10 @@ function trackComplaint() {
             "complaintInput"
         );
 
-
     const id =
         input.value
             .trim()
             .toUpperCase();
-
 
     if (!id) {
 
@@ -807,7 +1168,6 @@ function trackComplaint() {
         return;
 
     }
-
 
     showComplaint(id);
 
@@ -825,9 +1185,7 @@ function loadSample(id) {
             "complaintInput"
         );
 
-
     input.value = id;
-
 
     showComplaint(id);
 
@@ -865,15 +1223,12 @@ async function renderComplaintList() {
             "complaintList"
         );
 
-
     if (!list) return;
-
 
     const input =
         document.getElementById(
             "complaintInput"
         );
-
 
     try {
 
@@ -885,20 +1240,16 @@ async function renderComplaintList() {
                 }
             );
 
-
         if (!response.ok) {
 
             return;
 
         }
 
-
         const rows =
             await response.json();
 
-
         list.innerHTML = "";
-
 
         rows.forEach(data => {
 
@@ -907,16 +1258,13 @@ async function renderComplaintList() {
                     data.status
                 );
 
-
             const row =
                 document.createElement(
                     "div"
                 );
 
-
             row.className =
                 "complaint-row";
-
 
             row.onclick =
                 function() {
@@ -924,13 +1272,11 @@ async function renderComplaintList() {
                     input.value =
                         data.id;
 
-
                     showComplaint(
                         data.id
                     );
 
                 };
-
 
             row.innerHTML = `
 
@@ -950,7 +1296,6 @@ async function renderComplaintList() {
 
                 </div>
 
-
                 <div
                     class="row-status ${getStatusClass(displayStatus)}">
 
@@ -960,11 +1305,9 @@ async function renderComplaintList() {
 
             `;
 
-
             list.appendChild(row);
 
         });
-
 
     } catch (error) {
 
