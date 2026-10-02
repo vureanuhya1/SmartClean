@@ -140,8 +140,8 @@
                 In Progress
             </option>
 
-            <option value="Resolved">
-                Resolved
+            <option value="Completed">
+                Completed
             </option>
 
         </select>
@@ -176,7 +176,91 @@
 
 </footer>
 
+<!-- RESOLUTION REQUEST MODAL -->
+<div id="resolutionModal" class="resolution-modal">
+    <div class="resolution-card">
 
+        <div class="resolution-header">
+            <div>
+                <h2>Request Resolution</h2>
+                <p id="resolutionComplaintId"></p>
+            </div>
+
+            <button type="button"
+                    class="resolution-close"
+                    onclick="closeResolutionModal()">
+                ×
+            </button>
+        </div>
+
+        <form id="resolutionForm">
+
+            <label for="resolutionPhoto">
+                Resolution Photo <span>*</span>
+            </label>
+
+            <input
+                type="file"
+                id="resolutionPhoto"
+                name="resolution_photo"
+                accept="image/*"
+                required
+            >
+
+            <small>
+                Upload a clear photo showing that the complaint has been resolved.
+            </small>
+
+
+            <label for="resolvedDate">
+                Resolved Date <span>*</span>
+            </label>
+
+            <input
+                type="date"
+                id="resolvedDate"
+                name="resolved_date"
+                required
+            >
+
+
+            <div class="resolution-actions">
+
+                <button type="button"
+                        class="resolution-cancel"
+                        onclick="closeResolutionModal()">
+                    Cancel
+                </button>
+
+                <button type="submit"
+                        class="resolution-submit">
+                    Submit Resolution Request
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+</div>
+<!-- PHOTO VIEWER -->
+<div id="photoViewer" class="photo-viewer" onclick="closePhotoViewer()">
+    <div class="photo-viewer-card" onclick="event.stopPropagation()">
+        <button
+            type="button"
+            class="photo-viewer-close"
+            onclick="closePhotoViewer()"
+        >
+            ×
+        </button>
+
+        <img
+            id="photoViewerImage"
+            src=""
+            alt="Full complaint photo"
+        >
+    </div>
+</div>
 <script>
 const complaintsList = document.getElementById("complaintsList");
 const searchInput = document.getElementById("searchComplaint");
@@ -184,6 +268,7 @@ const statusFilter = document.getElementById("statusFilter");
 const logoutButton = document.getElementById("logoutButton");
 
 let complaints = [];
+let selectedResolutionComplaintId = null;
 
 async function loadWorkerComplaints() {
     try {
@@ -220,14 +305,14 @@ function escapeHtml(value) {
 }
 
 function statusClass(status) {
-    if (status === "Resolved") return "completed";
+    if (status === "Completed") return "completed";
     if (status === "In Progress") return "progress";
     return "pending";
 }
 
 function nextStatusFor(status) {
     if (status === "Assigned") return "In Progress";
-    if (status === "In Progress") return "Resolved";
+    if (status === "In Progress") return "Request Resolution";
     return null;
 }
 
@@ -264,21 +349,52 @@ function renderComplaints() {
     complaintsList.innerHTML = rows.map(complaint => {
         const nextStatus = nextStatusFor(complaint.status);
         const button = nextStatus
-            ? `<button class="update-button" onclick="updateComplaint('${escapeHtml(complaint.id)}')">
-                    Mark ${escapeHtml(nextStatus)}
-               </button>`
-            : `<span class="status-note">Resolved</span>`;
+    ? `<button class="update-button" onclick="updateComplaint('${escapeHtml(complaint.id)}')">
+            ${nextStatus === "Request Resolution"
+                ? "Request Resolution"
+                : "Start Work"}
+       </button>`
+    : `<span class="status-note">Completed</span>`;
 
         return `
             <div class="complaint-card">
                 <div class="complaint-icon">🗑️</div>
 
                 <div class="complaint-info">
-                    <span class="complaint-id">${escapeHtml(complaint.id)}</span>
-                    <h2>${escapeHtml(complaint.issue_type)}</h2>
-                    <p>📍 ${escapeHtml(complaint.street_number || "-")}</p>
-                    <small>📅 Reported: ${escapeHtml(complaint.date || "-")}</small>
-                </div>
+    <span class="complaint-id">
+        ${escapeHtml(complaint.id)}
+    </span>
+
+    <h2>
+        ${escapeHtml(complaint.issue_type)}
+    </h2>
+
+    <p>
+        📍 ${escapeHtml(complaint.street_number || "-")}
+    </p>
+
+    <small>
+        📅 Complaint Date:
+        ${escapeHtml(complaint.date || "-")}
+    </small>
+</div>
+
+<div class="complaint-photo">
+    ${
+        complaint.photo_path
+            ? `
+               <img
+    src="/static/${escapeHtml(complaint.photo_path)}"
+    alt="Complaint photo"
+    onclick="openPhotoViewer('/static/${escapeHtml(complaint.photo_path)}')"
+    style="cursor: pointer;"
+>
+              `
+            : `
+                <span>No Photo</span>
+              `
+    }
+</div>
 
                 <div class="complaint-right">
                     <span class="status ${statusClass(complaint.status)}">
@@ -292,48 +408,228 @@ function renderComplaints() {
 
 async function updateComplaint(id) {
     const complaint = complaints.find(item => item.id === id);
+
     if (!complaint) return;
 
     const nextStatus = nextStatusFor(complaint.status);
 
     if (!nextStatus) {
-        smartCleanAlert("This complaint is already resolved.","info","Complaint Status");
+        smartCleanAlert(
+            "This complaint is already completed.",
+            "info",
+            "Complaint Status"
+        );
         return;
     }
 
-    const confirmed = await smartCleanConfirm(
-        `Change ${complaint.id} from ${complaint.status} to ${nextStatus}?`,
-        "Update Complaint Status"
-    );
+    /* Assigned → In Progress */
+    if (nextStatus === "In Progress") {
 
-    if (!confirmed) return;
-
-    try {
-        const response = await fetch(
-            `/api/worker/complaints/${encodeURIComponent(id)}/status`,
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                credentials: "same-origin",
-                body: JSON.stringify({ status: nextStatus })
-            }
+        const confirmed = await smartCleanConfirm(
+            `Change ${complaint.id} from ${complaint.status} to In Progress?`,
+            "Update Complaint Status"
         );
 
-        const data = await response.json();
+        if (!confirmed) return;
 
-        if (!response.ok) {
-            throw new Error(data.message || "Status update failed.");
+        try {
+            const response = await fetch(
+                `/api/worker/complaints/${encodeURIComponent(id)}/status`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    credentials: "same-origin",
+                    body: JSON.stringify({
+                        status: "In Progress"
+                    })
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.message || "Status update failed."
+                );
+            }
+
+            await loadWorkerComplaints();
+
+        } catch (error) {
+            console.error("Status update error:", error);
+
+            smartCleanAlert(
+                error.message || "Unable to update complaint status.",
+                "error",
+                "Update Failed"
+            );
         }
 
-        await loadWorkerComplaints();
-    } catch (error) {
-        console.error("Status update error:", error);
-        smartCleanAlert(error.message || "Unable to update complaint status.","error","Update Failed");
+        return;
+    }
+
+    /* In Progress → Request Resolution */
+    if (nextStatus === "Request Resolution") {
+
+        openResolutionModal(id);
+
+        return;
     }
 }
+function openPhotoViewer(photoUrl) {
+    document.getElementById("photoViewerImage").src = photoUrl;
+    document.getElementById("photoViewer").classList.add("show");
+}
 
+function closePhotoViewer() {
+    document.getElementById("photoViewer").classList.remove("show");
+    document.getElementById("photoViewerImage").src = "";
+}
+function openResolutionModal(complaintId) {
+
+    selectedResolutionComplaintId = complaintId;
+
+    document.getElementById(
+        "resolutionComplaintId"
+    ).textContent = `Complaint ID: ${complaintId}`;
+
+    const form = document.getElementById("resolutionForm");
+
+    form.reset();
+
+    // Default resolved date = today
+    const today = new Date()
+        .toISOString()
+        .split("T")[0];
+
+    document.getElementById(
+        "resolvedDate"
+    ).value = today;
+
+    document.getElementById(
+        "resolutionModal"
+    ).classList.add("show");
+}
+
+
+function closeResolutionModal() {
+
+    selectedResolutionComplaintId = null;
+
+    document.getElementById(
+        "resolutionModal"
+    ).classList.remove("show");
+
+    document.getElementById(
+        "resolutionForm"
+    ).reset();
+}
+document.getElementById("resolutionForm")
+    .addEventListener("submit", async function(event) {
+
+        event.preventDefault();
+
+        if (!selectedResolutionComplaintId) {
+            return;
+        }
+
+        const photoInput =
+            document.getElementById("resolutionPhoto");
+
+        const dateInput =
+            document.getElementById("resolvedDate");
+
+
+        if (!photoInput.files.length) {
+
+            smartCleanAlert(
+                "Please upload a resolution photo.",
+                "error",
+                "Photo Required"
+            );
+
+            return;
+        }
+
+
+        if (!dateInput.value) {
+
+            smartCleanAlert(
+                "Please select the resolved date.",
+                "error",
+                "Date Required"
+            );
+
+            return;
+        }
+
+
+        const formData = new FormData();
+
+        formData.append(
+            "resolution_photo",
+            photoInput.files[0]
+        );
+
+        formData.append(
+            "resolved_date",
+            dateInput.value
+        );
+
+
+        try {
+
+            const response = await fetch(
+                `/api/worker/complaints/${encodeURIComponent(selectedResolutionComplaintId)}/resolution-request`,
+                {
+                    method: "POST",
+                    credentials: "same-origin",
+                    body: formData
+                }
+            );
+
+
+            const data = await response.json();
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.message ||
+                    "Unable to submit resolution request."
+                );
+            }
+
+
+            closeResolutionModal();
+
+            await smartCleanAlert(
+                "Resolution request submitted successfully. Admin will review it.",
+                "success",
+                "Request Submitted"
+            );
+
+            await loadWorkerComplaints();
+
+
+        } catch (error) {
+
+            console.error(
+                "Resolution request error:",
+                error
+            );
+
+            smartCleanAlert(
+                error.message ||
+                "Unable to submit resolution request.",
+                "error",
+                "Submission Failed"
+            );
+        }
+
+    });
 searchInput.addEventListener("input", renderComplaints);
 statusFilter.addEventListener("change", renderComplaints);
 
@@ -363,6 +659,152 @@ loadWorkerComplaints();
 .smartclean-notify-actions{display:flex;justify-content:flex-end;gap:10px;padding:15px 22px 20px;background:rgba(39,174,96,.055);border-top:1px solid rgba(39,174,96,.1)}
 .smartclean-notify-btn{border:0;border-radius:12px;padding:11px 20px;font:inherit;font-weight:800;cursor:pointer}
 .smartclean-notify-cancel{background:#e9f0ec;color:#345247}.smartclean-notify-ok{color:#fff;background:linear-gradient(135deg,#11998e,#38ef7d);box-shadow:0 7px 18px rgba(17,153,142,.22)}
+.resolution-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 100000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(7, 38, 28, 0.65);
+    backdrop-filter: blur(6px);
+}
+
+.resolution-modal.show {
+    display: flex;
+}
+
+.resolution-card {
+    width: min(500px, 100%);
+    background: #ffffff;
+    border-radius: 22px;
+    padding: 26px;
+    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.3);
+}
+
+.resolution-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 22px;
+}
+
+.resolution-header h2 {
+    margin: 0;
+    color: #123c2b;
+}
+
+.resolution-header p {
+    margin: 6px 0 0;
+    color: #60756b;
+}
+
+.resolution-close {
+    border: none;
+    background: transparent;
+    font-size: 30px;
+    cursor: pointer;
+    color: #555;
+}
+
+.resolution-card label {
+    display: block;
+    margin-top: 16px;
+    margin-bottom: 7px;
+    font-weight: 700;
+    color: #23483a;
+}
+
+.resolution-card label span {
+    color: #e74c3c;
+}
+
+.resolution-card input[type="file"],
+.resolution-card input[type="date"] {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 11px;
+    border: 1px solid #cbded4;
+    border-radius: 10px;
+    background: #f8fcfa;
+}
+
+.resolution-card small {
+    display: block;
+    margin-top: 6px;
+    color: #71857b;
+}
+
+.resolution-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 25px;
+}
+
+.resolution-cancel,
+.resolution-submit {
+    border: none;
+    border-radius: 10px;
+    padding: 11px 17px;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.resolution-cancel {
+    background: #e9efec;
+    color: #365047;
+}
+
+.resolution-submit {
+    background: #16a085;
+    color: white;
+}
+/* PHOTO VIEWER */
+.photo-viewer {
+    position: fixed;
+    inset: 0;
+    z-index: 100001;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(0, 0, 0, 0.78);
+}
+
+.photo-viewer.show {
+    display: flex;
+}
+
+.photo-viewer-card {
+    position: relative;
+    max-width: 95vw;
+    max-height: 90vh;
+}
+
+.photo-viewer-card img {
+    display: block;
+    max-width: 100%;
+    max-height: 85vh;
+    object-fit: contain;
+    border-radius: 14px;
+}
+
+.photo-viewer-close {
+    position: absolute;
+    top: -14px;
+    right: -14px;
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 50%;
+    background: white;
+    color: #222;
+    font-size: 28px;
+    cursor: pointer;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+}
 </style>
 <script>
 (function(){
