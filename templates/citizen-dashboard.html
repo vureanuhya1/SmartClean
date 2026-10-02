@@ -312,7 +312,7 @@
                     </span>
 
                     <p>
-                        Resolved
+                        Completed
                     </p>
 
                 </div>
@@ -436,7 +436,7 @@ async function loadCitizenDashboard() {
         document.getElementById("citizenTotal").textContent = data.total;
         document.getElementById("citizenPending").textContent = data.pending + data.assigned;
         document.getElementById("citizenProgress").textContent = data.in_progress;
-        document.getElementById("citizenResolved").textContent = data.resolved;
+        document.getElementById("citizenResolved").textContent = data.completed;
 
         const box = document.getElementById("citizenComplaintsList");
         if (!data.recent || !data.recent.length) return;
