@@ -270,7 +270,7 @@
                     </strong>
 
                     <span>
-                        Resolved
+                       Completed
                     </span>
 
                 </div>
@@ -437,59 +437,203 @@
 
 
 
+
 <script>
+
 async function loadWorkerReports() {
+
     const setText = (id, value) => {
         const element = document.getElementById(id);
-        if (element) element.textContent = value;
+
+        if (element) {
+            element.textContent = value;
+        }
     };
 
     try {
-        const response = await fetch("/api/worker/reports", {
-            credentials: "same-origin"
-        });
+
+        const response = await fetch(
+            "/api/worker/reports",
+            {
+                credentials: "same-origin"
+            }
+        );
+
         const data = await response.json();
 
         if (!response.ok) {
-            throw new Error(data.message || "Unable to load reports.");
+            throw new Error(
+                data.message ||
+                "Unable to load worker reports."
+            );
         }
 
-        const assigned = Number(data.assigned || 0);
-        const resolved = Number(data.resolved ?? data.completed ?? 0);
-        const pending = Number(data.pending || 0);
-        const efficiency = Number(data.efficiency || 0);
 
-        setText("totalAssigned", assigned);
-        setText("completedCount", resolved);
-        setText("pendingCount", pending);
-        setText("workerRating", data.rating == null ? "N/A" : data.rating);
-        setText("efficiencyPercent", `${efficiency}%`);
-        setText("performanceCompleted", resolved);
-        setText("performancePending", pending);
-        setText("performanceTotal", assigned);
+        /* ==========================================
+           SUMMARY DATA
+        ========================================== */
 
-        const fill = document.querySelector(".progress-fill");
-        if (fill) {
-            fill.style.width = `${Math.max(0, Math.min(100, efficiency))}%`;
+        const assigned =
+            Number(data.assigned || 0);
+
+        const completed =
+            Number(
+                data.completed ??
+                data.resolved ??
+                0
+            );
+
+        const pending =
+            Number(data.pending || 0);
+
+        const efficiency =
+            Number(data.efficiency || 0);
+
+
+        /* ==========================================
+           SUMMARY CARDS
+        ========================================== */
+
+        setText(
+            "totalAssigned",
+            assigned
+        );
+
+        setText(
+            "completedCount",
+            completed
+        );
+
+        setText(
+            "pendingCount",
+            pending
+        );
+
+
+        /* ==========================================
+           PERFORMANCE
+        ========================================== */
+
+        setText(
+            "efficiencyPercent",
+            `${efficiency}%`
+        );
+
+        setText(
+            "performanceCompleted",
+            completed
+        );
+
+        setText(
+            "performancePending",
+            pending
+        );
+
+        setText(
+            "performanceTotal",
+            assigned
+        );
+
+
+        const progress =
+            document.querySelector(
+                ".progress-fill"
+            );
+
+        if (progress) {
+
+            const safeEfficiency =
+                Math.max(
+                    0,
+                    Math.min(
+                        100,
+                        efficiency
+                    )
+                );
+
+            progress.style.width =
+                `${safeEfficiency}%`;
         }
 
-        renderCategories(Array.isArray(data.categories) ? data.categories : []);
-        renderHistory(Array.isArray(data.history) ? data.history : []);
-    } catch (error) {
-        console.error("Worker reports error:", error);
-        setText("totalAssigned", 0);
-        setText("completedCount", 0);
-        setText("pendingCount", 0);
-        setText("efficiencyPercent", "0%");
-        setText("performanceCompleted", 0);
-        setText("performancePending", 0);
-        setText("performanceTotal", 0);
+
+        /* ==========================================
+           WASTE CATEGORIES
+        ========================================== */
+
+        renderCategories(
+            Array.isArray(data.categories)
+                ? data.categories
+                : []
+        );
+
+
+        /* ==========================================
+           COLLECTION HISTORY
+        ========================================== */
+
+        renderHistory(
+            Array.isArray(data.history)
+                ? data.history
+                : []
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Worker reports error:",
+            error
+        );
+
+        setText(
+            "totalAssigned",
+            0
+        );
+
+        setText(
+            "completedCount",
+            0
+        );
+
+        setText(
+            "pendingCount",
+            0
+        );
+
+        setText(
+            "efficiencyPercent",
+            "0%"
+        );
+
+        setText(
+            "performanceCompleted",
+            0
+        );
+
+        setText(
+            "performancePending",
+            0
+        );
+
+        setText(
+            "performanceTotal",
+            0
+        );
+
         renderCategories([]);
+
         renderHistory([]);
     }
 }
 
+
+/* ==========================================
+   HTML ESCAPE
+========================================== */
+
 function escapeHtml(value) {
+
     return String(value ?? "")
         .replaceAll("&", "&amp;")
         .replaceAll("<", "&lt;")
@@ -498,86 +642,263 @@ function escapeHtml(value) {
         .replaceAll("'", "&#039;");
 }
 
+
+/* ==========================================
+   CATEGORY CSS CLASS
+========================================== */
+
 function categoryClass(index) {
-    const classes = ["organic", "plastic", "paper", "other"];
-    return classes[index % classes.length];
+
+    const classes = [
+        "organic",
+        "plastic",
+        "paper",
+        "other"
+    ];
+
+    return classes[
+        index % classes.length
+    ];
 }
+
+
+/* ==========================================
+   RENDER WASTE CATEGORIES
+========================================== */
 
 function renderCategories(categories) {
-    const container = document.getElementById("categoryList");
-    if (!container) return;
+
+    const container =
+        document.getElementById(
+            "categoryList"
+        );
+
+    if (!container) {
+        return;
+    }
+
 
     if (!categories.length) {
+
         container.innerHTML = `
             <div class="category-row">
+
                 <div class="category-name">
-                    <span class="category-dot other"></span>
-                    No resolved complaints yet
+
+                    <span
+                        class="category-dot other">
+                    </span>
+
+                    No completed complaints yet
+
                 </div>
+
                 <strong>0%</strong>
+
             </div>
-            <div class="category-bar"><span style="width:0%;"></span></div>`;
+
+            <div class="category-bar">
+
+                <span
+                    style="width:0%;">
+                </span>
+
+            </div>
+        `;
+
         return;
     }
 
-    container.innerHTML = categories.map((item, index) => {
-        const percentage = Number(item.percentage || 0);
-        return `
-            <div class="category-row">
-                <div class="category-name">
-                    <span class="category-dot ${categoryClass(index)}"></span>
-                    ${escapeHtml(item.category || "Other")}
-                </div>
-                <strong>${percentage}%</strong>
-            </div>
-            <div class="category-bar">
-                <span style="width:${Math.max(0, Math.min(100, percentage))}%;"></span>
-            </div>`;
-    }).join("");
+
+    container.innerHTML =
+        categories.map(
+            (item, index) => {
+
+                const percentage =
+                    Number(
+                        item.percentage || 0
+                    );
+
+                const safePercentage =
+                    Math.max(
+                        0,
+                        Math.min(
+                            100,
+                            percentage
+                        )
+                    );
+
+                return `
+                    <div class="category-row">
+
+                        <div class="category-name">
+
+                            <span
+                                class="category-dot ${categoryClass(index)}">
+                            </span>
+
+                            ${escapeHtml(
+                                item.category ||
+                                "Other"
+                            )}
+
+                        </div>
+
+                        <strong>
+                            ${percentage}%
+                        </strong>
+
+                    </div>
+
+                    <div class="category-bar">
+
+                        <span
+                            style="width:${safePercentage}%;">
+                        </span>
+
+                    </div>
+                `;
+            }
+        ).join("");
 }
+
+
+/* ==========================================
+   RENDER COLLECTION HISTORY
+========================================== */
 
 function renderHistory(history) {
-    const container = document.getElementById("collectionHistoryBody");
-    if (!container) return;
 
-    if (!history.length) {
-        container.innerHTML = `
-            <div class="history-row">
-                <span>No assigned complaints yet.</span>
-                <span></span><span></span><span></span>
-            </div>`;
+    const container =
+        document.getElementById(
+            "collectionHistoryBody"
+        );
+
+    if (!container) {
         return;
     }
 
-    container.innerHTML = history.map(item => {
-        const resolved = item.status === "Resolved";
-        return `
-            <div class="history-row">
-                <span>${escapeHtml(item.id)}</span>
-                <span>${escapeHtml(item.location || item.issue_type || "-")}</span>
-                <span>${escapeHtml(item.date || "-")}</span>
-                <span class="${resolved ? "history-completed" : "history-pending"}">
-                    ${escapeHtml(item.status || "-")}
-                </span>
-            </div>`;
-    }).join("");
-}
 
-document.addEventListener("DOMContentLoaded", () => {
-    const logoutButton = document.getElementById("logoutButton");
-    if (logoutButton) {
-        logoutButton.addEventListener("click", () => {
-            smartCleanConfirm(
-                "Are you sure you want to logout from SmartClean?",
-                "Logout Confirmation"
-            ).then(function(ok){
-                if(ok) window.location.href="/worker-logout";
-            });
-        });
+    if (!history.length) {
+
+        container.innerHTML = `
+            <div class="history-row">
+
+                <span>
+                    No assigned complaints yet.
+                </span>
+
+                <span></span>
+
+                <span></span>
+
+                <span></span>
+
+            </div>
+        `;
+
+        return;
     }
 
-    loadWorkerReports();
-});
+
+    container.innerHTML =
+        history.map(item => {
+
+            const completed =
+                item.status === "Completed";
+
+
+            return `
+                <div class="history-row">
+
+                    <span>
+                        ${escapeHtml(
+                            item.id
+                        )}
+                    </span>
+
+                    <span>
+                        ${escapeHtml(
+                            item.location ||
+                            item.issue_type ||
+                            "-"
+                        )}
+                    </span>
+
+                    <span>
+                        ${escapeHtml(
+                            item.date || "-"
+                        )}
+                    </span>
+
+                    <span
+                        class="${
+                            completed
+                                ? "history-completed"
+                                : "history-pending"
+                        }">
+
+                        ${escapeHtml(
+                            item.status || "-"
+                        )}
+
+                    </span>
+
+                </div>
+            `;
+
+        }).join("");
+}
+
+
+/* ==========================================
+   PAGE LOAD
+========================================== */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+        const logoutButton =
+            document.getElementById(
+                "logoutButton"
+            );
+
+
+        if (logoutButton) {
+
+            logoutButton.addEventListener(
+                "click",
+                () => {
+
+                    smartCleanConfirm(
+                        "Are you sure you want to logout from SmartClean?",
+                        "Logout Confirmation"
+                    )
+                    .then(
+                        function(ok) {
+
+                            if (ok) {
+
+                                window.location.href =
+                                    "/worker-logout";
+
+                            }
+
+                        }
+                    );
+
+                }
+            );
+
+        }
+
+
+        loadWorkerReports();
+
+    }
+);
+
 </script>
 <style>
 .smartclean-notify-backdrop{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(7,38,28,.58);backdrop-filter:blur(7px);opacity:0;visibility:hidden;transition:.2s}
