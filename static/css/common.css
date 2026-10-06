@@ -19,6 +19,85 @@ body {
     background: #f4fbff;
 }
 
+/* =====================================================
+   SMARTCLEAN STICKY HEADER
+===================================================== */
+
+.site-header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+/* =====================================================
+   SMARTCLEAN ANNOUNCEMENT BAR
+===================================================== */
+
+.announcement-bar {
+    width: 100%;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+
+    background: linear-gradient(90deg, #eef9f3, #f4fbff, #eef9f3);
+    border-bottom: 1px solid #d4e9dd;
+    box-shadow: 0 3px 12px rgba(39,111,145,0.07);
+    backdrop-filter: blur(10px);
+}
+
+.announcement-track {
+    display: flex;
+    align-items: center;
+    width: max-content;
+    white-space: nowrap;
+
+    animation: announcementScroll 28s linear infinite;
+}
+
+.announcement-item {
+    display: inline-flex;
+    align-items: center;
+    padding: 0 24px;
+
+    color: #176b42;
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: 0.1px;
+}
+
+.announcement-separator {
+    color: #45a873;
+    font-size: 12px;
+    font-weight: 800;
+    opacity: 0.75;
+}
+
+/* Smooth continuous scrolling */
+
+@keyframes announcementScroll {
+    from {
+        transform: translateX(0);
+    }
+
+    to {
+        transform: translateX(-50%);
+    }
+}
+
+/* Pause animation when mouse is over the bar */
+
+.announcement-bar:hover .announcement-track {
+    animation-play-state: paused;
+}
+
+/* Respect users who prefer reduced motion */
+
+@media (prefers-reduced-motion: reduce) {
+    .announcement-track {
+        animation: none;
+    }
+}
 
 /* =========================================
    NAVBAR

@@ -13,7 +13,8 @@
     <!-- Common Navbar -->
     <link rel="stylesheet"
           href="{{ url_for('static', filename='css/common.css') }}">
-
+    <link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <!-- Home Page -->
     <link rel="stylesheet"
           href="{{ url_for('static', filename='css/home.css') }}">
@@ -27,7 +28,7 @@
 <!-- =====================================================
      NAVBAR
 ===================================================== -->
-
+<div class="site-header">
 <header class="navbar">
 
     <a href="/" class="logo">
@@ -85,7 +86,74 @@
     </div>
 
 </header>
+<div class="announcement-bar">
 
+    <div class="announcement-track">
+
+        <span class="announcement-item">
+            📷 Spot a Problem? Report it
+        </span>
+
+        <span class="announcement-separator">•</span>
+
+        <span class="announcement-item">
+            📍 Every Report Counts
+        </span>
+
+        <span class="announcement-separator">•</span>
+
+        <span class="announcement-item">
+            ⚡ Report Today, Resolve Faster
+        </span>
+
+        <span class="announcement-separator">•</span>
+
+        <span class="announcement-item">
+            🌱 Together for a Cleaner City
+        </span>
+
+        <span class="announcement-separator">•</span>
+
+        <span class="announcement-item">
+            🌍 Small Activities, Big Change
+        </span>
+
+        <!-- Duplicate for seamless scrolling -->
+
+        <span class="announcement-item">
+            📷 Spot a Problem? Report it
+        </span>
+
+        <span class="announcement-separator">•</span>
+
+        <span class="announcement-item">
+            📍 Every Report Counts
+        </span>
+
+        <span class="announcement-separator">•</span>
+
+        <span class="announcement-item">
+            ⚡ Report Today. Resolve Faster.
+        </span>
+
+        <span class="announcement-separator">•</span>
+
+        <span class="announcement-item">
+            🌱 Together for a Cleaner City
+        </span>
+
+        <span class="announcement-separator">•</span>
+
+        <span class="announcement-item">
+            🌍 Small Activities, Big Change
+        </span>
+
+
+    </div>
+
+</div>
+
+</div>
 
 <!-- =====================================================
      HERO SECTION
@@ -506,6 +574,223 @@
 
         </div>
 
+
+    </div>
+
+</section>
+
+<!-- =====================================================
+     CLEAN LIVING GUIDE
+===================================================== -->
+
+<section class="clean-living">
+
+    <div class="clean-living-heading">
+
+        <span class="section-tag">
+            🌱 CLEAN LIVING GUIDE
+        </span>
+
+        <h2>
+            Small Actions. <span>Big Impact.</span>
+        </h2>
+
+        <p>
+            Simple habits can keep our surroundings clean,
+            protect our health and create a healthier Earth.
+        </p>
+
+    </div>
+
+
+    <!-- 01. PLANTATION -->
+
+    <div class="clean-living-row">
+
+        <div class="clean-living-content">
+
+            <span class="clean-living-number">01</span>
+
+            <h3>Plant More Trees</h3>
+
+            <p>
+                Planting trees helps improve air quality, reduce
+                heat and pollution, provide shade and support
+                a healthier environment.
+            </p>
+
+            <ul>
+                <li>Improves air quality</li>
+                <li>Reduces heat and pollution</li>
+                <li>Supports biodiversity</li>
+            </ul>
+
+        </div>
+
+        <div class="clean-living-visual plantation-visual">
+
+            <img
+                src="{{ url_for('static', filename='uploads/plantation.png') }}"
+                alt="People planting trees in a clean urban environment"
+                class="clean-living-image">
+
+            <span class="floating-leaf leaf-one">🍃</span>
+            <span class="floating-leaf leaf-two">🍃</span>
+            <span class="floating-leaf leaf-three">🍃</span>
+
+        </div>
+
+    </div>
+
+
+    <!-- 02. RECHARGE PITS -->
+
+    <div class="clean-living-row reverse">
+
+        <div class="clean-living-content">
+
+            <span class="clean-living-number">02</span>
+
+            <h3>Build Recharge Pits</h3>
+
+            <p>
+                Recharge pits allow rainwater to enter the ground,
+                helping replenish groundwater and reducing
+                waterlogging during heavy rainfall.
+            </p>
+
+            <ul>
+                <li>Helps recharge groundwater</li>
+                <li>Uses rainwater effectively</li>
+                <li>Reduces waterlogging</li>
+            </ul>
+
+        </div>
+
+        <div class="clean-living-visual recharge-visual">
+
+            <img
+                src="{{ url_for('static', filename='uploads/recharge-pit.png') }}"
+                alt="Rainwater recharge pit"
+                class="clean-living-image recharge-image">
+
+            <span class="water-drop drop-one">💧</span>
+            <span class="water-drop drop-two">💧</span>
+            <span class="water-drop drop-three">💧</span>
+
+        </div>
+
+    </div>
+
+
+    <!-- 03. 3 R'S -->
+
+    <div class="clean-living-row">
+
+        <div class="clean-living-content">
+
+            <span class="clean-living-number">03</span>
+
+            <h3>Follow the 3 R's</h3>
+
+            <p>
+                Reduce what you use, reuse items whenever possible,
+                and recycle materials to minimize waste and conserve
+                valuable resources.
+            </p>
+
+            <ul>
+                <li><strong>Reduce</strong> unnecessary consumption</li>
+                <li><strong>Reuse</strong> items whenever possible</li>
+                <li><strong>Recycle</strong> useful materials</li>
+            </ul>
+
+        </div>
+
+        <div class="clean-living-visual recycle-visual">
+
+            <img
+                src="{{ url_for('static', filename='uploads/three-rs.png') }}"
+                alt="Reduce Reuse Recycle cycle"
+                class="clean-living-image recycle-image">
+
+        </div>
+
+    </div>
+
+
+    <!-- 04. WASTE SEGREGATION -->
+
+    <div class="clean-living-row reverse">
+
+        <div class="clean-living-content">
+
+            <span class="clean-living-number">04</span>
+
+            <h3>Segregate Waste</h3>
+
+            <p>
+                Separating waste at the source makes collection,
+                recycling and processing easier and helps reduce
+                the amount of waste sent to landfills.
+            </p>
+
+            <ul>
+                <li>Keep wet and dry waste separate</li>
+                <li>Separate recyclable materials</li>
+                <li>Make waste collection easier</li>
+            </ul>
+
+        </div>
+
+        <div class="clean-living-visual segregation-visual">
+
+            <img
+                src="{{ url_for('static', filename='uploads/waste-segregation.png') }}"
+                alt="Waste segregation into separate bins"
+                class="clean-living-image segregation-image">
+
+        </div>
+
+    </div>
+
+
+    <!-- 05. STAGNANT WATER -->
+
+    <div class="clean-living-row">
+
+        <div class="clean-living-content">
+
+            <span class="clean-living-number">05</span>
+
+            <h3>Prevent Stagnant Water</h3>
+
+            <p>
+                Avoiding stagnant water keeps surroundings cleaner
+                and helps prevent mosquito breeding and
+                water-related health risks.
+            </p>
+
+            <ul>
+                <li>Keep drains clean and unblocked</li>
+                <li>Empty containers that collect water</li>
+                <li>Prevent mosquito breeding</li>
+            </ul>
+
+        </div>
+
+        <div class="clean-living-visual stagnant-visual">
+
+            <img
+                src="{{ url_for('static', filename='uploads/stagnant-water.png') }}"
+                alt="Preventing stagnant water and mosquito breeding"
+                class="clean-living-image stagnant-image">
+
+            <span class="stagnant-drop stagnant-drop-one">💧</span>
+            <span class="stagnant-drop stagnant-drop-two">💧</span>
+            <span class="stagnant-drop stagnant-drop-three">💧</span>
+
+        </div>
 
     </div>
 

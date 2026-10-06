@@ -1547,3 +1547,790 @@ body {
     }
 
 }
+
+/* =====================================================
+   CLEAN LIVING GUIDE
+   SmartClean Environmental Awareness Section
+===================================================== */
+
+.clean-living {
+    width: 100%;
+    padding: 100px 7%;
+    background:
+        radial-gradient(circle at 10% 20%,
+        rgba(89, 190, 130, 0.10),
+        transparent 30%),
+        radial-gradient(circle at 90% 80%,
+        rgba(90, 170, 220, 0.10),
+        transparent 30%),
+        linear-gradient(
+        180deg,
+        #f8fcff 0%,
+        #eef9f3 100%
+    );
+}
+
+
+/* =====================================================
+   SECTION HEADING
+===================================================== */
+
+.clean-living-heading {
+    max-width: 760px;
+    margin: 0 auto 75px;
+    text-align: center;
+}
+
+.clean-living-heading .section-tag {
+    display: inline-block;
+    margin-bottom: 15px;
+
+    color: #176b42;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+}
+
+.clean-living-heading h2 {
+    margin-bottom: 16px;
+
+    font-size: clamp(32px, 4vw, 48px);
+    line-height: 1.15;
+    color: #173c2c;
+}
+
+.clean-living-heading h2 span {
+    background: linear-gradient(
+        135deg,
+        #16834e,
+        #32a96b
+    );
+
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.clean-living-heading p {
+    max-width: 650px;
+    margin: 0 auto;
+
+    color: #5d7569;
+    font-size: 16px;
+    line-height: 1.8;
+}
+
+
+/* =====================================================
+   CONTENT ROW
+===================================================== */
+
+.clean-living-row {
+    max-width: 1180px;
+    min-height: 430px;
+
+    margin: 0 auto 80px;
+
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+
+    gap: 80px;
+}
+
+.clean-living-row.reverse {
+    direction: rtl;
+}
+
+.clean-living-row.reverse .clean-living-content,
+.clean-living-row.reverse .clean-living-visual {
+    direction: ltr;
+}
+
+/* =====================================================
+   TEXT CONTENT
+===================================================== */
+
+.clean-living-content {
+    padding: 25px 10px;
+}
+
+.clean-living-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 42px;
+    height: 42px;
+
+    margin-bottom: 20px;
+
+    border-radius: 50%;
+
+    background: linear-gradient(
+        135deg,
+        #e0f5e9,
+        #dff3ff
+    );
+
+    color: #16834e;
+
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.clean-living-content h3 {
+    margin-bottom: 16px;
+
+    color: #173c2c;
+
+    font-size: 30px;
+    line-height: 1.2;
+}
+
+.clean-living-content p {
+    max-width: 520px;
+
+    margin-bottom: 22px;
+
+    color: #61756c;
+
+    font-size: 15px;
+    line-height: 1.8;
+}
+
+
+/* =====================================================
+   POINTS
+===================================================== */
+
+.clean-living-content ul {
+    list-style: none;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 10px;
+}
+
+.clean-living-content li {
+    position: relative;
+
+    padding-left: 25px;
+
+    color: #365247;
+
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.clean-living-content li::before {
+    content: "✓";
+
+    position: absolute;
+    left: 0;
+    top: 0;
+
+    color: #1d8b56;
+
+    font-weight: 800;
+}
+
+
+/* =====================================================
+   IMAGE / VISUAL AREA
+===================================================== */
+
+.clean-living-visual {
+    position: relative;
+
+    min-height: 360px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    overflow: hidden;
+
+    border-radius: 30px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(255,255,255,0.95),
+            rgba(239,250,244,0.95)
+        );
+
+    border: 1px solid rgba(39, 145, 91, 0.12);
+
+    box-shadow:
+        0 20px 50px rgba(39, 111, 145, 0.10);
+
+    transition:
+        transform 0.5s ease,
+        box-shadow 0.5s ease;
+}
+
+
+/* =====================================================
+   PLACEHOLDER
+===================================================== */
+
+.visual-placeholder {
+    width: 150px;
+    height: 150px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background:
+        linear-gradient(
+            135deg,
+            #e4f6eb,
+            #e1f3fb
+        );
+
+    font-size: 70px;
+
+    box-shadow:
+        0 15px 35px rgba(39,111,145,0.12);
+
+    animation:
+        cleanVisualFloat 4s ease-in-out infinite;
+}
+
+
+/* =====================================================
+   HOVER EFFECT
+===================================================== */
+
+.clean-living-visual:hover {
+    transform: translateY(-8px);
+
+    box-shadow:
+        0 28px 60px rgba(39, 111, 145, 0.15);
+}
+
+.clean-living-visual:hover
+.visual-placeholder {
+    transform: scale(1.06);
+}
+
+
+/* =====================================================
+   FLOATING ANIMATION
+===================================================== */
+
+@keyframes cleanVisualFloat {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-12px);
+    }
+}
+
+
+/* =====================================================
+   MOBILE RESPONSIVE
+===================================================== */
+
+@media (max-width: 800px) {
+
+    .clean-living {
+        padding: 75px 5%;
+    }
+
+    .clean-living-heading {
+        margin-bottom: 55px;
+    }
+
+    .clean-living-row,
+    .clean-living-row.reverse {
+        grid-template-columns: 1fr;
+
+        gap: 35px;
+
+        margin-bottom: 65px;
+
+        direction: ltr;
+    }
+
+    .clean-living-content {
+        padding: 10px 5px;
+    }
+
+    .clean-living-content h3 {
+        font-size: 26px;
+    }
+
+    .clean-living-visual {
+        min-height: 300px;
+        border-radius: 24px;
+    }
+
+    .visual-placeholder {
+        width: 125px;
+        height: 125px;
+        font-size: 58px;
+    }
+}
+
+
+@media (max-width: 550px) {
+
+    .clean-living {
+        padding: 60px 18px;
+    }
+
+    .clean-living-heading h2 {
+        font-size: 30px;
+    }
+
+    .clean-living-heading p {
+        font-size: 14px;
+    }
+
+    .clean-living-content h3 {
+        font-size: 24px;
+    }
+
+    .clean-living-content p {
+        font-size: 14px;
+    }
+
+    .clean-living-visual {
+        min-height: 250px;
+        border-radius: 20px;
+    }
+}
+/* =====================================================
+   CLEAN LIVING IMAGE
+===================================================== */
+
+.clean-living-image {
+    width: 82%;
+    max-width: 500px;
+    height: auto;
+    max-height: 310px;
+    object-fit: contain;
+    border-radius: 22px;
+
+    /* Soft entrance + floating movement */
+    animation: plantationImageFloat 5s ease-in-out infinite;
+
+    transition:
+        transform 0.5s ease,
+        filter 0.5s ease;
+}
+
+/* Gentle floating animation */
+@keyframes plantationImageFloat {
+
+    0%, 100% {
+        transform: translateY(0) scale(0.98);
+    }
+
+    50% {
+        transform: translateY(-8px) scale(1);
+    }
+}
+
+/* Elegant hover effect */
+.plantation-visual:hover .clean-living-image {
+    transform: scale(1.03);
+    filter: saturate(1.05);
+}
+
+/* =====================================================
+   FLOATING LEAVES
+===================================================== */
+
+.floating-leaf {
+    position: absolute;
+    z-index: 3;
+    font-size: 20px;
+    pointer-events: none;
+
+    animation: leafFloat 4s ease-in-out infinite;
+}
+
+.leaf-one {
+    top: 18%;
+    left: 12%;
+    animation-delay: 0s;
+}
+
+.leaf-two {
+    top: 30%;
+    right: 12%;
+    font-size: 16px;
+    animation-delay: 1.2s;
+}
+
+.leaf-three {
+    bottom: 18%;
+    left: 18%;
+    font-size: 14px;
+    animation-delay: 2.2s;
+}
+
+@keyframes leafFloat {
+
+    0%, 100% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 0.55;
+    }
+
+    50% {
+        transform: translateY(-15px) rotate(12deg);
+        opacity: 0.9;
+    }
+}
+
+/* =====================================================
+   RECHARGE PIT ANIMATION
+===================================================== */
+
+.recharge-image {
+    animation: rechargeImageFloat 5s ease-in-out infinite;
+}
+
+@keyframes rechargeImageFloat {
+    0%, 100% {
+        transform: translateY(0) scale(0.98);
+    }
+
+    50% {
+        transform: translateY(-8px) scale(1);
+    }
+}
+
+.water-drop {
+    position: absolute;
+    z-index: 3;
+    pointer-events: none;
+    font-size: 18px;
+    opacity: 0.65;
+    animation: waterDropFloat 3s ease-in-out infinite;
+}
+
+.drop-one {
+    top: 15%;
+    left: 15%;
+}
+
+.drop-two {
+    top: 25%;
+    right: 16%;
+    font-size: 15px;
+    animation-delay: 1s;
+}
+
+.drop-three {
+    bottom: 18%;
+    right: 20%;
+    font-size: 13px;
+    animation-delay: 2s;
+}
+
+@keyframes waterDropFloat {
+    0%, 100% {
+        transform: translateY(0);
+        opacity: 0.45;
+    }
+
+    50% {
+        transform: translateY(12px);
+        opacity: 0.9;
+    }
+}
+
+/* =====================================================
+   3R RECYCLING ANIMATION
+===================================================== */
+
+.recycle-image {
+    animation: recycleFloat 5s ease-in-out infinite;
+    transition: transform 0.5s ease, filter 0.5s ease;
+}
+
+@keyframes recycleFloat {
+    0%, 100% {
+        transform: translateY(0) scale(0.98);
+    }
+
+    50% {
+        transform: translateY(-8px) scale(1);
+    }
+}
+
+.recycle-visual:hover .recycle-image {
+    transform: scale(1.03);
+    filter: saturate(1.08);
+}
+
+/* =====================================================
+   3R IMAGE — SUBTLE PREMIUM ANIMATION
+===================================================== */
+
+.recycle-image {
+    width: 82%;
+    max-width: 500px;
+    height: auto;
+    max-height: 310px;
+    object-fit: contain;
+    border-radius: 22px;
+
+    animation: recycleBreathing 6s ease-in-out infinite;
+
+    transition:
+        transform 0.6s ease,
+        filter 0.6s ease,
+        box-shadow 0.6s ease;
+}
+
+@keyframes recycleBreathing {
+
+    0%, 100% {
+        transform: translateY(0) scale(1);
+        filter: brightness(1);
+    }
+
+    50% {
+        transform: translateY(-6px) scale(1.025);
+        filter: brightness(1.025);
+    }
+}
+
+.recycle-visual:hover .recycle-image {
+    transform: scale(1.04);
+    filter: brightness(1.04) saturate(1.05);
+}
+
+/* =====================================================
+   WASTE SEGREGATION IMAGE ANIMATION
+===================================================== */
+
+.segregation-image {
+    width: 82%;
+    max-width: 500px;
+    height: auto;
+    max-height: 310px;
+    object-fit: contain;
+    border-radius: 22px;
+
+    animation: segregationFloat 6s ease-in-out infinite;
+
+    transition:
+        transform 0.6s ease,
+        filter 0.6s ease;
+}
+
+@keyframes segregationFloat {
+
+    0%, 100% {
+        transform: translateY(0) scale(1);
+        filter: brightness(1);
+    }
+
+    50% {
+        transform: translateY(-6px) scale(1.02);
+        filter: brightness(1.02);
+    }
+}
+
+.segregation-visual:hover .segregation-image {
+    transform: scale(1.04);
+    filter: brightness(1.04) saturate(1.05);
+}
+
+/* =====================================================
+   STAGNANT WATER — PREMIUM WATER ANIMATION
+===================================================== */
+
+.stagnant-visual {
+    position: relative;
+}
+
+/* Main image */
+
+.stagnant-image {
+    width: 82%;
+    max-width: 500px;
+    height: auto;
+    max-height: 310px;
+    object-fit: contain;
+    border-radius: 22px;
+
+    animation: stagnantImageFloat 6s ease-in-out infinite;
+
+    transition:
+        transform 0.6s ease,
+        filter 0.6s ease;
+}
+
+
+/* Gentle floating + breathing */
+
+@keyframes stagnantImageFloat {
+
+    0%,
+    100% {
+        transform: translateY(0) scale(0.985);
+        filter: brightness(1);
+    }
+
+    50% {
+        transform: translateY(-8px) scale(1.015);
+        filter: brightness(1.025);
+    }
+}
+
+
+/* =====================================================
+   SOFT WATER GLOW
+===================================================== */
+
+.stagnant-visual::after {
+    content: "";
+    position: absolute;
+
+    width: 70%;
+    height: 35%;
+
+    left: 15%;
+    bottom: 7%;
+
+    border-radius: 50%;
+
+    background: rgba(70, 180, 210, 0.10);
+
+    filter: blur(25px);
+
+    z-index: 0;
+
+    animation: waterGlow 5s ease-in-out infinite;
+
+    pointer-events: none;
+}
+
+@keyframes waterGlow {
+
+    0%,
+    100% {
+        opacity: 0.35;
+        transform: scale(0.95);
+    }
+
+    50% {
+        opacity: 0.7;
+        transform: scale(1.08);
+    }
+}
+
+
+/* Keep image above glow */
+
+.stagnant-image {
+    position: relative;
+    z-index: 2;
+}
+
+
+/* =====================================================
+   FLOATING WATER DROPS
+===================================================== */
+
+.stagnant-drop {
+    position: absolute;
+
+    z-index: 3;
+
+    pointer-events: none;
+
+    font-size: 17px;
+
+    opacity: 0.55;
+
+    animation: stagnantDropFloat 4s ease-in-out infinite;
+}
+
+
+/* Drop positions */
+
+.stagnant-drop-one {
+    top: 16%;
+    left: 12%;
+    animation-delay: 0s;
+}
+
+.stagnant-drop-two {
+    top: 27%;
+    right: 10%;
+
+    font-size: 14px;
+
+    animation-delay: 1.3s;
+}
+
+.stagnant-drop-three {
+    bottom: 17%;
+    left: 16%;
+
+    font-size: 13px;
+
+    animation-delay: 2.4s;
+}
+
+
+/* Drop movement */
+
+@keyframes stagnantDropFloat {
+
+    0%,
+    100% {
+        transform: translateY(0) scale(1);
+        opacity: 0.35;
+    }
+
+    50% {
+        transform: translateY(12px) scale(1.08);
+        opacity: 0.8;
+    }
+}
+
+
+/* =====================================================
+   HOVER EFFECT
+===================================================== */
+
+.stagnant-visual:hover .stagnant-image {
+    transform: scale(1.04);
+
+    filter:
+        brightness(1.04)
+        saturate(1.06);
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 768px) {
+
+    .stagnant-image {
+        width: 90%;
+    }
+
+    .stagnant-drop {
+        font-size: 14px;
+    }
+
+}
