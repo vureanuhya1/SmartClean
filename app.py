@@ -60,15 +60,28 @@ Path(
 # DATABASE CONFIGURATION
 # ============================================================
 
-DB_CONFIG = {
-    # Railway MySQL variables are supported automatically. The DB_* names
-    # remain supported for local XAMPP/MySQL development.
-    "host": os.getenv("DB_HOST") or os.getenv("MYSQLHOST", "localhost"),
-    "port": int(os.getenv("DB_PORT") or os.getenv("MYSQLPORT", "3306")),
-    "user": os.getenv("DB_USER") or os.getenv("MYSQLUSER", "root"),
-    "password": os.getenv("DB_PASSWORD") or os.getenv("MYSQLPASSWORD", ""),
-    "database": os.getenv("DB_NAME") or os.getenv("MYSQLDATABASE", "smartclean"),
-}
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+if DATABASE_URL:
+    from urllib.parse import urlparse, unquote
+
+    db_url = urlparse(DATABASE_URL)
+
+    DB_CONFIG = {
+        "host": db_url.hostname,
+        "port": db_url.port or 3306,
+        "user": unquote(db_url.username or ""),
+        "password": unquote(db_url.password or ""),
+        "database": db_url.path.lstrip("/"),
+    }
+else:
+    DB_CONFIG = {
+        "host": os.getenv("DB_HOST") or os.getenv("MYSQLHOST", "localhost"),
+        "port": int(os.getenv("DB_PORT") or os.getenv("MYSQLPORT", "3306")),
+        "user": os.getenv("DB_USER") or os.getenv("MYSQLUSER", "root"),
+        "password": os.getenv("DB_PASSWORD") or os.getenv("MYSQLPASSWORD", ""),
+        "database": os.getenv("DB_NAME") or os.getenv("MYSQLDATABASE", "smartclean"),
+    }
 
 
 # ============================================================
