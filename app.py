@@ -170,17 +170,18 @@ CATEGORY_MAP = {
 # ============================================================
 
 def get_db_connection():
+    return mysql.connector.connect(**DB_CONFIG)
 
-    return mysql.connector.connect(
-        **DB_CONFIG
-    )
 
 def initialize_database():
     """Create missing tables without inserting demo data."""
-    conn = get_db_connection()
-    cur = conn.cursor()
+    conn = None
+    cur = None
 
     try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+
         schema_files = [
             "deployment_schema.sql",
             "smartclean_additions.sql",
@@ -190,12 +191,12 @@ def initialize_database():
         for filename in schema_files:
             path = BASE_DIR / filename
 
-            if not path.exists():
+            if not path.is_file():
+                print(f"Schema file not found: {filename}")
                 continue
 
             sql_text = path.read_text(encoding="utf-8")
 
-            # Process statements separately; execute only CREATE TABLE.
             for statement in sql_text.split(";"):
                 match = re.search(
                     r"CREATE\s+TABLE\s+IF\s+NOT\s+EXISTS\b",
@@ -206,41 +207,50 @@ def initialize_database():
                 if match:
                     cur.execute(statement[match.start():])
 
-        # Add worker columns only when they are missing.
-        for column, definition in [
-            ("street_name", "VARCHAR(100) NULL"),
-            ("ward_number", "INT NULL"),
-        ]:
+        # Check existing worker columns.
+        cur.execute("""
+            SELECT COLUMN_NAME
+            FROM information_schema.COLUMNS
+            WHERE TABLE_SCHEMA = DATABASE()
+              AND TABLE_NAME = 'workers'
+        """)
+
+        existing_columns = {row[0] for row in cur.fetchall()}
+
+        if "street_name" not in existing_columns:
             cur.execute(
-                """
-                SELECT COUNT(*)
-                FROM information_schema.COLUMNS
-                WHERE TABLE_SCHEMA = DATABASE()
-                  AND TABLE_NAME = 'workers'
-                  AND COLUMN_NAME = %s
-                """,
-                (column,),
+                "ALTER TABLE workers ADD COLUMN "
+                "street_name VARCHAR(100) NULL"
             )
 
-            if cur.fetchone()[0] == 0:
-                cur.execute(
-                    f"ALTER TABLE workers ADD COLUMN "
-                    f"{column} {definition}"
-                )
+        if "ward_number" not in existing_columns:
+            cur.execute(
+                "ALTER TABLE workers ADD COLUMN "
+                "ward_number INT NULL"
+            )
 
         conn.commit()
-        print("SmartClean database schema initialized.")
+        print("SmartClean database schema initialized successfully.")
+
+    except Exception as exc:
+        if conn:
+            conn.rollback()
+        raise RuntimeError(
+            f"Database initialization failed: {exc}"
+        ) from exc
 
     finally:
-        cur.close()
-        conn.close()
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
+
+
 try:
     initialize_database()
 except Exception as exc:
-    print(
-        "SmartClean database initialization failed: "
-        f"{type(exc).__name__}: {exc}"
-    )
+    print(f"SmartClean database initialization failed: {exc}")
+
 def current_user():
 
     role = session.get("role")
