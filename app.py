@@ -175,7 +175,72 @@ def get_db_connection():
         **DB_CONFIG
     )
 
+def initialize_database():
+    """Create missing tables without inserting demo data."""
+    conn = get_db_connection()
+    cur = conn.cursor()
 
+    try:
+        schema_files = [
+            "deployment_schema.sql",
+            "smartclean_additions.sql",
+            "smartclean_changes.sql",
+        ]
+
+        for filename in schema_files:
+            path = BASE_DIR / filename
+
+            if not path.exists():
+                continue
+
+            sql_text = path.read_text(encoding="utf-8")
+
+            # Process statements separately; execute only CREATE TABLE.
+            for statement in sql_text.split(";"):
+                match = re.search(
+                    r"CREATE\s+TABLE\s+IF\s+NOT\s+EXISTS\b",
+                    statement,
+                    re.IGNORECASE,
+                )
+
+                if match:
+                    cur.execute(statement[match.start():])
+
+        # Add worker columns only when they are missing.
+        for column, definition in [
+            ("street_name", "VARCHAR(100) NULL"),
+            ("ward_number", "INT NULL"),
+        ]:
+            cur.execute(
+                """
+                SELECT COUNT(*)
+                FROM information_schema.COLUMNS
+                WHERE TABLE_SCHEMA = DATABASE()
+                  AND TABLE_NAME = 'workers'
+                  AND COLUMN_NAME = %s
+                """,
+                (column,),
+            )
+
+            if cur.fetchone()[0] == 0:
+                cur.execute(
+                    f"ALTER TABLE workers ADD COLUMN "
+                    f"{column} {definition}"
+                )
+
+        conn.commit()
+        print("SmartClean database schema initialized.")
+
+    finally:
+        cur.close()
+        conn.close()
+try:
+    initialize_database()
+except Exception as exc:
+    print(
+        "SmartClean database initialization failed: "
+        f"{type(exc).__name__}: {exc}"
+    )
 def current_user():
 
     role = session.get("role")
