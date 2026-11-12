@@ -1861,7 +1861,9 @@ def api_worker_complaints():
 
     return jsonify(rows)
 
-
+@app.route('/terms-and-conditions')
+def terms_and_conditions():
+    return render_template('terms-and-conditions.html')
 # ============================================================
 # WORKER UPDATE COMPLAINT STATUS
 # ============================================================
